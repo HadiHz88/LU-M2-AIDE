@@ -1,0 +1,21 @@
+# AIDE 500 — course-specific ignores (general ones live in the root .gitignore)
+
+# Datasets downloaded by torchvision (CIFAR-10, Fashion-MNIST, ...)
+data/
+datasets/
+*.gz
+*.tar
+*.tar.gz
+*.zip
+
+# Trained models / checkpoints
+*.pt
+*.pth
+*.ckpt
+checkpoints/
+runs/
+lightning_logs/
+
+# Files written by the Python notebooks' file-I/O exercises
+Python\ jupyter-notebooks/*.txt
+Python\ jupyter-notebooks/*.csv
