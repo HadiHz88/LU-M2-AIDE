@@ -1,0 +1,13 @@
+# AIDE500 — course-specific ignores (general ones live in the root .gitignore)
+
+# Datasets downloaded by torchvision (CIFAR-10, Fashion-MNIST, ...)
+data/
+datasets/
+*.gz
+*.tar
+*.tar.gz
+*.zip
+
+# Files written by the intro notebooks' file-I/O exercises
+intro/*.txt
+intro/*.csv
