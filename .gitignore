@@ -1,42 +1,132 @@
-# ---- OS ----
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-Thumbs.db
-Desktop.ini
+# =========================
+# Repo-specific (this workspace)
+# =========================
 
-# ---- Editors / IDEs ----
-.idea/
-*.iml
-.vscode/
-*.swp
-*~
+# Draft files / local scratch
+*.draft.*
+draft/
+/other
+**/playground/
 
-# ---- Python ----
-__pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-build/
-dist/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+# =========================
+# Markdown tooling
+# =========================
 
-# ---- Virtual environments ----
-.venv/
-venv/
-env/
-.env
-.env.*
+# Pre-generated / local-only markdown
+*.local.md
 
-# ---- Jupyter ----
-.ipynb_checkpoints/
+# Markdown customization files (local)
+/.markdownlint.yaml
+/.crossnote
+.markdownlint.json
 
-# ---- Misc ----
-*.log
-*.tmp
+# =========================
+# Keys / secrets
+# =========================
+
+*.key
+*.pem
+*.pub
+*.asc
+**/.env
+**/.env.*
+!**/.env.example
+**/secrets.*
+**/credentials.json
+**/kaggle.json
+
+# =========================
+# OS
+# =========================
+
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/._*
+**/Thumbs.db
+**/Desktop.ini
+
+# =========================
+# Editors / IDEs
+# =========================
+
+**/.vscode/
+**/.idea/
+**/*.iml
+**/*.swp
+**/*~
+
+# =========================
+# Python
+# =========================
+
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+**/.eggs/
+**/build/
+**/dist/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.coverage
+**/htmlcov/
+
+# Virtual environments (uv.lock and pyproject.toml ARE committed)
+**/.venv/
+**/venv/
+**/env/
+
+# =========================
+# Jupyter
+# =========================
+
+**/.ipynb_checkpoints/
+**/.virtual_documents/
+**/.jupyter_ystore.db
+
+# =========================
+# ML / Data engineering
+# =========================
+
+# Experiment tracking / training logs
+**/runs/
+**/lightning_logs/
+**/mlruns/
+**/wandb/
+**/checkpoints/
+
+# Model weights (share via Drive/HF instead)
+**/*.pt
+**/*.pth
+**/*.ckpt
+**/*.safetensors
+**/*.onnx
+**/*.h5
+
+# Spark / Hadoop / Airflow local state
+**/spark-warehouse/
+**/metastore_db/
+**/derby.log
+**/airflow.db
+
+# =========================
+# Node (in case a course needs it)
+# =========================
+
+**/node_modules/
+
+# =========================
+# Logs / temporary files
+# =========================
+
+**/*.log
+**/*.tmp
+**/*.temp
 graphify-out/
+
+# =========================
+# Specific ignored files
+# =========================
+
+*.mp4
