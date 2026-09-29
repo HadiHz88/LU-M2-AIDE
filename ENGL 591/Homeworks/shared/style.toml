@@ -1,0 +1,68 @@
+# House style for every deliverable: formatting (Ch. 3 & 4 rules) and visual identity.
+# Same for every student and project. Personal/course details live in ../profile.toml,
+# per-project details in <project>/sources/project.toml. Loaded by shared/lib/config.js.
+
+# ---------------------------------------------------------------------------
+# Report formatting (Ch. 3, slides 10 & 19)
+# ---------------------------------------------------------------------------
+[report]
+font = "Times New Roman"          # course allows Times New Roman or Arial
+font_size_pt = 12
+heading_font = "Times New Roman"
+line_spacing = 1.5
+margin_cm = 2.5
+page_numbers = "bottom-center"
+citation_style = "APA 7"
+paper = "A4"
+language = "en-US"
+# Heading styles: Heading 1 / 2 / 3 with numbering 1, 1.1, 1.1.1 so the TOC generates automatically
+caption_table = "Table {n}. {text}"      # APA: table captions go above the table
+caption_figure = "Figure {n}. {text}"    # figure captions go below the figure
+# Section layout (RULES.md §4): every Heading 1 section (Abstract, 1, 2, …, References) starts on a new page
+section_page_break = true
+# Front matter (RULES.md §4): mandatory in every report
+toc = true                        # Contents page after the abstract
+toc_levels = "1-2"
+list_of_figures = true            # included whenever the report has figures
+list_of_tables = true             # included whenever the report has tables
+length_pages_mini = [4, 6]
+length_pages_final = [15, 25]
+
+# ---------------------------------------------------------------------------
+# Presentation formatting (Ch. 4)
+# ---------------------------------------------------------------------------
+[slides]
+aspect = "16:9"
+font = "Calibri"                  # body: sans-serif for projection
+title_font = "Cambria"            # titles: safe-list serif for an academic feel
+arabic_font = "Arial"             # Arial ships Arabic glyphs; Calibri does not
+title_size_pt = 26                # content-slide assertion titles (title slide: 38)
+body_size_pt = 18                 # running text on slides
+min_size_pt = 12                  # card sub-text floor; source lines/footers may go to 9-10
+max_bullets = 4
+max_words_per_bullet = 12
+minutes_per_slide = 1
+footer = "{author} · {course} · {institution_short}"
+
+# ---------------------------------------------------------------------------
+# Visual identity: derived from the LU and FS logos
+# ---------------------------------------------------------------------------
+[colors]
+primary = "#3162A4"     # FS blue: titles, headings, main data series
+accent = "#EEAF16"      # FS gold: fills/badges/highlights only. Too light for text on white (1.9:1)
+primary_dark = "#1E3F6E" # deep FS blue: title/closing slide backgrounds
+lu_red = "#DB251C"      # LU red: lives in the logo only. Never text (Ch. 4: avoid red text), never decorative stripes
+lu_green = "#0C5E38"    # LU green: secondary accent, sparingly
+text = "#1F2937"        # body text
+muted = "#6B7280"       # captions, footers, source lines
+light = "#F4F6FA"       # slide/panel background tint
+white = "#FFFFFF"
+
+[colors.chart]
+# Validated with the dataviz skill's validate_palette.js (light mode): all checks pass.
+# Grey baselines FAIL the chroma floor; FS gold at #EEAF16 FAILS the lightness band, so charts use a deeper gold step.
+# Contrast WARN on the gold means values must be direct-labeled, and the report always carries the table too.
+subject = "#3162A4"     # the model under review (AraBERT)
+baseline = "#E0A43A"    # the comparison model (mBERT)
+grid = "#E5E7EB"        # hairline gridlines
+axis_text = "#6B7280"

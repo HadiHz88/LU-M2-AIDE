@@ -1,2 +1,19 @@
-*
-!.gitignore
+# ENGL 591 Homeworks
+# Tracked: the reusable toolchain (shared/, templates/, .claude/, AGENTS.md, CLAUDE.md, README.md,
+# profile.example.toml, package*.json) and PLAN.md.
+# The repo is PUBLIC: every project folder (your homework content) is private by default.
+
+# Dependencies and generated output (rebuild with: node shared/bin/build.js <project>)
+node_modules/
+**/out/
+
+# Your personal details: copy profile.example.toml → profile.toml
+profile.toml
+
+# All project folders are ignored...
+/*/
+# ...except the shared toolchain
+!/shared/
+!/templates/
+!/.claude/
+# To publish a project AFTER it has been submitted, add a line like:   !/mini/

@@ -1,0 +1,6 @@
+# Numbers for tables and charts (used by report.md and slides.yaml). Decimals must also be in facts.md.
+# EXAMPLE VALUES, replace them with the real ones. Cells may contain citations ("@key") and **bold**.
+results:
+  - { dataset: Dataset A, domain: Reviews, size: 12000, baseline: 80.5, proposed: 88.2 }
+  - { dataset: Dataset B, domain: Tweets,  size: 4000,  baseline: 71.0, proposed: 74.3 }
+  - { dataset: Dataset C, domain: News,    size: 25000, baseline: 90.1, proposed: 91.4 }

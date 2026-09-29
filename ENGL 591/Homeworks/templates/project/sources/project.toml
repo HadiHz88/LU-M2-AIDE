@@ -1,0 +1,22 @@
+# Project settings. Copy of templates/project/, created by: shared/bin/new.sh <name>
+# Build from Homeworks/:   node shared/bin/build.js <name>
+
+file_label = "MiniReport"      # output files: <YourName>_<Course>_<file_label>_<Report|Slides>_v<version>
+version = 1                    # bump when you hand in a new version
+facts = "facts.md"             # every decimal number in report.md / slides.yaml / data.yaml must appear here
+deliverables = ["report", "slides"]
+
+# kind of document (guides the wording; see RULES.md §4):
+#   review     = you summarize and assess a published study ("Results" = the authors' reported results)
+#   proposal   = you plan a study ("Expected Results", Ch. 3 mini template)
+#   experiment = you ran it yourself (your own numbers, with code in an appendix)
+kind = "review"
+
+[report]
+label = "MINI REPORT"                          # small caps line above the title on the cover
+title = "Title of Your Study"
+subtitle = "A Review of the Method and Its Results"
+running_title = "Title of Your Study"          # italic header on every page after the cover
+
+[slides]
+title = "Title of Your Study"

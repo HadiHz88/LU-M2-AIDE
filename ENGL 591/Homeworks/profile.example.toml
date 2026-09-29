@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Student profile: who you are and which course this is for.
+# Every cover page, slide footer and filename is built from this file.
+#   Setup: cp profile.example.toml profile.toml  → then edit profile.toml (it is git-ignored)
+# ---------------------------------------------------------------------------
+
+[author]
+name = "Your Full Name"
+
+[document]
+# Date shown on covers. "auto" = month + year of the build (e.g. "September 2026"); or set a fixed string.
+date = "auto"
+academic_year = "2026–2027"
+
+[institution]
+university = "Lebanese University"
+faculty = "Faculty of Science"
+branch = "Branch 1"
+short = "LU-FS1"
+# One-line form for cover pages and slide footers
+full = "Lebanese University, Faculty of Science, Branch 1"
+
+[program]
+short = "AIDE"
+name = "Artificial Intelligence & Data Engineering"
+degree = "Master 2"
+# e.g. "Master 2 in Artificial Intelligence & Data Engineering (AIDE)"
+full = "Master 2 in Artificial Intelligence & Data Engineering (AIDE)"
+
+[course]
+code = "ENGL 591"
+title = "Scientific English and Communication Skills"
+
+[people]
+instructor = "Dr. Zeinab Abbas"
+instructor_role = "Instructor"
+coordinator = "Dr. Zein Al-Abideen Ibrahim"
+coordinator_role = "AIDE Coordinator"
+
+[logos]
+# Cover/title-slide logos, left then right. Paths relative to Homeworks/. Keep them <= 2.5 cm wide in print.
+left = "shared/assets/logo_lu.jpg"    # Lebanese University (100x100 px, from AIDE500 course slides)
+right = "shared/assets/logo_fs.jpg"   # Faculty of Science (165x165 px, from AIDE500 course slides)

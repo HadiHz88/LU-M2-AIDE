@@ -1,0 +1,92 @@
+# SLIDES SOURCE: one YAML document per slide, separated by ---.
+# Ch. 4 structure: Title → Objective → Method → Results → Conclusion → Questions. About 1 minute per slide.
+# Layouts: title, rows-callout, steps, table-callout, chart-stats, two-columns, closing, questions
+# (all fields are documented at the top of shared/lib/slides_yaml.js).
+# Content-slide titles: one assertion, ≤ 50 characters. Text accepts **bold**, @key citations, numbers from facts.md.
+# `notes` are the speaker notes; the build also writes them to out/script.md with timings.
+
+layout: title
+label: Title
+kicker: ENGL 591  ·  MINI PRESENTATION
+title: [Title of Your, Study]
+subtitle: A review of the method and its results
+notes: >
+  Good morning. My name is ... Today I will present a review of ...
+---
+layout: rows-callout
+label: Objective
+title: The problem this study addresses
+rows:
+  - { head: First challenge,  sub: One line that explains it }
+  - { head: Second challenge, sub: One line that explains it }
+  - { head: Third challenge,  sub: One line that explains it }
+callout:
+  label: OBJECTIVE OF THIS REVIEW
+  items:
+    - How was the method built?
+    - How well does it perform?
+    - Where does it fall short?
+source: "@devlin2019"
+notes: >
+  Explain the problem and the objective in about one minute.
+---
+layout: steps
+label: Method
+title: The method works in four steps
+steps:
+  - { head: Data,      big: 3,   sub: datasets }
+  - { head: Model,     big: BERT, sub: transformer encoder }
+  - { head: Fine-tune, big: 1,   sub: task-specific layer }
+  - { head: Evaluate,  big: "%", sub: accuracy }
+footnote: "**Note:** replace these example steps with the reviewed method."
+source: "@devlin2019"
+notes: >
+  Walk through the four steps.
+---
+layout: chart-stats
+label: Results
+title: The proposed model beats the baseline
+chart:
+  data: results
+  category: dataset
+  series:
+    - { key: baseline, label: Baseline, role: baseline }
+    - { key: proposed, label: Proposed, role: subject }
+  y: { min: 0, max: 100, step: 25, label: Accuracy (%) }
+stats:
+  - { big: +7.7 pts, sub: "Largest gain, on Dataset A (EXAMPLE)" }
+  - { big: 91.4%,    sub: "Best score, on Dataset C (EXAMPLE)" }
+source: EXAMPLE VALUES
+notes: >
+  Point at the chart. Give the key number, then what it means.
+---
+layout: two-columns
+label: Discussion
+title: Strengths and limitations
+columns:
+  - head: Strengths
+    marker: number
+    items: [First strength, Second strength]
+  - head: Limitations
+    marker: alert
+    items: [First limitation, Second limitation]
+notes: >
+  Discuss what the results mean and where they fall short.
+---
+layout: closing
+label: Conclusion
+title: One-sentence take-home message
+points: [First takeaway, Second takeaway, Third takeaway]
+callout:
+  label: NEXT STEP
+  text: The most useful follow-up study
+notes: >
+  Conclude in three sentences.
+---
+layout: questions
+label: Questions
+title: Thank you. Questions?
+references: [devlin2019, vaswani2017]
+note: Full reference list in the accompanying report
+notes: >
+  Thank you for your attention. I am happy to answer your questions.
