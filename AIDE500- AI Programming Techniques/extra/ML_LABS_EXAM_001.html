@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML_LABS_EXAM_001 — Programming for AI</title>
+<style>
+  :root{
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --ink:#1c2733;
+    --muted:#5b6b7c;
+    --line:#dfe5ec;
+    --accent:#1f5fa8;
+    --accent-soft:#e8f0fa;
+    --ok:#1d7a4c;
+    --warn:#b3651b;
+    --code-bg:#1e2430;
+    --code-ink:#e6edf5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Georgia,"Times New Roman",serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+  }
+  header.exam-header{
+    background:linear-gradient(135deg,#153d6b,#1f5fa8);
+    color:#fff;
+    padding:26px 20px 22px;
+    text-align:center;
+  }
+  header.exam-header h1{margin:0 0 6px;font-size:26px;letter-spacing:.3px;}
+  header.exam-header .sub{font-size:15px;opacity:.92;}
+  header.exam-header .idchip{
+    display:inline-block;margin-top:10px;background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.4);border-radius:20px;
+    padding:3px 14px;font-size:13px;font-family:"Consolas",monospace;
+  }
+  .toolbar{
+    position:sticky;top:0;z-index:50;
+    background:#fff;border-bottom:1px solid var(--line);
+    padding:10px 16px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+    font-family:"Segoe UI",Arial,sans-serif;
+  }
+  .toolbar .spacer{flex:1;}
+  button{
+    font-family:"Segoe UI",Arial,sans-serif;
+    font-size:13.5px;
+    padding:8px 14px;
+    border:1px solid var(--accent);
+    background:var(--accent);
+    color:#fff;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  button:hover{background:#174e8d;}
+  button.secondary{background:#fff;color:var(--accent);}
+  button.secondary:hover{background:var(--accent-soft);}
+  button.danger{background:#fff;border-color:#c0392b;color:#c0392b;}
+  button.danger:hover{background:#fdecea;}
+  .progress-wrap{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+  .progress-bar{
+    width:170px;height:12px;background:#e6ebf1;border-radius:8px;overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#2e8b57,#3fa97a);transition:width .25s;}
+  #status{font-size:12.5px;color:var(--ok);min-width:150px;text-align:right;}
+  main{max-width:920px;margin:0 auto;padding:22px 16px 80px;}
+  .instructions{
+    background:var(--card);border:1px solid var(--line);border-left:5px solid var(--accent);
+    border-radius:8px;padding:18px 22px;margin-bottom:26px;
+  }
+  .instructions h2{margin:0 0 10px;font-size:19px;}
+  .instructions ul{margin:8px 0 0;padding-left:20px;font-size:15px;}
+  .instructions li{margin-bottom:5px;}
+  section.exam-section{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 24px 22px;
+    margin-bottom:28px;
+    box-shadow:0 1px 3px rgba(20,40,70,.05);
+  }
+  section.exam-section > h2{
+    font-size:20px;
+    margin:18px 0 4px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--accent);
+    color:#153d6b;
+  }
+  .sec-note{font-size:14px;color:var(--muted);margin:6px 0 14px;font-style:italic;}
+  .q{
+    border-bottom:1px dashed var(--line);
+    padding:18px 4px 20px;
+  }
+  .q:last-child{border-bottom:none;}
+  .q-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .q-num{
+    background:var(--accent);color:#fff;font-weight:bold;
+    min-width:30px;height:30px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:14px;font-family:"Segoe UI",Arial,sans-serif;
+  }
+  .badge{
+    font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;
+    background:var(--accent-soft);color:var(--accent);
+    padding:3px 9px;border-radius:4px;font-family:"Segoe UI",Arial,sans-serif;font-weight:600;
+  }
+  .badge.diff-easy{background:#e6f5ec;color:#1d7a4c;}
+  .badge.diff-medium{background:#fdf1e3;color:#b3651b;}
+  .badge.diff-hard{background:#fdeaea;color:#b03030;}
+  .pts{font-size:12.5px;color:var(--muted);margin-left:auto;font-family:"Segoe UI",Arial,sans-serif;}
+  .q-text{font-size:16px;margin:6px 0 12px;}
+  .options{display:flex;flex-direction:column;gap:8px;}
+  .options.horizontal{flex-direction:row;gap:26px;}
+  .opt{
+    display:flex;align-items:flex-start;gap:9px;
+    background:#fafbfc;border:1px solid var(--line);
+    padding:9px 13px;border-radius:6px;cursor:pointer;font-size:15px;
+  }
+  .opt:hover{background:var(--accent-soft);border-color:#bcd0e8;}
+  .opt input{margin-top:3px;accent-color:var(--accent);}
+  pre.code{
+    background:var(--code-bg);color:var(--code-ink);
+    padding:14px 16px;border-radius:8px;
+    overflow-x:auto;font-family:"Consolas","Courier New",monospace;
+    font-size:14px;line-height:1.5;margin:10px 0 14px;
+    border-left:4px solid #4a90d9;
+  }
+  pre.code .kw{color:#7ec3ff;}
+  textarea.answer-box{
+    width:100%;min-height:110px;
+    font-family:"Consolas","Courier New",monospace;
+    font-size:14px;padding:11px 13px;
+    border:1px solid var(--line);border-radius:6px;
+    background:#fcfdfe;resize:vertical;color:var(--ink);
+  }
+  textarea.answer-box:focus,input.blanks:focus{outline:2px solid #a9c6e8;border-color:var(--accent);}
+  .blank{
+    display:inline-block;width:170px;
+    font-family:"Consolas","Courier New",monospace;font-size:14.5px;
+    padding:5px 8px;border:none;border-bottom:2px solid var(--accent);
+    background:#f7fafd;color:var(--ink);border-radius:4px 4px 0 0;
+    margin:2px 6px;
+  }
+  .blank.short{width:120px;}
+  .sub-q{font-size:15px;margin:8px 0 4px;color:#33414f;}
+  .code-inline{
+    font-family:"Consolas","Courier New",monospace;
+    background:#eef2f7;border:1px solid #dde4ec;
+    padding:1px 6px;border-radius:4px;font-size:14.5px;
+  }
+  footer{
+    text-align:center;font-size:13px;color:var(--muted);
+    padding:20px;font-family:"Segoe UI",Arial,sans-serif;
+  }
+  .legend{font-size:13px;color:var(--muted);margin-top:4px;font-family:"Segoe UI",Arial,sans-serif;}
+  @media print{
+    .toolbar{display:none;}
+    body{background:#fff;}
+    section.exam-section{box-shadow:none;break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<header class="exam-header">
+  <h1>Programming for AI — Laboratory Examination</h1>
+  <div class="sub">Based on Labs 1–10: Jupyter, Matplotlib, NumPy, PyTorch Tensors, Autograd, Neural Networks, Transforms &amp; DataLoaders, Training a Classifier, Data Augmentation</div>
+  <div class="idchip">Exam ID: ML_LABS_EXAM_001</div>
+</header>
+
+<div class="toolbar">
+  <button class="secondary" id="btnSave">Save Progress</button>
+  <button class="secondary" id="btnLoad">Load Progress</button>
+  <button class="secondary" id="btnExport">Export Answers (JSON)</button>
+  <button class="danger" id="btnReset">Reset Exam</button>
+  <div class="spacer"></div>
+  <div class="progress-wrap">
+    <span>Progress:</span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <span id="progressText">0 / 47</span>
+  </div>
+  <div id="status"></div>
+</div>
+
+<main>
+
+  <div class="instructions">
+    <h2>Instructions</h2>
+    <ul>
+      <li>This exam contains <strong>5 sections</strong> and <strong>47 questions</strong> for a total of <strong>120 points</strong>.</li>
+      <li><strong>Section 1 — True/False</strong> (10 questions, 1 pt each) · <strong>Section 2 — Multiple Choice</strong> (15 questions, 2 pts each; exactly one correct answer).</li>
+      <li><strong>Section 3 — Explain the Code</strong> (6 questions, 6 pts each) · <strong>Section 4 — Open Questions</strong> (6 questions, 5 pts each) · <strong>Section 5 — Fill in the Blank</strong> (14 blanks, 1 pt each).</li>
+      <li>Your answers are stored automatically in this browser. You may close the file and reopen it later; use <em>Save Progress</em> / <em>Load Progress</em> if automatic saving is unavailable (some browsers restrict storage for local files).</li>
+      <li>When you finish, click <strong>Export Answers (JSON)</strong> and keep the downloaded file — it is required for grading.</li>
+      <li><strong>No grade is shown here.</strong> Grading is done separately after you submit your exported answers.</li>
+      <li>Answer every question. Do not move to another question without answering; partial answers are still saved.</li>
+    </ul>
+  </div>
+
+  <!-- ================= SECTION 1 : TRUE / FALSE ================= -->
+  <section class="exam-section">
+    <h2>Section 1 — True / False</h2>
+    <p class="sec-note">Select True or False for each statement. Some statements are deliberately tricky but fair.</p>
+
+    <div class="q" id="q1">
+      <div class="q-head"><span class="q-num">1</span><span class="badge">True / False</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">Calling <span class="code-inline">np.empty((3, 4))</span> creates a 3×4 array whose elements are all set to zero.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q1" value="true" data-qid="q1"> True</label>
+        <label class="opt"><input type="radio" name="q1" value="false" data-qid="q1"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q2">
+      <div class="q-head"><span class="q-num">2</span><span class="badge">True / False</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">In <span class="code-inline">plt.subplot(a, b, c)</span>, the index <span class="code-inline">c</span> moves from left to right and then from top to bottom.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q2" value="true" data-qid="q2"> True</label>
+        <label class="opt"><input type="radio" name="q2" value="false" data-qid="q2"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q3">
+      <div class="q-head"><span class="q-num">3</span><span class="badge">True / False</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+      <p class="q-text"><span class="code-inline">loss.backward()</span> both computes the gradients of the parameters and updates their values.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q3" value="true" data-qid="q3"> True</label>
+        <label class="opt"><input type="radio" name="q3" value="false" data-qid="q3"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q4">
+      <div class="q-head"><span class="q-num">4</span><span class="badge">True / False</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+      <p class="q-text">A tensor created with <span class="code-inline">torch.from_numpy(np_array)</span> shares memory with the NumPy array, so modifying the array is also reflected in the tensor.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q4" value="true" data-qid="q4"> True</label>
+        <label class="opt"><input type="radio" name="q4" value="false" data-qid="q4"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q5">
+      <div class="q-head"><span class="q-num">5</span><span class="badge">True / False</span><span class="badge diff-hard">Hard</span><span class="pts">1 pt</span></div>
+      <p class="q-text">In the CIFAR-10 lab, the network's <span class="code-inline">forward()</span> method applies a Softmax at the end, so the values passed to <span class="code-inline">torch.max(outputs, 1)</span> are probabilities.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q5" value="true" data-qid="q5"> True</label>
+        <label class="opt"><input type="radio" name="q5" value="false" data-qid="q5"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q6">
+      <div class="q-head"><span class="q-num">6</span><span class="badge">True / False</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text"><span class="code-inline">transforms.ToTensor()</span> converts a PIL image to a tensor and scales pixel values from the [0, 255] range to the [0, 1] range.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q6" value="true" data-qid="q6"> True</label>
+        <label class="opt"><input type="radio" name="q6" value="false" data-qid="q6"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q7">
+      <div class="q-head"><span class="q-num">7</span><span class="badge">True / False</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+      <p class="q-text"><span class="code-inline">np.linspace(10, 50, 5)</span> includes the endpoint 50 in its result, while <span class="code-inline">np.arange(10, 50, 10)</span> does not include the endpoint 50.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q7" value="true" data-qid="q7"> True</label>
+        <label class="opt"><input type="radio" name="q7" value="false" data-qid="q7"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q8">
+      <div class="q-head"><span class="q-num">8</span><span class="badge">True / False</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">A data augmentation is only useful if it preserves the meaning of the sample: the label must remain the same after the transformation.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q8" value="true" data-qid="q8"> True</label>
+        <label class="opt"><input type="radio" name="q8" value="false" data-qid="q8"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q9">
+      <div class="q-head"><span class="q-num">9</span><span class="badge">True / False</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+      <p class="q-text">When defining a network by subclassing <span class="code-inline">nn.Module</span>, you must implement both a <span class="code-inline">forward()</span> method and a <span class="code-inline">backward()</span> method; the backward pass is not automatic.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q9" value="true" data-qid="q9"> True</label>
+        <label class="opt"><input type="radio" name="q9" value="false" data-qid="q9"> False</label>
+      </div>
+    </div>
+
+    <div class="q" id="q10">
+      <div class="q-head"><span class="q-num">10</span><span class="badge">True / False</span><span class="badge diff-hard">Hard</span><span class="pts">1 pt</span></div>
+      <p class="q-text">When visualizing augmented samples, the DataLoader should be created with <span class="code-inline">shuffle=True</span> so that a different set of images appears each time the cell is run.</p>
+      <div class="options horizontal">
+        <label class="opt"><input type="radio" name="q10" value="true" data-qid="q10"> True</label>
+        <label class="opt"><input type="radio" name="q10" value="false" data-qid="q10"> False</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 2 : MULTIPLE CHOICE ================= -->
+  <section class="exam-section">
+    <h2>Section 2 — Multiple Choice</h2>
+    <p class="sec-note">Choose exactly one answer for each question.</p>
+
+    <div class="q" id="q11">
+      <div class="q-head"><span class="q-num">11</span><span class="badge">Multiple Choice</span><span class="badge diff-easy">Easy</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Which command selects the bottom-right panel of a 2×2 grid of subplots?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q11" value="A" data-qid="q11"> A) plt.subplot(2, 2, 3)</label>
+        <label class="opt"><input type="radio" name="q11" value="B" data-qid="q11"> B) plt.subplot(2, 2, 4)</label>
+        <label class="opt"><input type="radio" name="q11" value="C" data-qid="q11"> C) plt.subplot(4, 1, 4)</label>
+        <label class="opt"><input type="radio" name="q11" value="D" data-qid="q11"> D) plt.subplot(2, 4, 8)</label>
+      </div>
+    </div>
+
+    <div class="q" id="q12">
+      <div class="q-head"><span class="q-num">12</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">A plot of y = x² produced from only three points (x = 0, 1, 2) looks jagged instead of smooth. What is the main reason given in the lab?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q12" value="A" data-qid="q12"> A) The data points are joined by straight-line segments, so few points give a rough approximation</label>
+        <label class="opt"><input type="radio" name="q12" value="B" data-qid="q12"> B) matplotlib cannot represent quadratic curves accurately</label>
+        <label class="opt"><input type="radio" name="q12" value="C" data-qid="q12"> C) The x values were generated with a list comprehension</label>
+        <label class="opt"><input type="radio" name="q12" value="D" data-qid="q12"> D) The color parameter forces a piecewise-linear interpolation</label>
+      </div>
+    </div>
+
+    <div class="q" id="q13">
+      <div class="q-head"><span class="q-num">13</span><span class="badge">Multiple Choice</span><span class="badge diff-easy">Easy</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Which NumPy function lets you specify the <strong>number</strong> of evenly spaced samples in an interval, with the endpoint included?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q13" value="A" data-qid="q13"> A) np.arange</label>
+        <label class="opt"><input type="radio" name="q13" value="B" data-qid="q13"> B) np.random.uniform</label>
+        <label class="opt"><input type="radio" name="q13" value="C" data-qid="q13"> C) np.linspace</label>
+        <label class="opt"><input type="radio" name="q13" value="D" data-qid="q13"> D) np.empty</label>
+      </div>
+    </div>
+
+    <div class="q" id="q14">
+      <div class="q-head"><span class="q-num">14</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Given <span class="code-inline">a = np.array([[7, 2], [3, 4], [5, 6]])</span>, what does <span class="code-inline">np.amin(a, axis=1)</span> return?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q14" value="A" data-qid="q14"> A) [3, 2]</label>
+        <label class="opt"><input type="radio" name="q14" value="B" data-qid="q14"> B) 2</label>
+        <label class="opt"><input type="radio" name="q14" value="C" data-qid="q14"> C) [4.5, 3.5, 5.5]</label>
+        <label class="opt"><input type="radio" name="q14" value="D" data-qid="q14"> D) [2, 3, 5]</label>
+      </div>
+    </div>
+
+    <div class="q" id="q15">
+      <div class="q-head"><span class="q-num">15</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+<pre class="code">x = np.array([2, 3])
+y = np.array([[4, 1], [9, 10], [12, 13]])
+result = x * y</pre>
+      <p class="q-text">What is the shape of <span class="code-inline">result</span>?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q15" value="A" data-qid="q15"> A) (3, 2)</label>
+        <label class="opt"><input type="radio" name="q15" value="B" data-qid="q15"> B) (2,)</label>
+        <label class="opt"><input type="radio" name="q15" value="C" data-qid="q15"> C) (2, 3)</label>
+        <label class="opt"><input type="radio" name="q15" value="D" data-qid="q15"> D) (3,)</label>
+      </div>
+    </div>
+
+    <div class="q" id="q16">
+      <div class="q-head"><span class="q-num">16</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">A tensor <span class="code-inline">x</span> has shape (2, 3). What is the shape of <span class="code-inline">torch.cat([x, x], dim=1)</span>?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q16" value="A" data-qid="q16"> A) (4, 3)</label>
+        <label class="opt"><input type="radio" name="q16" value="B" data-qid="q16"> B) (2, 6)</label>
+        <label class="opt"><input type="radio" name="q16" value="C" data-qid="q16"> C) (3, 2)</label>
+        <label class="opt"><input type="radio" name="q16" value="D" data-qid="q16"> D) (6, 2)</label>
+      </div>
+    </div>
+
+    <div class="q" id="q17">
+      <div class="q-head"><span class="q-num">17</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Which statement about memory sharing between NumPy and PyTorch is correct?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q17" value="A" data-qid="q17"> A) torch.tensor(np_array) shares memory with np_array</label>
+        <label class="opt"><input type="radio" name="q17" value="B" data-qid="q17"> B) torch.from_numpy(np_array) shares memory with np_array</label>
+        <label class="opt"><input type="radio" name="q17" value="C" data-qid="q17"> C) torch.tensor(my_list) shares memory with the original Python list</label>
+        <label class="opt"><input type="radio" name="q17" value="D" data-qid="q17"> D) torch.from_numpy(np_array) always returns a deep copy</label>
+      </div>
+    </div>
+
+    <div class="q" id="q18">
+      <div class="q-head"><span class="q-num">18</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Immediately after calling <span class="code-inline">loss.backward()</span>, which statement is correct?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q18" value="A" data-qid="q18"> A) Gradients are stored in w.grad and b.grad, but the parameter values are unchanged</label>
+        <label class="opt"><input type="radio" name="q18" value="B" data-qid="q18"> B) The values of w and b have already been updated</label>
+        <label class="opt"><input type="radio" name="q18" value="C" data-qid="q18"> C) w.grad stays None because w is a leaf tensor</label>
+        <label class="opt"><input type="radio" name="q18" value="D" data-qid="q18"> D) No gradients are computed because the graph has been freed</label>
+      </div>
+    </div>
+
+    <div class="q" id="q19">
+      <div class="q-head"><span class="q-num">19</span><span class="badge">Multiple Choice</span><span class="badge diff-hard">Hard</span><span class="pts">2 pts</span></div>
+      <p class="q-text"><span class="code-inline">w</span> is created with <span class="code-inline">requires_grad=False</span> (frozen) while <span class="code-inline">b</span> has <span class="code-inline">requires_grad=True</span>. After <span class="code-inline">loss.backward()</span> followed by <span class="code-inline">optimizer.step()</span>, what happens?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q19" value="A" data-qid="q19"> A) Both w and b receive new values from the optimizer</label>
+        <label class="opt"><input type="radio" name="q19" value="B" data-qid="q19"> B) w.grad stays None and only b is updated</label>
+        <label class="opt"><input type="radio" name="q19" value="C" data-qid="q19"> C) An exception is raised during backward()</label>
+        <label class="opt"><input type="radio" name="q19" value="D" data-qid="q19"> D) w.grad is computed but b.grad stays None</label>
+      </div>
+    </div>
+
+    <div class="q" id="q20">
+      <div class="q-head"><span class="q-num">20</span><span class="badge">Multiple Choice</span><span class="badge diff-easy">Easy</span><span class="pts">2 pts</span></div>
+      <p class="q-text">Which expression defines the ReLU activation function?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q20" value="A" data-qid="q20"> A) 1 / (1 + e<sup>−x</sup>)</label>
+        <label class="opt"><input type="radio" name="q20" value="B" data-qid="q20"> B) (e<sup>x</sup> − e<sup>−x</sup>) / (e<sup>x</sup> + e<sup>−x</sup>)</label>
+        <label class="opt"><input type="radio" name="q20" value="C" data-qid="q20"> C) max(0, x)</label>
+        <label class="opt"><input type="radio" name="q20" value="D" data-qid="q20"> D) e<sup>x<sub>i</sub></sup> / Σ<sub>j</sub> e<sup>x<sub>j</sub></sup></label>
+      </div>
+    </div>
+
+    <div class="q" id="q21">
+      <div class="q-head"><span class="q-num">21</span><span class="badge">Multiple Choice</span><span class="badge diff-hard">Hard</span><span class="pts">2 pts</span></div>
+      <p class="q-text">An input tensor of shape 3×32×32 passes through <span class="code-inline">nn.Conv2d(3, 6, 5)</span> (stride 1, padding 0). What is the spatial size of each output feature map?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q21" value="A" data-qid="q21"> A) 30 × 30</label>
+        <label class="opt"><input type="radio" name="q21" value="B" data-qid="q21"> B) 32 × 32</label>
+        <label class="opt"><input type="radio" name="q21" value="C" data-qid="q21"> C) 28 × 28</label>
+        <label class="opt"><input type="radio" name="q21" value="D" data-qid="q21"> D) 16 × 16</label>
+      </div>
+    </div>
+
+    <div class="q" id="q22">
+      <div class="q-head"><span class="q-num">22</span><span class="badge">Multiple Choice</span><span class="badge diff-easy">Easy</span><span class="pts">2 pts</span></div>
+      <p class="q-text">After iterating a FashionMNIST DataLoader with <span class="code-inline">batch_size=64</span>, the code prints <span class="code-inline">train_features.size() → torch.Size([64, 1, 28, 28])</span>. What does this mean?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q22" value="A" data-qid="q22"> A) 64 images with 1 channel each, 28×28 pixels</label>
+        <label class="opt"><input type="radio" name="q22" value="B" data-qid="q22"> B) 1 image with 64 channels, 28×28 pixels</label>
+        <label class="opt"><input type="radio" name="q22" value="C" data-qid="q22"> C) 64 channels containing 1 image of 28×28 pixels</label>
+        <label class="opt"><input type="radio" name="q22" value="D" data-qid="q22"> D) 28 images with 64 channels each, 28×28 pixels</label>
+      </div>
+    </div>
+
+    <div class="q" id="q23">
+      <div class="q-head"><span class="q-num">23</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">With <span class="code-inline">transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))</span> applied after <span class="code-inline">ToTensor()</span>, what is the value range of the resulting pixels?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q23" value="A" data-qid="q23"> A) [0, 255]</label>
+        <label class="opt"><input type="radio" name="q23" value="B" data-qid="q23"> B) [0, 1]</label>
+        <label class="opt"><input type="radio" name="q23" value="C" data-qid="q23"> C) [−1, 1]</label>
+        <label class="opt"><input type="radio" name="q23" value="D" data-qid="q23"> D) [0.5, 1.5]</label>
+      </div>
+    </div>
+
+    <div class="q" id="q24">
+      <div class="q-head"><span class="q-num">24</span><span class="badge">Multiple Choice</span><span class="badge diff-hard">Hard</span><span class="pts">2 pts</span></div>
+      <p class="q-text"><span class="code-inline">outputs</span> has shape [4, 10] and the code runs <span class="code-inline">t, predicted = torch.max(outputs, 1)</span>. What does <span class="code-inline">predicted</span> contain?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q24" value="A" data-qid="q24"> A) The four largest values in the whole outputs tensor</label>
+        <label class="opt"><input type="radio" name="q24" value="B" data-qid="q24"> B) The class index with the highest score for each image in the batch</label>
+        <label class="opt"><input type="radio" name="q24" value="C" data-qid="q24"> C) The probability of each class, summing to 1 for every image</label>
+        <label class="opt"><input type="radio" name="q24" value="D" data-qid="q24"> D) The indices of the ten columns of the outputs tensor</label>
+      </div>
+    </div>
+
+    <div class="q" id="q25">
+      <div class="q-head"><span class="q-num">25</span><span class="badge">Multiple Choice</span><span class="badge diff-medium">Medium</span><span class="pts">2 pts</span></div>
+      <p class="q-text">To which family of data augmentation does <span class="code-inline">transforms.RandomCrop</span> belong?</p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="q25" value="A" data-qid="q25"> A) Color and appearance adjustments</label>
+        <label class="opt"><input type="radio" name="q25" value="B" data-qid="q25"> B) Occlusion and region-based augmentations</label>
+        <label class="opt"><input type="radio" name="q25" value="C" data-qid="q25"> C) Sample mixing techniques</label>
+        <label class="opt"><input type="radio" name="q25" value="D" data-qid="q25"> D) Geometric transformations</label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 3 : EXPLAIN THE CODE ================= -->
+  <section class="exam-section">
+    <h2>Section 3 — Explain the Code</h2>
+    <p class="sec-note">Write your answers in the boxes. Explain what the code does, what it produces, and why — in your own words.</p>
+
+    <div class="q" id="q26">
+      <div class="q-head"><span class="q-num">26</span><span class="badge">Explain the Code</span><span class="badge diff-medium">Medium</span><span class="pts">6 pts</span></div>
+<pre class="code">import numpy as np
+
+x = np.array([2, 3])
+y = np.array([[4, 1], [9, 10], [12, 13]])
+
+result = x * y
+print(result.shape)</pre>
+      <p class="sub-q">(a) What is printed? (b) What are the values of <span class="code-inline">result</span>? (c) Which NumPy mechanism makes this operation possible, and how does it work? (d) Is this matrix multiplication?</p>
+      <textarea class="answer-box" data-qid="q26" placeholder="Your explanation..."></textarea>
+    </div>
+
+    <div class="q" id="q27">
+      <div class="q-head"><span class="q-num">27</span><span class="badge">Explain the Code</span><span class="badge diff-hard">Hard</span><span class="pts">6 pts</span></div>
+<pre class="code">import torch
+
+x = torch.ones(5)
+y = torch.zeros(3)
+w = torch.randn(5, 3, requires_grad=True)
+b = torch.randn(3, requires_grad=True)
+
+z = torch.matmul(x, w) + b
+loss = torch.nn.functional.binary_cross_entropy_with_logits(z, y)
+loss.backward()
+print(w.grad.shape)
+
+optimizer = torch.optim.SGD([w, b], lr=0.001)
+optimizer.step()</pre>
+      <p class="sub-q">(a) Why does <span class="code-inline">z</span> have a <span class="code-inline">grad_fn</span> while <span class="code-inline">x</span> does not? (b) What does <span class="code-inline">loss.backward()</span> do, and what does the printed shape show? (c) Has the <em>value</em> of <span class="code-inline">w</span> changed immediately after <span class="code-inline">loss.backward()</span>? Explain. (d) What does <span class="code-inline">optimizer.step()</span> do?</p>
+      <textarea class="answer-box" data-qid="q27" placeholder="Your explanation..."></textarea>
+    </div>
+
+    <div class="q" id="q28">
+      <div class="q-head"><span class="q-num">28</span><span class="badge">Explain the Code</span><span class="badge diff-medium">Medium</span><span class="pts">6 pts</span></div>
+      <p class="q-text">The following training loop contains one important omission:</p>
+<pre class="code">for i, data in enumerate(trainloader, 0):
+    inputs, labels = data
+    outputs = net(inputs)
+    loss = criterion(outputs, labels)
+    loss.backward()
+    optimizer.step()</pre>
+      <p class="sub-q">(a) Which line is missing, and where should it be placed? (b) What goes wrong if it is missing? (c) State the correct order of the four steps of the training loop.</p>
+      <textarea class="answer-box" data-qid="q28" placeholder="Your explanation..."></textarea>
+    </div>
+
+    <div class="q" id="q29">
+      <div class="q-head"><span class="q-num">29</span><span class="badge">Explain the Code</span><span class="badge diff-hard">Hard</span><span class="pts">6 pts</span></div>
+      <p class="q-text">Consider the CIFAR-10 network defined below, used with an input batch of shape <span class="code-inline">[16, 3, 32, 32]</span>:</p>
+<pre class="code">class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.pool  = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1   = nn.Linear(16 * 5 * 5, 120)
+        self.fc2   = nn.Linear(120, 84)
+        self.fc3   = nn.Linear(84, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x</pre>
+      <p class="sub-q">Give the tensor shape after each of these stages: (a) after <span class="code-inline">conv1</span>, (b) after the first <span class="code-inline">pool</span>, (c) after <span class="code-inline">conv2</span>, (d) after the second <span class="code-inline">pool</span>, (e) after <span class="code-inline">view</span>, (f) after <span class="code-inline">fc3</span>. Why must <span class="code-inline">fc1</span> have 400 input features?</p>
+      <textarea class="answer-box" data-qid="q29" placeholder="Your explanation..."></textarea>
+    </div>
+
+    <div class="q" id="q30">
+      <div class="q-head"><span class="q-num">30</span><span class="badge">Explain the Code</span><span class="badge diff-medium">Medium</span><span class="pts">6 pts</span></div>
+<pre class="code">transform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])
+
+training_data = datasets.FashionMNIST(
+    root="data", train=True, download=True, transform=transform)</pre>
+      <p class="sub-q">(a) What does <span class="code-inline">ToTensor()</span> do to the pixel values? (b) What does <span class="code-inline">Normalize</span> compute, and what is the resulting value range? (c) Why must <span class="code-inline">ToTensor()</span> be applied <em>before</em> <span class="code-inline">Normalize</span>? (d) What does <span class="code-inline">train=True</span> select?</p>
+      <textarea class="answer-box" data-qid="q30" placeholder="Your explanation..."></textarea>
+    </div>
+
+    <div class="q" id="q31">
+      <div class="q-head"><span class="q-num">31</span><span class="badge">Explain the Code</span><span class="badge diff-medium">Medium</span><span class="pts">6 pts</span></div>
+<pre class="code">import torch
+import numpy as np
+
+t = torch.ones(5)
+n = t.numpy()
+t.add_(2)
+print(t)
+print(n)
+
+n2 = np.ones(5)
+t2 = torch.from_numpy(n2)
+np.add(n2, 1, out=n2)
+print(t2)</pre>
+      <p class="sub-q">(a) What are printed for <span class="code-inline">t</span> and <span class="code-inline">n</span> after <span class="code-inline">t.add_(2)</span>? (b) Why does <span class="code-inline">n</span> change? (c) What does <span class="code-inline">print(t2)</span> show, and why? (d) What does the trailing underscore in <span class="code-inline">add_</span> mean?</p>
+      <textarea class="answer-box" data-qid="q31" placeholder="Your explanation..."></textarea>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 4 : OPEN QUESTIONS ================= -->
+  <section class="exam-section">
+    <h2>Section 4 — Open Questions</h2>
+    <p class="sec-note">Write clear, complete answers. Your answers are graded on correctness, completeness and understanding.</p>
+
+    <div class="q" id="q32">
+      <div class="q-head"><span class="q-num">32</span><span class="badge">Open Question</span><span class="badge diff-easy">Easy</span><span class="pts">5 pts</span></div>
+      <p class="q-text">Explain why a plot of y = x² made from only the three points x = 0, 1, 2 does not look like the smooth parabola we expect, and describe exactly how Lab 2 fixed this problem (include the code idea used).</p>
+      <textarea class="answer-box" data-qid="q32" placeholder="Your answer..."></textarea>
+    </div>
+
+    <div class="q" id="q33">
+      <div class="q-head"><span class="q-num">33</span><span class="badge">Open Question</span><span class="badge diff-medium">Medium</span><span class="pts">5 pts</span></div>
+      <p class="q-text">Explain the difference between <span class="code-inline">loss.backward()</span> and <span class="code-inline">optimizer.step()</span>. What does each one accomplish, where are gradients stored, and what would happen if you performed only one of them?</p>
+      <textarea class="answer-box" data-qid="q33" placeholder="Your answer..."></textarea>
+    </div>
+
+    <div class="q" id="q34">
+      <div class="q-head"><span class="q-num">34</span><span class="badge">Open Question</span><span class="badge diff-medium">Medium</span><span class="pts">5 pts</span></div>
+      <p class="q-text">When do we use <span class="code-inline">model.train()</span>, <span class="code-inline">model.eval()</span> and <span class="code-inline">torch.no_grad()</span> during a training project, and why? What are the practical consequences of forgetting them?</p>
+      <textarea class="answer-box" data-qid="q34" placeholder="Your answer..."></textarea>
+    </div>
+
+    <div class="q" id="q35">
+      <div class="q-head"><span class="q-num">35</span><span class="badge">Open Question</span><span class="badge diff-medium">Medium</span><span class="pts">5 pts</span></div>
+      <p class="q-text">What is data augmentation? Why is it needed when training a classifier, and what makes an augmentation "good" rather than harmful? Give one example of a harmful augmentation mentioned in the lab.</p>
+      <textarea class="answer-box" data-qid="q35" placeholder="Your answer..."></textarea>
+    </div>
+
+    <div class="q" id="q36">
+      <div class="q-head"><span class="q-num">36</span><span class="badge">Open Question</span><span class="badge diff-hard">Hard</span><span class="pts">5 pts</span></div>
+      <p class="q-text">Describe the complete procedure used in Lab 9 to train and evaluate the CIFAR-10 classifier. Your answer should cover: data loading and normalization, the network definition, the loss function and optimizer, the per-batch training steps, how the model is saved and reloaded, and how the test accuracy is computed.</p>
+      <textarea class="answer-box" data-qid="q36" placeholder="Your answer..."></textarea>
+    </div>
+
+    <div class="q" id="q37">
+      <div class="q-head"><span class="q-num">37</span><span class="badge">Open Question</span><span class="badge diff-hard">Hard</span><span class="pts">5 pts</span></div>
+      <p class="q-text">Explain how you determine the number of input features (<span class="code-inline">in_features</span>) of the first Linear layer that follows convolutional and pooling layers. Use the Lab 9 network with a 32×32 RGB input to justify why <span class="code-inline">nn.Linear(16 * 5 * 5, 120)</span> is correct, and give the formula used to compute the convolution output size.</p>
+      <textarea class="answer-box" data-qid="q37" placeholder="Your answer..."></textarea>
+    </div>
+  </section>
+
+  <!-- ================= SECTION 5 : FILL IN THE BLANK ================= -->
+  <section class="exam-section">
+    <h2>Section 5 — Fill in the Blank</h2>
+    <p class="sec-note">Fill each blank with the missing word, concept, function or parameter. Minor differences in capitalization or prefixes are accepted when grading.</p>
+
+    <div class="q" id="q38">
+      <div class="q-head"><span class="q-num">38</span><span class="badge">Fill in the Blank</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">In Jupyter Notebook, pressing <input type="text" class="blank" data-qid="q38" placeholder="answer"> evaluates the current cell and selects the cell below it.</p>
+    </div>
+
+    <div class="q" id="q39">
+      <div class="q-head"><span class="q-num">39</span><span class="badge">Fill in the Blank</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">After plotting with <span class="code-inline">plt.plot(X, Y, color='r', label='quadratic')</span>, calling <span class="code-inline">plt.<input type="text" class="blank short" data-qid="q39" placeholder="answer">()</span> makes those labels appear on the chart.</p>
+    </div>
+
+    <div class="q" id="q40">
+      <div class="q-head"><span class="q-num">40</span><span class="badge">Fill in the Blank</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">In NumPy, the attribute used to obtain the dimensions of an array is <span class="code-inline">a.<input type="text" class="blank short" data-qid="q40" placeholder="answer"></span> (not <span class="code-inline">len(a)</span>).</p>
+    </div>
+
+    <div class="q" id="q41">
+      <div class="q-head"><span class="q-num">41</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+      <p class="q-text"><input type="text" class="blank" data-qid="q41" placeholder="answer"> is PyTorch's engine for automatic differentiation; it computes gradients automatically for any computational graph.</p>
+    </div>
+
+    <div class="q" id="q42">
+      <div class="q-head"><span class="q-num">42</span><span class="badge">Fill in the Blank</span><span class="badge diff-easy">Easy</span><span class="pts">1 pt</span></div>
+      <p class="q-text">One <input type="text" class="blank" data-qid="q42" placeholder="answer"> is one complete pass of the entire training dataset through the model.</p>
+    </div>
+
+    <div class="q" id="q43">
+      <div class="q-head"><span class="q-num">43</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">2 blanks · 1 pt each</span></div>
+      <p class="q-text"><span class="code-inline">transforms.Normalize</span> computes, for each channel:</p>
+<pre class="code">output[channel] = ( input[channel] - ______________ ) / ______________</pre>
+      <p class="q-text">Blank 1: <input type="text" class="blank" data-qid="q43" data-blank="b1" placeholder="answer"> &nbsp;&nbsp; Blank 2: <input type="text" class="blank" data-qid="q43" data-blank="b2" placeholder="answer"></p>
+    </div>
+
+    <div class="q" id="q44">
+      <div class="q-head"><span class="q-num">44</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">2 blanks · 1 pt each</span></div>
+<pre class="code">criterion  = nn.__________________________()
+optimizer  = optim.SGD(net.parameters(), lr=______________, momentum=0.9)</pre>
+      <p class="q-text">Blank 1: <input type="text" class="blank" data-qid="q44" data-blank="b1" placeholder="answer"> &nbsp;&nbsp; Blank 2: <input type="text" class="blank" data-qid="q44" data-blank="b2" placeholder="answer"></p>
+    </div>
+
+    <div class="q" id="q45">
+      <div class="q-head"><span class="q-num">45</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+<pre class="code">transform_Gray = transforms.Compose([
+    transforms.____________________________(num_output_channels=1),
+    transforms.ToTensor(),
+])</pre>
+      <p class="q-text">The missing transform (it converts the RGB image to a single-channel image) is: <input type="text" class="blank" data-qid="q45" placeholder="answer"></p>
+    </div>
+
+    <div class="q" id="q46">
+      <div class="q-head"><span class="q-num">46</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">1 pt</span></div>
+<pre class="code"># train_features[0] has shape (1, 28, 28)
+img = train_features[0].________________()
+# img now has shape (28, 28), ready for plt.imshow</pre>
+      <p class="q-text">The missing method (it removes the size-1 channel dimension) is: <input type="text" class="blank" data-qid="q46" placeholder="answer"></p>
+    </div>
+
+    <div class="q" id="q47">
+      <div class="q-head"><span class="q-num">47</span><span class="badge">Fill in the Blank</span><span class="badge diff-medium">Medium</span><span class="pts">3 blanks · 1 pt each</span></div>
+<pre class="code">optimizer.__________________()
+outputs = net(inputs)
+loss = criterion(outputs, labels)
+loss.__________________()
+optimizer.__________________()</pre>
+      <p class="q-text">
+        Blank 1: <input type="text" class="blank" data-qid="q47" data-blank="b1" placeholder="answer">
+        Blank 2: <input type="text" class="blank" data-qid="q47" data-blank="b2" placeholder="answer">
+        Blank 3: <input type="text" class="blank" data-qid="q47" data-blank="b3" placeholder="answer">
+      </p>
+    </div>
+  </section>
+
+  <div class="instructions">
+    <h2>Before you leave</h2>
+    <ul>
+      <li>Click <strong>Save Progress</strong>, then <strong>Export Answers (JSON)</strong> and keep the file.</li>
+      <li>Your exam will be graded only after you submit the exported file (or paste its contents) when you ask for grading.</li>
+      <li>This page does <strong>not</strong> show your score.</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>
+  ML_LABS_EXAM_001 · Programming for AI · Interactive local exam (answers stored in your browser only)
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "ML_LABS_EXAM_001";
+  var TOTAL_QUESTIONS = 47;
+
+  var statusEl = document.getElementById("status");
+  var progressFill = document.getElementById("progressFill");
+  var progressText = document.getElementById("progressText");
+  var statusTimer = null;
+
+  function setStatus(msg, isError){
+    statusEl.textContent = msg;
+    statusEl.style.color = isError ? "#c0392b" : "#1d7a4c";
+    if(statusTimer) clearTimeout(statusTimer);
+    statusTimer = setTimeout(function(){ statusEl.textContent = ""; }, 4000);
+  }
+
+  /* ---------- collect answers from the DOM ---------- */
+  function collectAnswers(){
+    var answers = {};
+
+    // radio groups (True/False and MCQ)
+    var radios = document.querySelectorAll('input[type="radio"][data-qid]');
+    var seen = {};
+    for(var i=0;i<radios.length;i++){
+      var r = radios[i];
+      if(r.checked) answers[r.getAttribute("data-qid")] = r.value;
+    }
+
+    // text inputs and textareas
+    var fields = document.querySelectorAll('textarea[data-qid], input[type="text"][data-qid]');
+    for(var j=0;j<fields.length;j++){
+      var f = fields[j];
+      var qid = f.getAttribute("data-qid");
+      var blank = f.getAttribute("data-blank");
+      var val = f.value;
+      if(blank){
+        if(!answers[qid] || typeof answers[qid] !== "object") answers[qid] = {};
+        answers[qid][blank] = val;
+      }else{
+        if(val.trim() !== "") answers[qid] = val;
+      }
+    }
+    return answers;
+  }
+
+  /* ---------- restore answers into the DOM ---------- */
+  function restoreAnswers(answers){
+    if(!answers) return;
+    // radios
+    for(var qid in answers){
+      if(!Object.prototype.hasOwnProperty.call(answers, qid)) continue;
+      var val = answers[qid];
+      if(typeof val === "string"){
+        var radios = document.querySelectorAll('input[type="radio"][data-qid="'+qid+'"]');
+        for(var i=0;i<radios.length;i++){
+          radios[i].checked = (radios[i].value === val);
+        }
+      }
+    }
+    // text fields
+    var fields = document.querySelectorAll('textarea[data-qid], input[type="text"][data-qid]');
+    for(var j=0;j<fields.length;j++){
+      var f = fields[j];
+      var q = f.getAttribute("data-qid");
+      var b = f.getAttribute("data-blank");
+      if(!Object.prototype.hasOwnProperty.call(answers, q)) continue;
+      if(b){
+        var obj = answers[q];
+        if(obj && typeof obj === "object" && Object.prototype.hasOwnProperty.call(obj, b)){
+          f.value = obj[b];
+        }
+      }else if(typeof answers[q] === "string"){
+        f.value = answers[q];
+      }
+    }
+  }
+
+  /* ---------- progress ---------- */
+  function questionAnswered(answers, qid){
+    if(!Object.prototype.hasOwnProperty.call(answers, qid)) return false;
+    var v = answers[qid];
+    if(typeof v === "string") return v.trim() !== "";
+    if(v && typeof v === "object"){
+      for(var k in v){
+        if(Object.prototype.hasOwnProperty.call(v,k) && v[k] && String(v[k]).trim() !== "") return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
+  function updateProgress(){
+    var answers = collectAnswers();
+    var done = 0;
+    for(var n=1;n<=TOTAL_QUESTIONS;n++){
+      if(questionAnswered(answers, "q"+n)) done++;
+    }
+    progressText.textContent = done + " / " + TOTAL_QUESTIONS;
+    progressFill.style.width = Math.round((done/TOTAL_QUESTIONS)*100) + "%";
+  }
+
+  /* ---------- storage ---------- */
+  function saveProgress(silent){
+    try{
+      var payload = {
+        exam_id: "ML_LABS_EXAM_001",
+        saved_at: new Date().toISOString(),
+        answers: collectAnswers()
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      if(!silent) setStatus("Progress saved");
+      updateProgress();
+      return true;
+    }catch(e){
+      if(!silent) setStatus("Saving failed (browser storage unavailable)", true);
+      return false;
+    }
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){ setStatus("No saved progress found", true); return; }
+      var payload = JSON.parse(raw);
+      // clear existing answers first
+      clearForm();
+      restoreAnswers(payload.answers);
+      updateProgress();
+      setStatus("Progress loaded");
+    }catch(e){
+      setStatus("Could not load saved progress", true);
+    }
+  }
+
+  function clearForm(){
+    var radios = document.querySelectorAll('input[type="radio"][data-qid]');
+    for(var i=0;i<radios.length;i++) radios[i].checked = false;
+    var fields = document.querySelectorAll('textarea[data-qid], input[type="text"][data-qid]');
+    for(var j=0;j<fields.length;j++) fields[j].value = "";
+  }
+
+  function resetExam(){
+    if(!confirm("Reset the exam? This will permanently delete ALL your saved answers in this browser.")) return;
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    clearForm();
+    updateProgress();
+    setStatus("Exam reset");
+  }
+
+  function exportAnswers(){
+    var data = {
+      exam_id: "ML_LABS_EXAM_001",
+      exported_at: new Date().toISOString(),
+      answers: collectAnswers()
+    };
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "ML_LABS_EXAM_001_answers.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    setStatus("Answers exported");
+    saveProgress(true);
+  }
+
+  /* ---------- auto-save ---------- */
+  var autoTimer = null;
+  function scheduleAutoSave(){
+    if(autoTimer) clearTimeout(autoTimer);
+    autoTimer = setTimeout(function(){
+      if(saveProgress(true)){
+        var d = new Date();
+        var hh = ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+":"+("0"+d.getSeconds()).slice(-2);
+        setStatus("Auto-saved " + hh);
+      }
+      updateProgress();
+    }, 700);
+  }
+
+  document.addEventListener("change", function(e){
+    if(e.target && e.target.hasAttribute && e.target.hasAttribute("data-qid")) scheduleAutoSave();
+  });
+  document.addEventListener("input", function(e){
+    if(e.target && e.target.hasAttribute && e.target.hasAttribute("data-qid")) scheduleAutoSave();
+  });
+
+  document.getElementById("btnSave").addEventListener("click", function(){ saveProgress(false); });
+  document.getElementById("btnLoad").addEventListener("click", loadProgress);
+  document.getElementById("btnReset").addEventListener("click", resetExam);
+  document.getElementById("btnExport").addEventListener("click", exportAnswers);
+
+  // initial state: restore any previous answers silently
+  (function init(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var payload = JSON.parse(raw);
+        restoreAnswers(payload.answers);
+      }
+    }catch(e){}
+    updateProgress();
+  })();
+})();
+</script>
+
+</body>
+</html>
