@@ -4,7 +4,7 @@
 //   node shared/bin/build.js <project> [report|slides|all]      (run from Homeworks/)
 //
 // Reads  <project>/sources/{project.toml, report.md, slides.yaml, data.yaml, references.bib, facts.md}
-// Writes <project>/out/{<Name>_<Course>_<label>_Report_v<N>.docx, …_Slides_v<N>.pptx, script.md, figures/}
+// Writes <project>/out/{<Name>_<Course>_<label>_Report_v<N>.docx, …_Slides_v<N>.pptx, …_Script_v<N>.docx, script.md, figures/}
 // Fails (non-zero exit, no output written) if any check fails: unsourced numbers, unknown citations,
 // unknown cross-references, informal wording, over-long slide titles, unstable contents page numbers.
 const fs = require("fs");
@@ -82,8 +82,15 @@ async function buildSlides(project, src) {
   const pres = await renderDeck({ docs: YAML.parseAllDocuments(src.read("slides.yaml")).map((d) => d.toJS()), data: src.data, bib, meta: project.meta, factsPath: src.factsPath });
   const out = path.join(project.out, cfg.filename(project.meta.file_label, "Slides", project.meta.version, "pptx"));
   await pres.writeFile({ fileName: out });
-  fs.writeFileSync(path.join(project.out, "script.md"), K.scriptMarkdown(pres, `${project.meta.slides.title}: Speaker Script`));
-  console.log(`slides  ✓ ${path.relative(cfg.HOMEWORKS, out)}  (${pres.slides.length} slides, script.md written)`);
+  // Presenter guide: what to show, do and say per slide (+ Q&A preparation from sources/qa.md when present)
+  const qaPath = path.join(project.sources, "qa.md");
+  const qa = fs.existsSync(qaPath) ? fs.readFileSync(qaPath, "utf8") : null;
+  const title = `${project.meta.slides.title}: Presenter Script`;
+  fs.writeFileSync(path.join(project.out, "script.md"), K.scriptMarkdown(pres, title, qa));
+  const scriptOut = path.join(project.out, cfg.filename(project.meta.file_label, "Script", project.meta.version, "docx"));
+  fs.writeFileSync(scriptOut, await require("../lib/script_docx").scriptDocx(pres, { title, qa }));
+  console.log(`slides  ✓ ${path.relative(cfg.HOMEWORKS, out)}  (${pres.slides.length} slides)`);
+  console.log(`script  ✓ ${path.relative(cfg.HOMEWORKS, scriptOut)}  + script.md`);
 }
 
 (async () => {

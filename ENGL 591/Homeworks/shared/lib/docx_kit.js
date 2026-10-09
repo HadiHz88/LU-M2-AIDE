@@ -200,8 +200,9 @@ const FRONT_TITLES = ["Contents", "List of Figures", "List of Tables"];
 const PLACEHOLDER_PAGE = 88; // same width as a real 1–2 digit page number, so pass 1 lays out like pass 2
 
 function frontTitle(text, first) {
+  const newPage = first || R.front_matter_separate_pages; // style.toml: each list on its own page
   return para([run(text, { font: R.heading_font, size: pt(16), bold: true, color: C.primary })], {
-    pageBreakBefore: first, spacing: { before: first ? 0 : 360, after: 160, line: 240 }, keepNext: true,
+    pageBreakBefore: newPage, spacing: { before: newPage ? 0 : 360, after: 160, line: 240 }, keepNext: true,
   });
 }
 

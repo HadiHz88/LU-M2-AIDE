@@ -32,7 +32,7 @@ LibreOffice and poppler are needed for the two-pass contents build and for visua
 6. **Visual QA.** Run `shared/bin/render.sh <tmp> <name>/out/*.docx <name>/out/*.pptx` and look at **every** page and slide: overflow, overlaps, blank pages, figure legibility.
 7. **Independent fact-check.** Have a fresh agent or reviewer compare the report and slides against the paper text. Fix every "must fix" and log the corrections in `facts.md` → *Corrections log*.
 8. **Deliver ⏸.** Send the PDFs and the .docx/.pptx. Remind the student of the AI-use rule (RULES.md §2): they must rewrite in their own words and/or disclose the assistance.
-9. **Rehearse (optional).** Walk through `out/script.md` (the timed speaker notes) and `sources/qa.md`, playing the jury.
+9. **Rehearse (optional).** Walk through the presenter script (`out/…_Script_v<N>.docx` or `out/script.md`) and `sources/qa.md`, playing the jury.
 
 ## 3. Sources, one file per concern
 | File | Holds | Notes |
@@ -61,7 +61,9 @@ LibreOffice and poppler are needed for the two-pass contents build and for visua
 ### slides.yaml layouts
 `title`, `rows-callout`, `steps`, `table-callout`, `chart-stats`, `two-columns`, `closing`, `questions`. Their fields
 are documented at the top of `shared/lib/slides_yaml.js`, with working examples in `templates/project/sources/slides.yaml`.
-Content-slide titles are single assertions of **≤ 50 characters** (the build enforces this). Every slide has `notes`.
+Content-slide titles are single assertions of **≤ 50 characters** (the build enforces this). Every slide has `notes`
+(what the student says) and should have `cues` (what to do or point at), `key` (the one point to land) and `next`
+(spoken transition). The build turns them into the PowerPoint speaker notes and a printable presenter script.
 
 ## 4. What the build enforces (do not bypass)
 - Decimal numbers must be in `facts.md`. Citations must be `@key`s present in `references.bib`; hand-typed "Author et al., 2020" is refused.
