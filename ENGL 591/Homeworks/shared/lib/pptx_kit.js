@@ -29,9 +29,16 @@ function text(slide, content, o) {
   slide.addText(content, { margin: 0, isTextBox: true, fontFace: S.font, color: C.text, valign: "top", ...o });
 }
 
-function notes(pres, slide, title, script) {
-  slide.addNotes(script);
-  pres._script.push({ title, script });
+// Speaker notes. `e` = {title, screen, script, cues: [], key, next}. The PowerPoint notes (presenter view) get the
+// cues, the spoken text and the transition; the full entry also feeds the presenter guide (script.md / Script docx).
+function notes(pres, slide, e) {
+  const spoken = [e.script, e.next].filter(Boolean).join(" ");
+  const parts = [];
+  if (e.cues?.length) parts.push(e.cues.map((c) => `[DO] ${c}`).join("\n"));
+  parts.push(spoken);
+  if (e.key) parts.push(`[KEY POINT] ${e.key}`);
+  slide.addNotes(parts.join("\n\n"));
+  pres._script.push({ ...e, spoken });
 }
 
 // Content slide: white background, one-line assertion title, footer + number
@@ -46,31 +53,23 @@ function content(pres, title) {
   return s;
 }
 
-// Dark slide (title / conclusion "sandwich")
-function dark(pres) {
-  const s = pres.addSlide();
-  s.background = { color: C.primary_dark };
-  return s;
-}
-
-function logoTile(pres, s) {
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: W - M - 2.0, y: M, w: 2.0, h: 0.95, rectRadius: 0.12, fill: { color: C.white }, line: { color: C.white } });
-  s.addImage({ data: img("left"), x: W - M - 1.85, y: M + 0.15, w: 0.65, h: 0.65 });
-  s.addImage({ data: img("right"), x: W - M - 0.8, y: M + 0.15, w: 0.65, h: 0.65 });
-}
-
+// Title slide: same white background as the content slides (one consistent design), logos top right
 function titleSlide(pres, { kicker, titleLines, subtitle }) {
-  const s = dark(pres);
-  logoTile(pres, s);
-  text(s, kicker, { x: M, y: 1.55, w: 7, h: 0.3, fontSize: 12, bold: true, color: C.accent, charSpacing: 2 });
+  const s = pres.addSlide();
+  s.background = { color: C.white };
+  s.addImage({ data: img("left"), x: W - M - 1.75, y: M, w: 0.75, h: 0.75 });
+  s.addImage({ data: img("right"), x: W - M - 0.75, y: M, w: 0.75, h: 0.75 });
+  s.addShape(pres.shapes.RECTANGLE, { x: M, y: 1.45, w: 0.8, h: 0.07, fill: { color: C.accent }, line: { color: C.accent } });
+  text(s, kicker, { x: M, y: 1.65, w: 7, h: 0.3, fontSize: 12, bold: true, color: C.primary, charSpacing: 2 });
   text(s, titleLines.map((t, i) => ({ text: t, options: { breakLine: i < titleLines.length - 1 } })), {
-    x: M, y: 1.9, w: 8.2, h: 1.3, fontFace: S.title_font, fontSize: 38, bold: true, color: C.white, lineSpacingMultiple: 0.95,
+    x: M, y: 2.0, w: 8.2, h: 1.3, fontFace: S.title_font, fontSize: 38, bold: true, color: C.primary_dark, lineSpacingMultiple: 0.95,
   });
-  text(s, subtitle, { x: M, y: 3.3, w: 8, h: 0.45, fontSize: 20, italic: true, color: "CADCFC" });
+  text(s, subtitle, { x: M, y: 3.35, w: 8, h: 0.45, fontSize: 20, italic: true, color: C.primary });
+  s.addShape(pres.shapes.LINE, { x: M, y: 4.0, w: W - 2 * M, h: 0, line: { color: C.rule, width: 0.75 } });
   text(s, [
-    { text: cfg.author.name, options: { fontSize: 18, bold: true, color: C.white, breakLine: true } },
-    { text: `${cfg.people.instructor_role}: ${cfg.people.instructor}   ·   ${cfg.people.coordinator_role}: ${cfg.people.coordinator}`, options: { fontSize: 12, color: "CADCFC", breakLine: true } },
-    { text: `${cfg.program.full}  ·  ${cfg.institution.full}  ·  ${cfg.date}`, options: { fontSize: 12, color: "CADCFC" } },
+    { text: cfg.author.name, options: { fontSize: 18, bold: true, color: C.primary_dark, breakLine: true } },
+    { text: `${cfg.people.instructor_role}: ${cfg.people.instructor}   ·   ${cfg.people.coordinator_role}: ${cfg.people.coordinator}`, options: { fontSize: 12, color: C.muted, breakLine: true } },
+    { text: `${cfg.program.full}  ·  ${cfg.institution.full}  ·  ${cfg.date}`, options: { fontSize: 12, color: C.muted } },
   ], { x: M, y: 4.15, w: W - 2 * M, h: 1.0, paraSpaceAfter: 4 });
   return s;
 }
@@ -89,23 +88,41 @@ function badge(pres, slide, label, x, y, d = 0.42) {
   text(slide, String(label), { x, y, w: d, h: d, align: "center", valign: "middle", fontSize: d > 0.38 ? 15 : 12, bold: true, color: C.primary_dark });
 }
 
-// Rehearsal script (markdown) with timing estimates, from the collected notes
-function scriptMarkdown(pres, heading) {
-  let total = 0;
-  const rows = pres._script.map((e, i) => {
-    const words = e.script.split(/\s+/).filter(Boolean).length;
-    const sec = Math.round((words / WPM) * 60);
-    total += sec;
-    return { n: i + 1, ...e, words, sec };
-  });
-  const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  let md = `# ${heading}\n\nGenerated from the deck's speaker notes. Estimated at ${WPM} words/min: **${mmss(total)} total**.\n\n`;
-  md += "| # | Slide | Words | Time | Cumulative |\n|---|---|---|---|---|\n";
+// Presenter guide: per-slide timing (from the spoken words at WPM) plus what to show, do and say
+function scriptRows(pres) {
   let cum = 0;
-  for (const r of rows) { cum += r.sec; md += `| ${r.n} | ${r.title} | ${r.words} | ${mmss(r.sec)} | ${mmss(cum)} |\n`; }
-  md += "\nDelivery reminders (Ch. 4): speak slowly, face the audience, do not read the slides, and point at the chart when citing numbers.\n";
-  for (const r of rows) md += `\n## ${r.n}. ${r.title}  _(~${mmss(r.sec)})_\n\n${r.script}\n`;
+  return pres._script.map((e, i) => {
+    const words = e.spoken.split(/\s+/).filter(Boolean).length;
+    const sec = Math.round((words / WPM) * 60);
+    cum += sec;
+    return { n: i + 1, ...e, words, sec, cum };
+  });
+}
+const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const DELIVERY = [
+  "Speak slowly and clearly; do not read the slides (Ch. 4, slide 11).",
+  "Face the audience and keep eye contact; glance at the screen only to point.",
+  "About 1 minute per slide (Ch. 4, slide 5). Pauses and pointing add about a minute to the speaking time in the table.",
+  "Questions: repeat the question to gain thinking time; if unsure, say \u201cThat is a good point; I will look into that\u201d (Ch. 4, slide 12).",
+];
+
+function scriptMarkdown(pres, heading, qa) {
+  const rows = scriptRows(pres);
+  const total = rows.length ? rows[rows.length - 1].cum : 0;
+  let md = `# ${heading}\n\nGenerated from slides.yaml (\`notes\`, \`cues\`, \`key\`, \`next\`). Speaking time at ${WPM} words/min: **${mmss(total)}**; plan for about ${mmss(total + 60)} with pauses.\n\n`;
+  md += "| # | Slide | Words | Time | Cumulative |\n|---|---|---|---|---|\n";
+  for (const r of rows) md += `| ${r.n} | ${r.title} | ${r.words} | ${mmss(r.sec)} | ${mmss(r.cum)} |\n`;
+  md += "\n**Delivery (Ch. 4):**\n" + DELIVERY.map((d) => `- ${d}`).join("\n") + "\n";
+  for (const r of rows) {
+    md += `\n## ${r.n}. ${r.title}  _(~${mmss(r.sec)}, at ${mmss(r.cum)})_\n\n`;
+    if (r.screen) md += `**On screen:** ${r.screen}\n\n`;
+    if (r.cues?.length) md += "**Do:**\n" + r.cues.map((c) => `- ${c}`).join("\n") + "\n\n";
+    md += `**Say:**\n\n> ${r.script}\n`;
+    if (r.next) md += `>\n> *Transition:* ${r.next}\n`;
+    if (r.key) md += `\n**Key point:** ${r.key}\n`;
+  }
+  if (qa) md += `\n---\n\n${qa.trim()}\n`;
   return md;
 }
 
-module.exports = { W, H, M, C, S, createDeck, text, notes, content, dark, titleSlide, source, card, badge, scriptMarkdown };
+module.exports = { W, H, M, C, S, createDeck, text, notes, content, titleSlide, source, card, badge, scriptRows, scriptMarkdown, mmss, DELIVERY, WPM };

@@ -3,13 +3,18 @@
 # Layouts: title, rows-callout, steps, table-callout, chart-stats, two-columns, closing, questions
 # (all fields are documented at the top of shared/lib/slides_yaml.js).
 # Content-slide titles: one assertion, ≤ 50 characters. Text accepts **bold**, @key citations, numbers from facts.md.
-# `notes` are the speaker notes; the build also writes them to out/script.md with timings.
+# `notes` = what you say. Optional: `cues` (what to do/point at), `key` (the one point to land), `next` (spoken
+# transition). They go to the PowerPoint notes and the presenter script (out/…_Script_v<N>.docx + script.md).
 
 layout: title
 label: Title
 kicker: ENGL 591  ·  MINI PRESENTATION
 title: [Title of Your, Study]
 subtitle: A review of the method and its results
+cues:
+  - "Face the audience, not the slide"
+key: "Who you are and what you are presenting."
+next: "Let me start with the problem this study addresses."
 notes: >
   Good morning. My name is ... Today I will present a review of ...
 ---

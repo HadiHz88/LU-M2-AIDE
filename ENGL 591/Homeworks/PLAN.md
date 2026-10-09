@@ -60,10 +60,10 @@ Extras: timed speaker script + 8–10 likely questions with model answers.
 | 1 | Source pack: verified numbers + references | `mini/sources/facts.md` | ✅ done |
 | 1b | Shared constants, rules, logos, bootstrap | `shared/`, `CLAUDE.md` | ✅ done |
 | 2 | Visual style test ⏸ | `demo/out/` | ✅ approved 2026-09-29 |
-| 3–4 | Mini report (outline gate folded in; user asked to proceed to both deliverables) ⏸ | `mini/out/*_Report_v1.docx` + PDF | 🟡 **v1 built, awaiting review** |
-| 5 | Mini slides (8) with notes ⏸ | `mini/out/*_Slides_v1.pptx` + PDF | 🟡 **v1 built, awaiting review** |
+| 3–4 | Mini report (outline gate folded in; user asked to proceed to both deliverables) ⏸ | `mini/out/*_Report_v2.docx` + PDF | 🟡 **v2 built (peer-review fixes), awaiting review** |
+| 5 | Mini slides (8) with notes ⏸ | `mini/out/*_Slides_v2.pptx` + PDF | 🟡 **v2 built (peer-review fixes), awaiting review** |
 | 6 | QA pass: automatic build checks + independent fact-check agent + visual render | — | ✅ (see session log) |
-| 7 | Rehearsal kit: timed script + Q&A prep; live drill with `grilling` on request | `mini/presentation/script.md`, `qa.md` | ✅ files; drill ⬜ |
+| 7 | Rehearsal kit: presenter script (do / say / key point / transition) + Q&A prep; live drill with `grilling` on request | `mini/out/*_Script_v2.docx`, `script.md`, `qa.md` | ✅ files; drill ⬜ |
 | 8 | Final project: topic brainstorm → same pipeline, full report (15–25 pp.) | `final/` | ⬜ |
 
 ## Skills & tools
@@ -79,16 +79,21 @@ Extras: timed speaker script + 8–10 likely questions with model answers.
 ## Style decisions (from the style test)
 - **Report:** Times New Roman 12, 1.5 spacing, justified body; headings in FS blue; italic running header with the short title; page numbers bottom center; no header or footer on the cover. Tables have an FS-blue header row, light banding, a caption above and a *Note.* line below. Figures sit at ~13 cm with the caption and a *Note.* below. APA references use a hanging indent.
 - **Section breaks (rule since 2026-09-29):** every Heading 1 section starts on a new page; subsections flow on.
-- **Front matter (rule since 2026-09-29):** Abstract on its own page → Contents (levels 1–2, dot leaders) + List of Figures + List of Tables on the next page → Introduction. Page numbers pre-filled by the two-pass build and verified against the render.
+- **Front matter (rule since 2026-09-29):** Abstract on its own page → Contents (levels 1–2, dot leaders) → List of Figures → List of Tables, each on its own page (peer review, 2026-10-01) → Introduction. Page numbers pre-filled by the two-pass build and verified against the render.
 - **Cover:** LU logo · institution · FS logo row, a blue rule, then program/course, "MINI REPORT" label, title + subtitle, and the people block (Prepared by / Instructor / AIDE Coordinator), then academic year · date.
-- **Slides:** deep-blue title slide with white logo tile; content slides white with Cambria assertion titles (≤ 50 chars, one line); motif = light rounded cards + gold numbered badges; big stat callouts; native charts (mBERT gold vs AraBERT blue); a source line on every borrowed number; footer "Hadi Hijazi · ENGL 591 · LU-FS1" + slide number; speaker notes on every slide.
+- **Slides:** every slide white, title and conclusion included (peer review, 2026-10-01: one consistent background); LU + FS logos top right of the title slide; content slides with Cambria assertion titles (≤ 50 chars, one line); motif = light rounded cards + gold numbered badges; big stat callouts; native charts (mBERT gold vs AraBERT blue); a source line on every borrowed number; footer "Hadi Hijazi · ENGL 591 · LU-FS1" + slide number; speaker notes on every slide.
 
-## Mini v1 at a glance
-- **Report:** cover · abstract (4 sentences, Ch. 2 structure) + keywords · contents + list of figures + list of tables · 1 Introduction · 2 Background · 3 Methodology of the reviewed study · 4 Results · 5 Discussion & Recommendations · 6 Conclusion · References (13, APA). About 1,910 words, 14 pages: cover · abstract · contents · each section on its own page · references (2 pp.). Figures: pipeline, results chart. Tables: datasets, results.
+## Mini v2 at a glance
+- **Report:** cover · abstract (4 sentences, Ch. 2 structure, cited; no keywords) · contents · list of figures · list of tables (one page each) · 1 Introduction · 2 Background · 3 Methodology of the reviewed study · 4 Results · 5 Discussion & Recommendations · 6 Conclusion · References (13, APA). About 1,970 words, 16 pages: cover · abstract · contents · figure list · table list · each section on its own page · references (2 pp.). Figures: pipeline, results chart. Tables: datasets, results.
 - **Slides:** Title · Objective · Method · Datasets · Results · Discussion · Conclusion · Questions. Speaker script ~4 min at 130 wpm (~5–6 min with pauses).
 - **Build checks (throw on failure):** decimal numbers must be in the facts file; every reference cited and every citation listed; informal-language lint; slide titles ≤ 50 chars.
 
 ## Session log
+- **2026-10-02:** Deleted the v1 outputs. Added a **presenter script**: slides.yaml now takes `cues` (what to do or point at), `key` (the one point to land) and `next` (spoken transition) per slide. The build writes them into the PowerPoint speaker notes and into `out/…_Script_v2.docx` (+ `script.md`), with the timing table, Ch. 4 delivery reminders and the Q&A preparation from `qa.md`. Spoken Arabic examples now use natural transliteration (kitāb / al-kitāb, al-lugha). Speaking time 4:48, about 5:48 with pauses.
+- **2026-10-01:** Applied a classmate's peer review (v2). Checked each point against the .docx and the course slides first:
+  - Already met: Contents and both lists are real Word fields (TOC, TOC \c "Figure"/"Table", SEQ captions in the Caption style). Regenerating all fields in LibreOffice gives identical entries and page numbers.
+  - Fixed: each list on its own page; citations added to the abstract, introduction, background and methods (sources logged in facts.md, checked in the PDFs); scope as bullets; keywords removed; all slides white (title, objective callout, conclusion); less text on slide 3; slide 8 shows 2 references instead of 3.
+  - User decisions: keep numbered sections (no "Chapter 1"); no extra logos; references stay generated from BibTeX (Word's citation manager not adopted; the course only asks for one consistent style).
 - **2026-09-29 (h):** Made the toolchain reusable and **sources-driven** (user request):
   - Content now lives in `mini/sources/`: report.md (Markdown + `:::` directives), slides.yaml (layouts), data.yaml, references.bib (APA generated from BibTeX), facts.md, qa.md. The generic `shared/bin/build.js` builds any project.
   - Split the config into `shared/style.toml` (house style), `profile.toml` (personal; example tracked) and `sources/project.toml`.

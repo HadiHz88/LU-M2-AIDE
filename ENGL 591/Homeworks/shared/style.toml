@@ -25,6 +25,7 @@ toc = true                        # Contents page after the abstract
 toc_levels = "1-2"
 list_of_figures = true            # included whenever the report has figures
 list_of_tables = true             # included whenever the report has tables
+front_matter_separate_pages = true   # Contents, List of Figures and List of Tables each start a new page
 length_pages_mini = [4, 6]
 length_pages_final = [15, 25]
 
@@ -50,13 +51,14 @@ footer = "{author} · {course} · {institution_short}"
 [colors]
 primary = "#3162A4"     # FS blue: titles, headings, main data series
 accent = "#EEAF16"      # FS gold: fills/badges/highlights only. Too light for text on white (1.9:1)
-primary_dark = "#1E3F6E" # deep FS blue: title/closing slide backgrounds
+primary_dark = "#1E3F6E" # deep FS blue: slide titles, emphasis text
 lu_red = "#DB251C"      # LU red: lives in the logo only. Never text (Ch. 4: avoid red text), never decorative stripes
 lu_green = "#0C5E38"    # LU green: secondary accent, sparingly
 text = "#1F2937"        # body text
 muted = "#6B7280"       # captions, footers, source lines
 light = "#F4F6FA"       # slide/panel background tint
 white = "#FFFFFF"
+rule = "#D9DEE7"        # thin separator lines
 
 [colors.chart]
 # Validated with the dataviz skill's validate_palette.js (light mode): all checks pass.

@@ -7,9 +7,10 @@
 //   table-callout  title, table: {data, columns: [{key, label, align}], highlight: {column, match}}, callout, footnote, source
 //   chart-stats    title, chart: {data, category, series: [{key, label, role}], y}, stats: [{big, sub}], source
 //   two-columns    title, columns: [{head, marker: number | alert, items: []}], source
-//   closing        kicker, title, points: [], callout: {label, text}          (dark slide)
+//   closing        title, points: [], callout: {label, text}, source
 //   questions      title, references: [bib keys], note
-// Every slide: notes (speaker notes; also exported to out/script.md with timings).
+// Every slide: notes (what you say). Optional presenter-guide fields: cues [what to do/point at], key (the one point
+// to land), next (spoken transition to the next slide). All go to the PowerPoint notes and the presenter guide.
 const K = require("./pptx_kit");
 const cfg = require("./config");
 const { apa } = require("./bib");
@@ -61,9 +62,9 @@ async function renderDeck({ docs, data, bib, meta, factsPath }) {
       });
       if (d.callout) {
         const ox = 6.0, ow = W - M - ox, oh = d.rows.length * rowH + (d.rows.length - 1) * gap;
-        card(pres, s, { x: ox, y: top, w: ow, h: oh, fill: C.primary_dark });
-        text(s, tx(d.callout.label), { x: ox + 0.3, y: top + 0.3, w: ow - 0.6, h: 0.3, fontSize: 11, bold: true, color: C.accent, charSpacing: 1.5 });
-        text(s, bulletList(d.callout.items, { code: "25B8" }), { x: ox + 0.3, y: top + 0.85, w: ow - 0.6, h: oh - 1.0, fontSize: 17, color: C.white, paraSpaceAfter: 20 });
+        card(pres, s, { x: ox, y: top, w: ow, h: oh });
+        text(s, tx(d.callout.label), { x: ox + 0.3, y: top + 0.3, w: ow - 0.6, h: 0.3, fontSize: 11, bold: true, color: C.primary, charSpacing: 1.5 });
+        text(s, bulletList(d.callout.items, { code: "25B8" }), { x: ox + 0.3, y: top + 0.85, w: ow - 0.6, h: oh - 1.0, fontSize: 17, color: C.primary_dark, paraSpaceAfter: 20 });
       }
       source(s, d.source);
       return s;
@@ -169,22 +170,19 @@ async function renderDeck({ docs, data, bib, meta, factsPath }) {
     },
 
     closing(d) {
-      const s = K.dark(pres);
-      text(s, tx(d.kicker ?? "CONCLUSION"), { x: M, y: 0.55, w: 5, h: 0.3, fontSize: 12, bold: true, color: C.accent, charSpacing: 2 });
-      text(s, tx(d.title), { x: M, y: 0.9, w: 8.5, h: 1.2, fontFace: S.title_font, fontSize: 32, bold: true, color: C.white });
+      const s = K.content(pres, tx(d.title));
       (d.points || []).forEach((p, i) => {
-        const y = 2.3 + i * 0.52;
-        badge(pres, s, i + 1, M, y, 0.36);
-        text(s, rich(p), { x: M + 0.55, y, w: 5.2, h: 0.36, valign: "middle", fontSize: 16, color: C.white });
+        const y = 1.55 + i * 0.75;
+        badge(pres, s, i + 1, M, y, 0.4);
+        text(s, rich(p), { x: M + 0.6, y, w: 5.0, h: 0.4, valign: "middle", fontSize: 17 });
       });
       if (d.callout) {
-        const nx = 6.2, nw = W - M - nx;
-        card(pres, s, { x: nx, y: 2.25, w: nw, h: 1.6, fill: C.white });
-        text(s, tx(d.callout.label), { x: nx + 0.25, y: 2.42, w: nw - 0.5, h: 0.3, fontSize: 11, bold: true, color: C.primary, charSpacing: 1.5 });
-        text(s, rich(d.callout.text), { x: nx + 0.25, y: 2.8, w: nw - 0.5, h: 0.95, fontSize: 14, color: C.text });
+        const nx = 6.5, nw = W - M - nx;
+        card(pres, s, { x: nx, y: 1.45, w: nw, h: 1.95 });
+        text(s, tx(d.callout.label), { x: nx + 0.25, y: 1.65, w: nw - 0.5, h: 0.3, fontSize: 11, bold: true, color: C.primary, charSpacing: 1.5 });
+        text(s, rich(d.callout.text), { x: nx + 0.25, y: 2.05, w: nw - 0.5, h: 1.2, fontSize: 15 });
       }
-      text(s, cfg.footer, { x: M, y: H - 0.38, w: 6, h: 0.25, fontSize: 9, color: "CADCFC" });
-      text(s, String(pres.slides.length), { x: W - M - 0.5, y: H - 0.38, w: 0.5, h: 0.25, fontSize: 9, color: "CADCFC", align: "right" });
+      source(s, d.source);
       return s;
     },
 
@@ -211,7 +209,12 @@ async function renderDeck({ docs, data, bib, meta, factsPath }) {
     const fn = layouts[d.layout];
     if (!fn) throw new Error(`slides.yaml slide ${i + 1}: unknown layout "${d.layout}" (known: ${Object.keys(layouts).join(", ")})`);
     const s = fn(d);
-    if (d.notes) notes(pres, s, d.label || (Array.isArray(d.title) ? d.title.join(" ") : tx(d.title ?? d.layout)), tx(d.notes.trim()));
+    if (!d.notes) throw new Error(`slides.yaml slide ${i + 1}: every slide needs notes (what you will say)`);
+    const screen = Array.isArray(d.title) ? d.title.join(" ") : tx(d.title ?? d.layout);
+    notes(pres, s, {
+      title: d.label || screen, screen, script: tx(d.notes.trim()),
+      cues: (d.cues || []).map(tx), key: d.key && tx(d.key), next: d.next && tx(d.next),
+    });
   });
 
   assertTexts(seen, factsPath);
