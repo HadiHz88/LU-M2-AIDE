@@ -8,6 +8,8 @@
 //   chart-stats    title, chart: {data, category, series: [{key, label, role}], y}, stats: [{big, sub}], source
 //   two-columns    title, columns: [{head, marker: number | alert, items: []}], source
 //   closing        title, points: [], callout: {label, text}, source
+//   image          title, image (path in sources/), caption, side: {label, items: []} | stats: [{big, sub}], source
+//                  The image keeps its aspect ratio inside the free area (the full width, or the left 6" with a side card).
 //   questions      title, references: [bib keys], note
 // Every slide: notes (what you say). Optional presenter-guide fields: cues [what to do/point at], key (the one point
 // to land), next (spoken transition to the next slide). All go to the PowerPoint notes and the presenter guide.
@@ -18,7 +20,14 @@ const { assertTexts } = require("./checks");
 
 const { W, H, M, C, S, text, notes, card, badge } = K;
 
-async function renderDeck({ docs, data, bib, meta, factsPath }) {
+async function renderDeck({ docs, data, bib, meta, factsPath, sources }) {
+  // Image sizes are read up front, since the layouts below are synchronous.
+  const path = require("path");
+  for (const d of docs.filter((d) => d.layout === "image")) {
+    d._file = path.join(sources, d.image);
+    const m = await require("sharp")(d._file).metadata();
+    d._ratio = m.width / m.height;
+  }
   const pres = K.createDeck(meta.slides.title);
   const seen = []; // every string placed on a slide, for the checks
   const tx = (s) => { const r = bib.resolve(String(s ?? "")); seen.push(r); return r; };
@@ -181,6 +190,41 @@ async function renderDeck({ docs, data, bib, meta, factsPath }) {
         card(pres, s, { x: nx, y: 1.45, w: nw, h: 1.95 });
         text(s, tx(d.callout.label), { x: nx + 0.25, y: 1.65, w: nw - 0.5, h: 0.3, fontSize: 11, bold: true, color: C.primary, charSpacing: 1.5 });
         text(s, rich(d.callout.text), { x: nx + 0.25, y: 2.05, w: nw - 0.5, h: 1.2, fontSize: 15 });
+      }
+      source(s, d.source);
+      return s;
+    },
+
+    image(d) {
+      const s = K.content(pres, tx(d.title));
+      const panel = d.side || d.stats;
+      const top = 1.1, bottom = H - (d.source ? 0.8 : 0.5) - (d.caption ? 0.32 : 0);
+      const bw = panel ? 6.0 : W - 2 * M, bh = bottom - top;
+      const w = Math.min(bw, bh * d._ratio), h = w / d._ratio;
+      const x = M + (bw - w) / 2, y = top + (bh - h) / 2;
+      s.addImage({ path: d._file, x, y, w, h });
+      if (d.caption) text(s, rich(d.caption), { x: M, y: y + h + 0.05, w: bw, h: 0.28, fontSize: 12, italic: true, color: C.muted, align: "center" });
+      const px = 6.7, pw = W - M - px;
+      if (d.side) {
+        card(pres, s, { x: px, y: top + 0.1, w: pw, h: bh - 0.2 });
+        text(s, tx(d.side.label), { x: px + 0.25, y: top + 0.3, w: pw - 0.5, h: 0.3, fontSize: 11, bold: true, color: C.primary, charSpacing: 1.5 });
+        // One bulleted paragraph per item; **bold** runs kept (paragraph options sit on its first run).
+        const items = d.side.items.flatMap((it, i) => {
+          const r = rich(it);
+          r[0].options = { ...r[0].options, bullet: true };
+          if (i < d.side.items.length - 1) r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true };
+          return r;
+        });
+        text(s, items, { x: px + 0.25, y: top + 0.7, w: pw - 0.5, h: bh - 1.0, fontSize: 14, paraSpaceAfter: 10 });
+      }
+      if (d.stats) {
+        const n = d.stats.length, gap = 0.2, sh = (bh - gap * (n - 1)) / n;
+        d.stats.forEach((st, i) => {
+          const yy = top + i * (sh + gap);
+          card(pres, s, { x: px, y: yy, w: pw, h: sh });
+          text(s, tx(st.big), { x: px + 0.25, y: yy + 0.1, w: pw - 0.5, h: sh * 0.5, valign: "middle", fontFace: S.title_font, fontSize: 30, bold: true, color: C.primary });
+          text(s, rich(st.sub), { x: px + 0.25, y: yy + sh * 0.55, w: pw - 0.5, h: sh * 0.4, fontSize: 12 });
+        });
       }
       source(s, d.source);
       return s;

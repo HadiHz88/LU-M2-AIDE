@@ -34,14 +34,15 @@ const cfg = {
   date,
   colors: stripColors(style.colors),
   logo: (side) => path.join(HOMEWORKS, profile.logos[side]),
-  footer: style.slides.footer
-    .replace("{author}", profile.author.name)
-    .replace("{course}", profile.course.code)
-    .replace("{institution_short}", profile.institution.short),
   // Deliverable filename per RULES.md §7, e.g. HadiHijazi_ENGL591_MiniReport_Report_v1.docx
   filename: (project, kind, version, ext) =>
-    `${profile.author.name.replace(/\s+/g, "")}_${profile.course.code.replace(/\s+/g, "")}_${project}_${kind}_v${version}.${ext}`,
+    `${profile.author.name.replace(/\s+/g, "")}_${cfg.course.code.replace(/\s+/g, "")}_${project}_${kind}_v${version}.${ext}`,
 };
+const makeFooter = () => style.slides.footer
+  .replace("{author}", cfg.author.name)
+  .replace("{course}", cfg.course.code)
+  .replace("{institution_short}", cfg.institution.short);
+cfg.footer = makeFooter();
 
 /** Resolve a project folder (e.g. "mini") and read its sources/project.toml. */
 cfg.loadProject = (name) => {
@@ -49,7 +50,13 @@ cfg.loadProject = (name) => {
   const sources = path.join(dir, "sources");
   const metaPath = path.join(sources, "project.toml");
   if (!fs.existsSync(metaPath)) throw new Error(`No project at ${dir} (missing sources/project.toml)`);
-  return { name, dir, sources, out: path.join(dir, "out"), meta: readToml(metaPath) };
+  const meta = readToml(metaPath);
+  // A project for another course can override profile.toml's [course] and [people] in its project.toml
+  // (e.g. an AIDE500 project built with this toolchain). Covers, slide footers and filenames follow.
+  if (meta.course) cfg.course = { ...cfg.course, ...meta.course };
+  if (meta.people) cfg.people = { ...cfg.people, ...meta.people };
+  cfg.footer = makeFooter();
+  return { name, dir, sources, out: path.join(dir, "out"), meta };
 };
 
 module.exports = cfg;

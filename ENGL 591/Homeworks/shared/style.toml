@@ -66,5 +66,6 @@ rule = "#D9DEE7"        # thin separator lines
 # Contrast WARN on the gold means values must be direct-labeled, and the report always carries the table too.
 subject = "#3162A4"     # the model under review (AraBERT)
 baseline = "#E0A43A"    # the comparison model (mBERT)
+secondary = "#A9C1E3"   # light FS blue: the subject under a harder condition (same entity, de-emphasised)
 grid = "#E5E7EB"        # hairline gridlines
 axis_text = "#6B7280"
