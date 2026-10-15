@@ -36,4 +36,12 @@ function pageMap(docxBuffer, needles, skipMarkers) {
   return { pages, pageCount: pageLines.filter((l) => l.length).length };
 }
 
-module.exports = { pageMap };
+/** Lay a .docx out with LibreOffice into `outDir`; returns the PDF path and its page count. */
+function toPdf(docxPath, outDir) {
+  execFileSync(SOFFICE, ["--headless", "--convert-to", "pdf", "--outdir", outDir, docxPath], { stdio: "ignore" });
+  const pdf = path.join(outDir, path.basename(docxPath).replace(/\.docx$/, ".pdf"));
+  const pages = execFileSync("pdftotext", [pdf, "-"]).toString("utf8").split("\f").filter((p) => p.trim()).length;
+  return { pdf, pages };
+}
+
+module.exports = { pageMap, toPdf };

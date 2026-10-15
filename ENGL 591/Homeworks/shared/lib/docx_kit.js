@@ -85,7 +85,7 @@ const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBo
 
 /**
  * @param {string[]} head
- * @param {(string|{text:string,bold?:boolean})[][]} rows
+ * @param {((string|{text:string,bold?:boolean})[]|{group:string})[]} rows  a {group} row is a bold label across the table
  * @param {number[]} weights  relative column widths
  * @param {number} [leftCols=1] how many leading columns are left-aligned
  */
@@ -117,7 +117,13 @@ function dataTable(head, rows, weights, leftCols = 1) {
     rows: [
       new TableRow({ tableHeader: true, cantSplit: true, children: head.map((h, i) => cell(h, W[i], i, { head: true, fill: C.primary })) }),
       ...rows.map((r, ri) =>
-        new TableRow({ cantSplit: true, children: r.map((c, i) => cell(c, W[i], i, { fill: ri % 2 ? C.light : undefined })) })
+        r.group != null
+          ? new TableRow({ cantSplit: true, children: [new TableCell({
+              columnSpan: W.length, width: { size: TEXT_W, type: WidthType.DXA }, borders: cellBorders,
+              margins: { top: 60, bottom: 40, left: 100, right: 100 },
+              children: [para(runs(r.group, { bold: true, color: C.primary_dark, size: pt(10) }), { spacing: { line: 240, after: 0 }, keepNext: true })],
+            })] })
+          : new TableRow({ cantSplit: true, children: r.map((c, i) => cell(c, W[i], i, { fill: ri % 2 ? C.light : undefined })) })
       ),
     ],
   });

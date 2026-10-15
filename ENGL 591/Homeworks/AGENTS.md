@@ -39,7 +39,7 @@ LibreOffice and poppler are needed for the two-pass contents build and for visua
 |---|---|---|
 | `project.toml` | title, subtitle, label, running title, version, deliverables, kind | |
 | `facts.md` | verified facts + locations + corrections log | **Every decimal number** in the other files must appear here, or the build fails |
-| `references.bib` | BibTeX | Only cited entries are listed. Protect proper nouns: `{A}rabic` |
+| `references.bib` | BibTeX | Only cited entries are listed. Protect proper nouns: `{A}rabic`. A group author goes in double braces: `author = {{ONNX Runtime developers}}` |
 | `data.yaml` | rows for tables and charts | Cells may contain `@key` citations |
 | `report.md` | the report | Syntax below |
 | `slides.yaml` | the deck, one YAML document per slide | Layouts below |
@@ -54,12 +54,27 @@ LibreOffice and poppler are needed for the two-pass contents build and for visua
 [[table:id]] [[figure:id]] [[section:id]]         auto-numbered cross-references
 ::: contents :::                                  Contents + List of Figures + List of Tables (mandatory)
 ::: references :::                                reference list
-::: table id        (YAML: caption, data | rows, columns[{key,label,decimals}], widths, bold: row-max, note) :::
+::: table id        (YAML: caption, data | rows, columns[{key,label,decimals}], widths, left_cols, bold: row-max, note) :::
+                    a row {group: "Label"} is a bold label across the table (both formats)
 ::: figure id       (YAML: type grouped-columns | flow | image, caption, note, width, …) :::
 ```
 
+### IEEE conference format (`[report] format = "ieee"` in project.toml)
+For a course that requires an IEEE paper instead of the house style (e.g. the AIDE500 project, `aide500/`). Same
+`report.md` syntax, rendered by `shared/lib/ieee_kit.js`: A4 IEEE template margins, two columns, Times 10 pt, a title
+block from `[[report.authors]]` (name, affiliation lines, optional email), `# Abstract {.unnumbered}` as the run-in bold
+abstract followed by *Index Terms* (`report.keywords`), sections "I. Introduction", subsections "A. …", captions
+"Fig. 1." / "TABLE I", references numbered [1] in order of citation (IEEE style, `bib.js`), no cover, contents or page
+breaks. Extras: `::: equation <id>` (YAML `text`, with `*italic*`, `_{sub}`, `^{sup}`; `[[equation:id]]` → "(1)"), table
+rows `{group: "Label"}`, and `report.pages = [min, max]`, which fails the build outside the page limit. The build also
+writes the PDF next to the .docx.
+
+### Another course's details
+`[course]` and `[people]` in project.toml override profile.toml for that project (slide footer, title slide, filenames).
+
 ### slides.yaml layouts
-`title`, `rows-callout`, `steps`, `table-callout`, `chart-stats`, `two-columns`, `closing`, `questions`. Their fields
+`title`, `rows-callout`, `steps`, `table-callout`, `chart-stats`, `two-columns`, `closing`, `questions`, `image` (a figure
+file from `sources/`, with an optional `caption` and a `side` card or `stats`). Their fields
 are documented at the top of `shared/lib/slides_yaml.js`, with working examples in `templates/project/sources/slides.yaml`.
 Content-slide titles are single assertions of **≤ 50 characters** (the build enforces this). Every slide has `notes`
 (what the student says) and should have `cues` (what to do or point at), `key` (the one point to land) and `next`
@@ -79,6 +94,7 @@ Content-slide titles are single assertions of **≤ 50 characters** (the build e
 | fonts, spacing, colors, chart palette | `shared/style.toml` (affects everyone) |
 | a course rule | `shared/RULES.md`, and enforce it in `shared/lib/*` where possible |
 | a new slide layout or report directive | `shared/lib/slides_yaml.js` / `shared/lib/report_md.js`, then document it here and in the template |
+| the IEEE paper layout | `shared/lib/ieee_kit.js` (house style: `shared/lib/docx_kit.js`) |
 
 ## 6. Privacy & integrity
 - The repository may be **public**. Project folders are git-ignored by default (`.gitignore`: `/*/`). Publish one only **after** it has been submitted (`!/<name>/`). Commit only when the student asks.

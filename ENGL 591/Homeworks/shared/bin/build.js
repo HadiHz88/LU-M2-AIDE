@@ -41,6 +41,7 @@ function loadSources(project) {
 }
 
 async function buildReport(project, src) {
+  if (project.meta.report?.format === "ieee") return buildIeeeReport(project, src);
   const K = require("../lib/docx_kit");
   const { render } = require("../lib/report_md");
   const { pageMap } = require("../lib/paginate");
@@ -75,11 +76,37 @@ async function buildReport(project, src) {
   if (res.uncited.length) console.log(`        note: references.bib entries not cited (left out of the list): ${res.uncited.join(", ")}`);
 }
 
+// IEEE conference paper (project.toml: [report] format = "ieee"): one pass (no contents block), then a PDF,
+// whose page count must fall within report.pages = [min, max] when set (e.g. a 6–8 page limit).
+async function buildIeeeReport(project, src) {
+  const K = require("../lib/ieee_kit");
+  const { render } = require("../lib/report_md");
+  const { toPdf } = require("../lib/paginate");
+  const meta = project.meta;
+  K.reset();
+  const bib = new Bibliography(path.join(project.sources, "references.bib"), { style: "ieee" });
+  const children = await render({
+    src: src.read("report.md"), data: src.data, bib, meta, sources: project.sources, figDir: path.join(project.out, "figures"),
+  });
+  const { words } = K.runChecks({ factsPath: src.factsPath, extra: src.dataNumbers.map(String) });
+  const doc = K.buildDocument({ title: meta.report.title, children, pageNumbers: !!meta.report.page_numbers });
+  const out = path.join(project.out, cfg.filename(meta.file_label, "Report", meta.version, "docx"));
+  fs.writeFileSync(out, await K.Packer.toBuffer(doc));
+  const { pdf, pages } = toPdf(out, project.out);
+  console.log(`report  ✓ ${path.relative(cfg.HOMEWORKS, out)}  + .pdf  (IEEE, ~${words} words, ${pages} pages)`);
+  const uncited = bib.uncited();
+  if (uncited.length) console.log(`        note: references.bib entries not cited (left out of the list): ${uncited.join(", ")}`);
+  const [min, max] = meta.report.pages || [];
+  if ((min && pages < min) || (max && pages > max)) {
+    throw new Error(`report: ${pages} pages, outside the required ${min}–${max} (files written for inspection: ${path.basename(pdf)})`);
+  }
+}
+
 async function buildSlides(project, src) {
   const { renderDeck } = require("../lib/slides_yaml");
   const K = require("../lib/pptx_kit");
   const bib = new Bibliography(path.join(project.sources, "references.bib"));
-  const pres = await renderDeck({ docs: YAML.parseAllDocuments(src.read("slides.yaml")).map((d) => d.toJS()), data: src.data, bib, meta: project.meta, factsPath: src.factsPath });
+  const pres = await renderDeck({ docs: YAML.parseAllDocuments(src.read("slides.yaml")).map((d) => d.toJS()), data: src.data, bib, meta: project.meta, factsPath: src.factsPath, sources: project.sources });
   const out = path.join(project.out, cfg.filename(project.meta.file_label, "Slides", project.meta.version, "pptx"));
   await pres.writeFile({ fileName: out });
   // Presenter guide: what to show, do and say per slide (+ Q&A preparation from sources/qa.md when present)
