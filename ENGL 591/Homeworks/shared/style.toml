@@ -26,6 +26,7 @@ toc_levels = "1-2"
 list_of_figures = true            # included whenever the report has figures
 list_of_tables = true             # included whenever the report has tables
 front_matter_separate_pages = true   # Contents, List of Figures and List of Tables each start a new page
+reference_alignment = "justified"  # reference list: "justified" like the body (long URLs get break points), or "left"
 length_pages_mini = [4, 6]
 length_pages_final = [15, 25]
 
