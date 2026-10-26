@@ -56,7 +56,7 @@ const h2 = (text) => (outline.push({ title: text, level: 2 }), para([run(text)],
 
 function bullets(items) {
   return items.map((t) =>
-    para(runs(t), { numbering: { reference: "bullets", level: 0 }, alignment: AlignmentType.LEFT, spacing: { line: LINE, after: 60 } })
+    para(runs(t), { numbering: { reference: "bullets", level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { line: LINE, after: 60 } })
   );
 }
 
@@ -72,7 +72,7 @@ function caption(label, text, align) {
     children: [run(`${label} `), new SimpleField(`SEQ ${label} \\* ARABIC`, String(seq[label])), run(". "), run(text, { bold: false })],
   });
 }
-const note = (text, alignment = AlignmentType.LEFT) =>
+const note = (text, alignment = AlignmentType.JUSTIFIED) =>
   para([run("Note. ", { italics: true, size: pt(10), color: C.muted }), ...runs(text, { size: pt(10), color: C.muted })], {
     alignment, spacing: { before: 60, after: 240, line: 240 },
   });
@@ -138,11 +138,19 @@ function figure(pngPath, widthPx, heightPx, displayWidthPx = 500) {
 }
 
 // ---------- references ----------
+// Zero-width break opportunities after / . - _ ? & = # inside URLs and DOIs. Without them a long link cannot wrap,
+// and in justified text the line before it is stretched with wide gaps between words.
+// Same for arXiv identifiers ("(arXiv:1606.08415)"), which otherwise form one long unbreakable word.
+const breakableUrls = (t) =>
+  t.replace(/https?:\/\/\S+/g, (u) => u.slice(0, 8) + u.slice(8).replace(/([/.\-_?&=#])(?=\S)/g, "$1\u200B"))
+    .replace(/(arXiv:)(?=\d)/g, "$1\u200B");
+
 function referenceList(refs) {
   return refs.map((r) =>
-    para(r.parts.map(([t, it]) => run(t, { italics: !!it })), {
-      // References are single-spaced with space between entries (body text keeps 1.5 spacing)
-      alignment: AlignmentType.LEFT, indent: { left: 720, hanging: 720 }, spacing: { line: 240, after: 160 },
+    para(r.parts.map(([t, it]) => run(breakableUrls(t), { italics: !!it })), {
+      // Justified like the body (RULES.md §4), single-spaced with a uniform gap between entries, hanging indent
+      alignment: R.reference_alignment === "left" ? AlignmentType.LEFT : AlignmentType.JUSTIFIED,
+      indent: { left: 720, hanging: 720 }, spacing: { line: 240, after: 120 },
     })
   );
 }

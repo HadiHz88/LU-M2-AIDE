@@ -90,6 +90,10 @@ Extras: timed speaker script + 8–10 likely questions with model answers.
 - **Build checks (throw on failure):** decimal numbers must be in the facts file; every reference cited and every citation listed; informal-language lint; slide titles ≤ 50 chars.
 
 ## Session log
+- **2026-10-26:** Final report v2, from the student's review:
+  - **Outline:** the end of the Introduction is now a bulleted outline, one bullet per section plus the appendices (the paragraph version was easy to miss). The Introduction now runs onto a second page: 29 pp., 26 to the end of the references.
+  - **Justified references:** the reference list (`docx_kit.referenceList`, `report.reference_alignment` in style.toml) is justified like the body. URLs, DOIs and arXiv IDs get zero-width break points so justified lines are not stretched by unbreakable links. Uniform 6 pt gap between entries. Bullet lists and table notes are justified too (house-wide).
+  - v2 PDFs rendered; `HadiHijazi_ENGL591_FinalProject.zip` rebuilt with the v2 report and slides (slides and notebook unchanged). v1 files still in `final/out/`.
 - **2026-10-13:** Final project v1 (`final/`, private like every project folder).
   - Report in the house style, full Ch. 3 structure (acknowledgements, abstract, contents, lists, 6 sections, references, 2 appendices), ~6,000 words, 7 figures and 7 tables; 13 slides (~13 min) with notes, cues and transitions; `qa.md` with 14 answers.
   - Numbers: `final/sources/facts.md`, all from our own runs, plus a new error analysis of the final model (`scratchpad/final_model_errors.py` in the AIDE500 repo). New figures (DVM-CAR examples, long tail without a title) from `scratchpad/final_report_figures.py` there.

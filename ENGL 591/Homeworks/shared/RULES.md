@@ -67,7 +67,7 @@ Cover · Abstract · **Contents · List of Figures · List of Tables** · Introd
 | Results | captioned tables/charts, comparisons, professional interpretation that references the table (14) |
 | Discussion | real-world meaning, improvements, next steps (15) |
 | Conclusion | restate objective + outcomes, **no new information** (16) |
-| References | one consistent style (APA), everything cited (17) |
+| References | one consistent style (APA), everything cited (17). House rule: justified like the body, hanging indent, no stretched gaps (long links get break points) |
 | Appendices | large tables, code, extra docs (18) |
 
 **Formatting** (slides 10, 19): see `[report]` in `style.toml`. Times New Roman 12, 1.5 spacing, 2.5 cm margins, page numbers bottom center, all figures/tables numbered and captioned, Heading 1/2/3 styles → automatic TOC and List of Figures/Tables.
