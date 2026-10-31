@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIAI 504 Practice Quiz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* One reading column, one question at a time. Nothing is marked until the quiz is submitted.
+   Same palette and type as the field guide: graphite neutrals, amber accent; green and rose only for results. */
+:root{
+  --bg:#EEF0F4; --surface:#F9FAFC; --surface-2:#E2E6EC; --ink:#141922; --ink-2:#414A58; --muted:#687384; --line:#CBD2DC;
+  --accent:#A3470A; --accent-soft:#F5E1D1;
+  --neg:#C2255C; --neg-soft:#F8DCE6; --ok:#18794E; --ok-soft:#D7F0E3;
+  --code-bg:#E3E7ED;
+  --font-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:10px; --read:720px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+    --accent:#F0A057; --accent-soft:#3A2516;
+    --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+    --code-bg:#1A2029; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+  --accent:#F0A057; --accent-soft:#3A2516;
+  --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+  --code-bg:#1A2029; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:76px}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16.5px; line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0; line-height:1.15; letter-spacing:-0.01em}
+h1{font-size:clamp(2.4rem,7vw,3.8rem); font-weight:800; letter-spacing:-0.03em; line-height:1}
+h1 em{font-style:normal; color:var(--accent)}
+h2{font-size:1.2rem; font-weight:800}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.sr{position:absolute; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap}
+.eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+
+/* math: display formulas scroll sideways on narrow screens instead of widening the page */
+mjx-container[display="true"]{margin:.35em 0!important; max-width:100%; overflow-x:auto; overflow-y:hidden; padding:2px 0}
+mjx-container{color:inherit}
+.nw{white-space:nowrap}
+
+/* top bar */
+.topbar{position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--line);
+  margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px))); margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-top:env(safe-area-inset-top,0px)}
+.topbar-in{max-width:var(--read); margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; padding-block:11px}
+.brand{font-family:var(--font-mono); font-size:.78rem; letter-spacing:.06em; color:var(--ink-2)}
+.brand b{color:var(--ink); font-weight:600}
+.topbar-r{display:flex; align-items:center; gap:12px}
+.count{font-family:var(--font-mono); font-size:.78rem; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.prog{height:3px; background:var(--surface-2); margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px))); margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)))}
+.prog i{display:block; height:100%; width:0; background:var(--accent); transition:width .25s ease}
+.theme-toggle{display:inline-grid; place-items:center; width:34px; height:34px; flex:none; padding:0; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--ink); cursor:pointer}
+.theme-toggle:hover{border-color:var(--ink-2)}
+.theme-toggle svg{width:17px; height:17px}
+
+.page{max-width:var(--read); margin:0 auto; padding-block:40px 0}
+.view{display:grid; gap:36px}
+.view>*,.qcard>*,.rv>*,.scorecard>*{min-width:0}
+.block{display:grid; gap:14px}
+.block-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap}
+
+/* buttons */
+.btn{font:inherit; font-size:.92rem; font-weight:700; line-height:1.25; border-radius:999px; padding:10px 18px; border:1.5px solid var(--ink); background:transparent; color:var(--ink); cursor:pointer}
+.btn:hover{background:var(--ink); color:var(--bg)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.btn.primary:hover{filter:brightness(1.08); background:var(--accent); color:var(--surface)}
+.btn.big{font-size:1rem; padding:13px 26px; justify-self:start}
+.btn:disabled{opacity:.42; cursor:default}
+.btn:disabled:hover{background:transparent; color:var(--ink); filter:none}
+.linkbtn{font:inherit; font-size:.92rem; background:none; border:0; padding:0; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+.linkbtn.armed{color:var(--neg); font-weight:700}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font:inherit; font-size:.86rem; border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:5px 12px; border-radius:999px; cursor:pointer; line-height:1.4}
+.chip:hover{border-color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+
+/* intro */
+.intro-head{display:grid; gap:16px}
+.lede{font-size:1.12rem; color:var(--ink-2); max-width:62ch}
+.steps{list-style:none; margin:0; padding:0; display:grid}
+.steps li{position:relative; display:grid; grid-template-columns:30px minmax(0,1fr); column-gap:14px; padding-bottom:16px}
+.steps li:last-child{padding-bottom:0}
+.steps li::before{content:""; position:absolute; left:14px; top:32px; bottom:2px; width:2px; background:var(--line)}
+.steps li:last-child::before{display:none}
+.steps .k{grid-row:1 / span 2; width:30px; height:30px; border-radius:50%; border:2px solid var(--ink); display:grid; place-items:center; font-family:var(--font-mono); font-size:.78rem; font-weight:600; background:var(--bg)}
+.steps b{font-family:var(--font-display); font-size:1.02rem}
+.steps span:not(.k){color:var(--ink-2)}
+.rules{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:16px 18px; display:grid; gap:10px}
+.rules ul{margin:0; padding-left:1.1em; display:grid; gap:6px; color:var(--ink-2); font-size:.95rem}
+.rules li b{color:var(--ink)}
+details.rules{padding:0}
+details.rules>summary{cursor:pointer; padding:12px 18px; font-size:.92rem; color:var(--ink-2)}
+details.rules>summary:hover{color:var(--ink)}
+details.rules[open]>summary{border-bottom:1px solid var(--line)}
+details.rules>ul{padding:12px 18px 16px 2.2em}
+
+/* question */
+.qcard{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:22px 24px; display:grid; gap:18px; min-width:0}
+.qmeta{display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px}
+.qmeta .eyebrow{color:var(--accent)}
+.pill{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.06em; border:1px solid var(--line); border-radius:999px; padding:1px 9px; color:var(--ink-2)}
+.q-stem{font-size:1.06rem; line-height:1.6}
+.q-stem:focus{outline:none}
+.given{background:var(--code-bg); border-radius:8px; padding:6px 14px; min-width:0; overflow-x:auto}
+.mats{display:flex; flex-wrap:wrap; align-items:center; column-gap:28px}
+.vals{display:grid; gap:2px; padding-block:6px}
+.vals>div{display:flex; flex-wrap:wrap; column-gap:12px}
+.vals span{min-width:8.5em; padding-right:12px}
+.opts{display:grid; gap:8px; min-width:0}
+.opt{display:grid; grid-template-columns:28px minmax(0,1fr); gap:12px; align-items:center; width:100%; text-align:left; font:inherit; color:var(--ink); background:var(--bg);
+  border:1.5px solid var(--line); border-radius:9px; padding:11px 14px; cursor:pointer; min-width:0}
+.opt:hover{border-color:var(--ink-2)}
+.opt .L,.ro .L{width:28px; height:28px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-family:var(--font-mono); font-size:.78rem; font-weight:600; color:var(--ink-2); flex:none}
+.opt .t{min-width:0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums}
+.opt[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft)}
+.opt[aria-pressed="true"] .L{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.qnav{display:flex; justify-content:space-between; gap:10px; padding-top:2px}
+.hint{font-size:.84rem; color:var(--muted); margin-top:-22px}
+
+/* question grid */
+.gridnav{display:grid; grid-template-columns:repeat(auto-fill,minmax(40px,1fr)); gap:6px}
+.gn{font:inherit; font-family:var(--font-mono); font-size:.8rem; height:38px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer; font-variant-numeric:tabular-nums}
+.gn:hover{border-color:var(--ink-2)}
+.gn.done{background:var(--ink); border-color:var(--ink); color:var(--bg)}
+.gn.cur{outline:2px solid var(--accent); outline-offset:2px}
+.key{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.82rem; color:var(--muted)}
+.key span{display:inline-flex; align-items:center; gap:7px}
+.key i{width:12px; height:12px; border-radius:3px; border:1.5px solid var(--line); background:var(--surface); display:inline-block}
+.key i.d{background:var(--ink); border-color:var(--ink)}
+.key i.c{outline:2px solid var(--accent); outline-offset:1px}
+.key i.ok{background:var(--ok); border-color:var(--ok)} .key i.no{background:var(--neg); border-color:var(--neg)} .key i.skip{background:transparent; border-style:dashed}
+
+.finish{border-top:1px solid var(--line); padding-top:24px; display:grid; gap:12px}
+.finish p{color:var(--ink-2)}
+.finish .btn{justify-self:start}
+.confirm{border:1.5px solid var(--accent); border-radius:var(--radius); background:var(--surface); padding:16px 18px; display:grid; gap:12px}
+.confirm .row{display:flex; flex-wrap:wrap; gap:8px}
+.reset{text-align:right}
+
+/* results */
+.scorecard{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:24px; display:grid; gap:10px}
+.scorecard .big{font-size:clamp(3rem,10vw,4.4rem); font-weight:800; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums}
+.scorecard .big span{font-size:.45em; color:var(--muted); font-weight:700; margin-left:.2em}
+.scorecard .big:focus{outline:none}
+.pct{font-family:var(--font-mono); font-size:.86rem; color:var(--ink-2)}
+.verdict{font-size:1.05rem}
+.actions{display:flex; flex-wrap:wrap; gap:8px; padding-top:6px}
+.dots{display:grid; grid-template-columns:repeat(auto-fill,minmax(36px,1fr)); gap:6px}
+.dot{font:inherit; font-family:var(--font-mono); font-size:.78rem; height:34px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer}
+.dot.ok{background:var(--ok-soft); border-color:var(--ok); color:var(--ink)}
+.dot.no{background:var(--neg-soft); border-color:var(--neg); color:var(--ink)}
+.dot.skip{border-style:dashed}
+.lect{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.lect li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center}
+.lect .nm{font-size:.95rem}
+.lect .nm span{font-family:var(--font-mono); font-size:.74rem; color:var(--muted); margin-right:8px}
+.lect b{font-family:var(--font-mono); font-size:.84rem; font-weight:600; font-variant-numeric:tabular-nums}
+.meter{grid-column:1 / -1; height:6px; border-radius:999px; background:var(--surface-2); overflow:hidden}
+.meter i{display:block; height:100%; background:var(--ink-2); border-radius:999px}
+
+.review{display:grid; gap:18px}
+.rv{border:1px solid var(--line); border-left:4px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:18px 20px; display:grid; gap:14px; min-width:0}
+.rv.ok{border-left-color:var(--ok)} .rv.no{border-left-color:var(--neg)} .rv.skip{border-left-style:dashed; border-left-color:var(--muted)}
+.rv:focus{outline:none}
+.rv-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px}
+.rv-n{font-family:var(--font-mono); font-weight:600; color:var(--accent)}
+.st{margin-left:auto; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; font-weight:600}
+.st.ok{color:var(--ok)} .st.no{color:var(--neg)} .st.skip{color:var(--muted)}
+.ro-list{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+.ro{display:grid; grid-template-columns:28px minmax(0,1fr); gap:12px; align-items:start; padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink-2)}
+.ro .L{margin-top:1px}
+.ro-b{display:grid; gap:4px; min-width:0; padding-top:2px}
+.ro .t{overflow-wrap:anywhere}
+.ro .tag{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; font-weight:600}
+.ro .why{font-size:.9rem; color:var(--ink)}
+.ro.right{border-color:var(--ok); background:var(--ok-soft); color:var(--ink)}
+.ro.right .L{background:var(--ok); border-color:var(--ok); color:var(--surface)}
+.ro.right .tag{color:var(--ok)}
+.ro.wrong{border-color:var(--neg); background:var(--neg-soft); color:var(--ink)}
+.ro.wrong .L{background:var(--neg); border-color:var(--neg); color:var(--surface)}
+.ro.wrong .tag{color:var(--neg)}
+.skipnote{font-size:.9rem; color:var(--muted)}
+details.sol{border-top:1px dashed var(--line); padding-top:10px}
+details.sol>summary{cursor:pointer; font-family:var(--font-mono); font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+details.sol>summary:hover{color:var(--ink)}
+.sol-body{display:grid; gap:6px; padding-top:8px; min-width:0}
+.sol-body p{color:var(--ink-2)}
+.empty{color:var(--muted); text-align:center; padding:12px 0}
+
+footer{margin-top:64px; border-top:1px solid var(--line); padding:20px 0 40px; font-size:.86rem; color:var(--muted)}
+@media (max-width:560px){
+  .qcard{padding:18px 14px}
+  .rv{padding:16px 14px}
+  .opt{padding:10px 12px; gap:10px}
+  .sol-body mjx-container[display="true"],.q-stem mjx-container[display="true"]{font-size:90%}
+}
+@media (max-width:380px){
+  .sol-body mjx-container[display="true"],.q-stem mjx-container[display="true"]{font-size:85%}
+  .brand .long{display:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important; scroll-behavior:auto!important}}
+</style>
+<script>try{var t=localStorage.getItem("dl-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"},options:{enableMenu:false}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" id="MathJax-script"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><b>MIAI 504</b><span class="long"> · Neural Networks</span> · Practice quiz</span>
+    <div class="topbar-r"><span class="count" id="countTxt" aria-live="polite"></span><button class="theme-toggle" type="button"></button></div>
+  </div>
+  <div class="prog" role="progressbar" aria-label="Questions answered" aria-valuemin="0" id="prog"><i></i></div>
+</header>
+
+<main class="page">
+
+<!-- ================= INTRO ================= -->
+<section class="view" id="intro" hidden>
+  <div class="intro-head">
+    <span class="eyebrow">MIAI 504 · Neural Networks &amp; Deep Learning</span>
+    <h1>Practice <em>quiz</em></h1>
+    <p class="lede"><span id="nTotal"></span> multiple-choice questions on Lectures 1 to 7. Most are calculations done the slides’ way: neuron outputs, perceptron and delta-rule weight updates, backpropagation, momentum and Adam, convolution, and recurrent units.</p>
+  </div>
+  <ol class="steps">
+    <li><span class="k">1</span><b>Answer in any order</b><span>Use Previous and Next, or jump to any question from the grid.</span></li>
+    <li><span class="k">2</span><b>Nothing is marked while you work</b><span>Change your answers as often as you like. There is no feedback until you submit.</span></li>
+    <li><span class="k">3</span><b>Submit to see your score</b><span>Unanswered questions count as zero. You get your score, a breakdown by lecture and a review of every question, with the slip behind each wrong answer and a worked solution.</span></li>
+    <li><span class="k">4</span><b>Every attempt is new</b><span>The calculations draw new numbers and the options are reshuffled, with the correct answers spread evenly over A to D.</span></li>
+    <li><span class="k">5</span><b>Progress is saved</b><span>Your answers are kept in this browser, so you can close the tab and come back.</span></li>
+  </ol>
+  <section class="rules" aria-labelledby="convH">
+    <h2 id="convH" class="eyebrow">Conventions, as in the slides</h2>
+    <ul class="conv"></ul>
+  </section>
+  <button class="btn primary big" type="button" id="startBtn">Start the quiz</button>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="view" id="quiz" hidden>
+  <article class="qcard" id="qcard">
+    <div class="qmeta"><span class="eyebrow" id="qNum"></span><span class="pill" id="retakeTag" hidden>Retake · questions you missed</span></div>
+    <div class="q-stem" id="qText" tabindex="-1"></div>
+    <div class="given" id="qGiven" hidden></div>
+    <div class="opts" id="opts" role="group" aria-labelledby="qText"></div>
+    <div class="qnav">
+      <button class="btn" type="button" id="prev">← Previous</button>
+      <button class="btn primary" type="button" id="next">Next →</button>
+    </div>
+  </article>
+  <p class="hint">Keyboard: A–D or 1–4 to answer, ← and → to move between questions.</p>
+
+  <details class="rules"><summary>Conventions used in the calculations</summary><ul class="conv"></ul></details>
+
+  <div class="block">
+    <div class="block-head">
+      <h2>All questions</h2>
+      <button class="linkbtn" type="button" id="nextUn">Go to the next unanswered</button>
+    </div>
+    <div class="gridnav" id="gridNav" role="group" aria-label="Jump to a question"></div>
+    <div class="key"><span><i class="d"></i>Answered</span><span><i></i>Not answered yet</span><span><i class="c"></i>Current</span></div>
+  </div>
+
+  <div class="finish" id="finish">
+    <h2>Submit</h2>
+    <p id="finishNote"></p>
+    <button class="btn primary" type="button" id="finishBtn" aria-describedby="finishNote">Submit and score</button>
+    <div class="confirm" id="confirm" hidden>
+      <p id="confirmMsg"></p>
+      <div class="row">
+        <button class="btn primary" type="button" id="confirmYes">Score my answers</button>
+        <button class="btn" type="button" id="confirmNo">Keep answering</button>
+      </div>
+    </div>
+  </div>
+  <div class="reset"><button class="linkbtn" type="button" id="resetBtn">Start over</button></div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section class="view" id="results" hidden>
+  <div class="scorecard">
+    <span class="eyebrow" id="sScope">Your result</span>
+    <h2 class="big" id="scoreHead" tabindex="-1"><b id="sNum">0</b><span id="sDen">/ 0</span></h2>
+    <p class="pct" id="sPct"></p>
+    <p class="verdict" id="sVerdict"></p>
+    <div class="actions">
+      <button class="btn primary" type="button" id="retakeMiss">Retake the questions I missed</button>
+      <button class="btn" type="button" id="retakeAll">Start a new quiz</button>
+    </div>
+    <p class="small muted">Both draw new numbers for the calculations.</p>
+  </div>
+
+  <div class="block">
+    <h2>Question by question</h2>
+    <div class="dots" id="dots" role="group" aria-label="Jump to a question in the review"></div>
+    <div class="key"><span><i class="ok"></i>Correct</span><span><i class="no"></i>Incorrect</span><span id="keySkip"><i class="skip"></i>Not answered (scored 0)</span></div>
+  </div>
+
+  <div class="block">
+    <h2>By lecture</h2>
+    <ol class="lect" id="byLec"></ol>
+  </div>
+
+  <div class="block">
+    <div class="block-head">
+      <h2>Review your answers</h2>
+      <div class="chips" role="group" aria-label="Filter the review" id="filterChips"></div>
+    </div>
+    <div class="review" id="review"></div>
+  </div>
+</section>
+
+<footer>Made from the MIAI 504 lecture slides (Lectures 1–7, Dr. Zein Al Abidin Ibrahim, Lebanese University, 2026/2027). Numbers are random; the methods are the slides’.</footer>
+</main>
+<script>
+/* ================= NUMBERS ================= */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const hash=s=>{let h=2166136261;for(const c of s)h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0;};
+function rng(seed){
+  const n=mulberry32(seed);
+  return {
+    u:n,
+    int:(a,b)=>a+Math.floor(n()*(b-a+1)),
+    pick:a=>a[Math.floor(n()*a.length)],
+    step(a,b,s,nz){for(;;){const v=+(a+s*Math.floor(n()*(Math.round((b-a)/s)+1))).toFixed(6);if(!nz||v!==0)return v;}},
+    shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(n()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+  };
+}
+/* Everything mathematical is written in TeX and typeset by MathJax: \( \) inline, \[ \] display. */
+const fx=(v,d)=>{const s=v.toFixed(d);return /^-0(\.0+)?$/.test(s)?s.slice(1):s;};
+const fn=v=>String(+(+v).toFixed(4));
+const par=s=>s[0]==="-"?`(${s})`:s;
+const sgn=(v,d)=>(v<0?"- ":"+ ")+(d===undefined?fn(Math.abs(v)):fx(Math.abs(v),d));
+const vec=(a,f=fn)=>`(${a.map(f).join(", ")})`;
+const int=v=>v.toLocaleString("en-US");
+const intT=v=>int(v).replace(/,/g,"{,}");
+const mi=s=>`\\(${s}\\)`;
+const md=s=>`\\[${s}\\]`;
+const bx=s=>`\\boxed{${s}}`;
+const steps=lines=>md(`\\begin{aligned}${lines.join("\\\\")}\\end{aligned}`);
+/* given values: one formula per value, in rows that wrap on narrow screens */
+const grid=rows=>`<div class="vals">${rows.map(r=>`<div>${r.map(c=>`<span>${mi(c)}</span>`).join("")}</div>`).join("")}</div>`;
+const sig=u=>1/(1+Math.exp(-u));
+const softmax=z=>{const m=Math.max(...z),e=z.map(v=>Math.exp(v-m)),S=e.reduce((a,b)=>a+b);return e.map(v=>v/S);};
+
+/* ================= QUESTIONS =================
+   A calculation has gen(R): it draws numbers from R and returns
+   {stem, given?, ans:{t,v}, wrong:[{t,v,why}×3], sol, tol}; null means "draw again".
+   A concept question is fixed text. Every wrong option carries the slip it comes from. */
+const QS=[
+
+/* ---------- Lecture 1 ---------- */
+{id:"dist",lec:1,kind:"calc",topic:"Distance metrics",gen(R){
+  const X=[R.int(0,9),R.int(0,9),R.int(0,9)],Y=[R.int(0,9),R.int(0,9),R.int(0,9)];
+  const d=X.map((x,i)=>x-Y[i]),ad=d.map(Math.abs);
+  if(ad.some(v=>v===0))return null;
+  const L1=ad.reduce((a,b)=>a+b),SQ=ad.reduce((a,b)=>a+b*b,0),L2=Math.sqrt(SQ),LI=Math.max(...ad),SG=Math.abs(d.reduce((a,b)=>a+b)),MN=Math.min(...ad);
+  const f=v=>Number.isInteger(v)?String(v):fx(v,3);
+  const m=R.pick(["L1","L2","Li"]);
+  const NAME={L1:`Manhattan (${mi("L_1")})`,L2:`Euclidean (${mi("L_2")})`,Li:mi("L_\\infty")};
+  const o={L1:{t:mi(f(L1)),v:L1,why:`This is the Manhattan (${mi("L_1")}) distance, the sum of the absolute differences.`},
+    L2:{t:mi(f(L2)),v:L2,why:`This is the Euclidean (${mi("L_2")}) distance, the square root of the sum of squares.`},
+    Li:{t:mi(f(LI)),v:LI,why:`This is the ${mi("L_\\infty")} distance, the largest absolute difference.`}};
+  const wrong=Object.keys(o).filter(k=>k!==m).map(k=>o[k]);
+  wrong.push(m==="L1"?{t:mi(f(SG)),v:SG,why:"Added the signed differences, so positive and negative ones cancel. Take the absolute value of each difference first."}
+    :m==="L2"?{t:mi(f(SQ)),v:SQ,why:"Forgot the square root: this is the squared Euclidean distance."}
+    :{t:mi(f(MN)),v:MN,why:`Took the smallest absolute difference; ${mi("L_\\infty")} takes the largest.`});
+  const sol=steps([`|x_k - y_k| &= (${ad.join(", ")})`,
+    m==="L1"?`L_1 &= ${ad.join(" + ")} = ${bx(f(L1))}`
+    :m==="L2"?`L_2 &= \\sqrt{${ad.map(v=>v+"^2").join(" + ")}}\\\\ &= \\sqrt{${SQ}} = ${bx(f(L2))}`
+    :`L_\\infty &= \\max(${ad.join(", ")}) = ${bx(f(LI))}`]);
+  return {stem:`What is the ${NAME[m]} distance between ${mi(`X = ${vec(X)}`)} and ${mi(`Y = ${vec(Y)}`)}?`,ans:o[m],wrong,sol,tol:0.01};
+}},
+
+{id:"norm",lec:1,kind:"calc",topic:"Normalization, then distance",gen(R){
+  const A=Array.from({length:5},()=>[R.int(1,20),R.int(100,1200)]);
+  const m1=Math.max(...A.map(a=>a[0])),m2=Math.max(...A.map(a=>a[1])),lo1=Math.min(...A.map(a=>a[0])),lo2=Math.min(...A.map(a=>a[1]));
+  let i=R.int(0,4),j=R.int(0,4);
+  if(i===j||lo1===m1||lo2===m2)return null;
+  if(i>j)[i,j]=[j,i];
+  const P=A[i],Q=A[j],d1=(P[0]-Q[0])/m1,d2=(P[1]-Q[1])/m2,ans=Math.hypot(d1,d2);
+  const raw=Math.hypot(P[0]-Q[0],P[1]-Q[1]),man=Math.abs(d1)+Math.abs(d2),mm=Math.hypot((P[0]-Q[0])/(m1-lo1),(P[1]-Q[1])/(m2-lo2));
+  const given=md(`\\begin{array}{c|rr} & f_1 & f_2\\\\ \\hline ${A.map((a,k)=>`X_${k+1} & ${a[0]} & ${a[1]}`).join("\\\\")}\\end{array}`);
+  const rows=(k,p)=>[`X_${k}' &= \\left(\\tfrac{${p[0]}}{${m1}},\\ \\tfrac{${p[1]}}{${m2}}\\right)`,`&= (${fx(p[0]/m1,4)},\\ ${fx(p[1]/m2,4)})`];
+  return {stem:`Normalize as in Lecture 1 (divide each feature by its maximum over the five samples), then find the Euclidean distance between ${mi(`X_${i+1}`)} and ${mi(`X_${j+1}`)}.`,given,
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(raw,4)),v:raw,why:`Skipped the normalization, so ${mi("f_2")} (hundreds) swamps ${mi("f_1")}. Normalization exists to stop exactly this.`},
+      {t:mi(fx(man,4)),v:man,why:"This is the Manhattan distance of the normalized values; the question asks for Euclidean."},
+      {t:mi(fx(mm,4)),v:mm,why:`Used min-max scaling, ${mi("(x - \\min)/(\\max - \\min)")}. Lecture 1's normalization divides by the maximum only.`}],
+    sol:steps([`\\max f_1 &= ${m1},\\quad \\max f_2 = ${m2}`,...rows(i+1,P),...rows(j+1,Q),
+      `d &= \\sqrt{${par(fx(d1,4))}^2 + ${par(fx(d2,4))}^2}`,`&= ${bx(fx(ans,4))}`]),tol:0.002};
+}},
+
+/* ---------- Lecture 2 ---------- */
+{id:"neuron",lec:2,kind:"calc",topic:"Neuron output",gen(R){
+  const x=[R.step(-2,2,0.5,1),R.step(-2,2,0.5,1),R.step(-2,2,0.5,1)],w=[R.step(-1,1,0.1,1),R.step(-1,1,0.1,1),R.step(-1,1,0.1,1)],b=R.step(-1,1,0.1,1);
+  const A={sig:{name:`the logistic sigmoid ${mi("\\varphi(v) = 1/(1 + e^{-v})")}`,lab:"the sigmoid",f:sig},
+    tanh:{name:mi("\\tanh"),lab:mi("\\tanh"),f:Math.tanh},
+    relu:{name:`ReLU, ${mi("\\varphi(v) = \\max(0, v)")}`,lab:"ReLU",f:v=>Math.max(0,v)}};
+  const k=R.pick(["sig","sig","tanh","relu"]),other=k==="sig"?"tanh":"sig";
+  const s=x.reduce((a,xi,i)=>a+xi*w[i],0),v=s+b,y=A[k].f(v);
+  const phi=k==="sig"?`\\frac{1}{1 + e^{${fx(-v,2)}}}`:k==="tanh"?`\\tanh(${fx(v,2)})`:`\\max(0,\\ ${fx(v,2)})`;
+  return {stem:`A neuron has inputs ${mi(`x = ${vec(x)}`)}, weights ${mi(`w = ${vec(w)}`)} and bias ${mi(`b = ${fn(b)}`)}. Its activation is ${A[k].name}. What is its output ${mi("y")}?`,
+    ans:{t:mi(fx(y,4)),v:y},
+    wrong:[{t:mi(fx(A[k].f(s),4)),v:A[k].f(s),why:`Left out the bias: ${mi("\\varphi(\\sum_i w_ix_i)")} instead of ${mi("\\varphi(\\sum_i w_ix_i + b)")}.`},
+      {t:mi(fx(v,4)),v,why:`This is ${mi("v")}, the input to the activation. The output is ${mi("y = \\varphi(v)")}.`},
+      {t:mi(fx(A[other].f(v),4)),v:A[other].f(v),why:`Applied ${A[other].lab} instead of ${A[k].lab}.`}],
+    sol:steps([`v &= ${par(fn(w[0]))}\\cdot ${par(fn(x[0]))} + ${par(fn(w[1]))}\\cdot ${par(fn(x[1]))}`,
+      `&\\quad {}+ ${par(fn(w[2]))}\\cdot ${par(fn(x[2]))} ${sgn(b)}`,
+      `&= ${fx(s,2)} ${sgn(b)} = ${fx(v,2)}`,
+      `y &= \\varphi(v) = ${phi} = ${bx(fx(y,4))}`]),tol:0.002};
+}},
+
+{id:"perc",lec:2,kind:"calc",topic:"Perceptron weight update",gen(R){
+  const w=[R.step(-2,2,0.5),R.step(-2,2,0.5,1),R.step(-2,2,0.5,1)],x=[1,R.int(-3,3),R.int(-3,3)],eta=R.pick([0.1,0.2,0.5,1]),cls=R.pick([1,2]);
+  if(x[1]===0&&x[2]===0)return null;
+  const s=w.reduce((a,wi,i)=>a+wi*x[i],0),pred=s>0?1:2,mis=pred!==cls;
+  if(mis!==(R.u()<0.75))return null;
+  const add=w.map((wi,i)=>wi+eta*x[i]),sbt=w.map((wi,i)=>wi-eta*x[i]),corr=mis?(cls===1?add:sbt):w;
+  const dir=cls===1?"+":"-";
+  const given=grid([[`w(n) = ${vec(w)}`],[`x(n) = ${vec(x)}`],[`\\eta = ${fn(eta)}`,`\\text{true class } ${cls}`]]);
+  let wrong;
+  if(mis){
+    const nb=corr.slice();nb[0]=w[0];
+    wrong=[{t:mi(vec(cls===1?sbt:add)),why:`Moved the wrong way. A class-1 sample that scored ${mi("\\le 0")} needs ${mi("w + \\eta x")} to raise ${mi("w^Tx")}; a class-2 sample that scored ${mi("> 0")} needs ${mi("w - \\eta x")}.`},
+      {t:mi(vec(nb)),why:`Left the bias ${mi("w_0")} alone. The bias is the weight on the constant input ${mi("x_0 = 1")}, so it changes by ${mi("\\eta\\cdot 1")} like the others.`},
+      {t:mi(vec(w))+", unchanged",why:`The sample is misclassified (check the sign of ${mi("w^Tx")} against its class), so ${mi("w")} must change.`}];
+  }else{
+    const bo=w.slice();bo[0]=w[0]+(cls===1?eta:-eta);
+    wrong=[{t:mi(vec(add)),why:`The sample is already on the correct side, so the perceptron leaves ${mi("w")} alone.`},
+      {t:mi(vec(sbt)),why:`The sample is already on the correct side, so the perceptron leaves ${mi("w")} alone.`},
+      {t:mi(vec(bo)),why:"Nothing changes when the sample is classified correctly, not even the bias."}];
+  }
+  const ans={t:mi(vec(corr))+(mis?"":", unchanged")};
+  const sol=steps([`w^Tx &= ${w.map((wi,i)=>`${par(fn(wi))}\\cdot ${par(fn(x[i]))}`).join(" + ")}`,`&= ${fn(s)} ${s>0?">":"\\le"} 0`])
+    +`<p>Predicted class ${pred}, true class ${cls}: ${mis?`misclassified, so ${mi("w")} changes.`:"correct, so there is no update."}</p>`
+    +steps(mis?[`w(n+1) &= w(n) ${dir} \\eta\\,x(n)`,`&= ${vec(w)} ${dir} ${fn(eta)}\\cdot ${vec(x)}`,`&= ${bx(vec(corr))}`]
+      :[`w(n+1) &= w(n) = ${bx(vec(w))}`]);
+  return {stem:`Rule from the slides: the perceptron predicts class 1 if ${mi("w^Tx > 0")} and class 2 if ${mi("w^Tx \\le 0")}. A misclassified class-1 sample gives ${mi("w(n+1) = w(n) + \\eta\\,x(n)")}, a misclassified class-2 sample gives ${mi("w(n+1) = w(n) - \\eta\\,x(n)")}, and a correctly classified sample leaves ${mi("w")} unchanged. What is ${mi("w(n+1)")}?`,given,ans,wrong,sol};
+}},
+
+{id:"gd",lec:2,kind:"calc",topic:"Gradient descent step",gen(R){
+  const a=R.pick([0.5,1,2,3]),c=R.step(-3,3,0.5),w=R.step(-3,3,0.5),eta=R.pick([0.05,0.1,0.2,0.25]);
+  if(w===c)return null;
+  const g=2*a*(w-c),E=a*(w-c)**2,ans=w-eta*g;
+  const A=a===1?"":fn(a),Ef=c===0?`${A}w^2`:`${A}(w ${c<0?"+":"-"} ${fn(Math.abs(c))})^2`;
+  return {stem:`The error is ${mi(`E(w) = ${Ef}`)}. The weight is ${mi(`w = ${fn(w)}`)} and the learning rate is ${mi(`\\eta = ${fn(eta)}`)}. What is ${mi("w")} after one step of gradient descent?`,
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(w+eta*g,4)),v:w+eta*g,why:`Stepped up the slope. Gradient descent subtracts ${mi("\\eta\\,dE/dw")}.`},
+      {t:mi(fx(w-eta*a*(w-c),4)),v:w-eta*a*(w-c),why:`Dropped the 2 from the derivative: the derivative of ${mi("a(w - c)^2")} is ${mi("2a(w - c)")}.`},
+      {t:mi(fx(w-eta*E,4)),v:w-eta*E,why:`Used the error ${mi("E(w)")} itself instead of its derivative.`}],
+    sol:steps([`\\frac{dE}{dw} &= 2\\cdot ${fn(a)}\\cdot ${c===0?par(fn(w)):`(${fn(w)} ${sgn(-c)})`} = ${fn(g)}`,
+      `w &\\leftarrow w - \\eta\\,\\frac{dE}{dw} = ${fn(w)} - ${fn(eta)}\\cdot ${par(fn(g))}`,
+      `&= ${bx(fx(ans,4))}`]),tol:0.001};
+}},
+
+{id:"xor",lec:2,kind:"concept",topic:"Limits of the perceptron",
+  stem:"Why can a single perceptron not learn the XOR function?",
+  ans:{t:`XOR is not linearly separable: no straight line puts ${mi("(0, 1)")} and ${mi("(1, 0)")} on one side and ${mi("(0, 0)")} and ${mi("(1, 1)")} on the other.`},
+  wrong:[{t:"It needs more epochs; the convergence theorem guarantees it will get there in the end.",why:"The convergence theorem holds only when the classes are linearly separable. XOR is not, so no number of epochs helps."},
+    {t:"Its learning rate has to be much smaller for the weights to settle on XOR.",why:"The learning rate changes the step size, not the shape of the boundary, which is always a straight line."},
+    {t:"The step activation cannot output both 0 and 1 for the same pair of weights.",why:"The step function does output two values. The problem is where the boundary can go."}],
+  sol:`A perceptron splits the plane with one line, ${mi("w^Tx = 0")}. XOR needs two lines, which is why Lecture 3 builds the XOR network with a hidden layer.`},
+
+{id:"percwhy",lec:2,kind:"concept",topic:"Why the perceptron rule works",
+  stem:`A class-1 sample ${mi("x")} is misclassified because ${mi("w^Tx \\le 0")}. Why does the update ${mi("w \\leftarrow w + \\eta x")} help?`,
+  ans:{t:`The new score is ${mi("(w + \\eta x)^Tx = w^Tx + \\eta\\|x\\|^2")}, which is larger, so the sample moves toward the positive side.`},
+  wrong:[{t:`It sets ${mi("w^Tx")} exactly to 0, which puts the sample on the decision boundary.`,why:`The score rises by ${mi("\\eta\\|x\\|^2")}, which need not land on 0. It can take several updates to cross over.`},
+    {t:`It turns ${mi("w")} until it is perpendicular to ${mi("x")}, so the sample no longer counts.`,why:`Adding ${mi("\\eta x")} turns ${mi("w")} toward ${mi("x")}, not perpendicular to it.`},
+    {t:`It shrinks ${mi("w")}, which moves the boundary away from the sample.`,why:`Adding ${mi("\\eta x")} can make ${mi("w")} longer or shorter. What matters is that ${mi("w^Tx")} grows.`}],
+  sol:`${mi("\\eta\\|x\\|^2")} is always positive, so adding ${mi("\\eta x")} always raises that sample's score. For a misclassified class-2 sample, ${mi("w - \\eta x")} lowers its score by the same amount.`},
+
+/* ---------- Lecture 3 ---------- */
+{id:"delta",lec:3,kind:"calc",topic:"Delta rule, output neuron",gen(R){
+  const x1=R.step(0.2,0.9,0.1),x2=R.step(0.2,1,0.1),w1=R.step(-1,1,0.1,1),w2=R.step(-1,1,0.1,1),b=R.step(-0.5,0.5,0.1),t=R.pick([0,1]),eta=R.pick([0.1,0.25,0.5,1]);
+  const u=w1*x1+w2*x2+b,o=sig(u),fd=o*(1-o),d=(t-o)*fd,dw=eta*d*x1,ans=w1+dw;
+  return {stem:`An output neuron uses the sigmoid ${mi("f(u) = 1/(1 + e^{-u})")}. Using the generalized delta rule, what is ${mi("w_1")} after one update on this pattern?`,
+    given:grid([[`x_1 = ${fn(x1)}`,`x_2 = ${fn(x2)}`],[`w_1 = ${fn(w1)}`,`w_2 = ${fn(w2)}`,`b = ${fn(b)}`],[`t = ${t}`,`\\eta = ${fn(eta)}`]]),
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(w1+eta*(t-o)*x1,4)),v:w1+eta*(t-o)*x1,why:`Left out ${mi("f'(u) = o(1 - o)")}. The delta is ${mi("(t - o)\\,f'(u)")}, not the error alone.`},
+      {t:mi(fx(w1-dw,4)),v:w1-dw,why:`Wrong sign. ${mi("\\Delta w = -\\eta\\,\\partial E/\\partial w = +\\eta\\,\\delta x")}, which moves ${mi("o")} toward ${mi("t")}.`},
+      {t:mi(fx(w1+eta*d,4)),v:w1+eta*d,why:`Forgot the input: ${mi("\\Delta w_1 = \\eta\\,\\delta x_1")}.`}],
+    sol:steps([`u &= w_1x_1 + w_2x_2 + b`,
+      `&= ${fn(w1)}\\cdot ${fn(x1)} + ${par(fn(w2))}\\cdot ${fn(x2)} ${sgn(b)}`,
+      `&= ${fx(u,2)}`,
+      `o &= f(u) = \\frac{1}{1 + e^{${fx(-u,2)}}} = ${fx(o,4)}`,
+      `f'(u) &= o(1 - o) = ${fx(fd,4)}`,
+      `\\delta &= (t - o)\\,f'(u)`,
+      `&= (${t} - ${fx(o,4)})\\cdot ${fx(fd,4)} = ${fx(d,4)}`,
+      `\\Delta w_1 &= \\eta\\,\\delta x_1`,
+      `&= ${fn(eta)}\\cdot ${par(fx(d,4))}\\cdot ${fn(x1)} = ${fx(dw,4)}`,
+      `w_1 &\\leftarrow ${fn(w1)} ${sgn(dw,4)} = ${bx(fx(ans,4))}`]),tol:0.0006};
+}},
+
+{id:"chain",lec:3,kind:"calc",topic:"Backpropagation to a hidden weight",gen(R){
+  const x=R.step(0.5,1.5,0.1),w1=R.step(-1.5,1.5,0.1,1),w2=R.pick([-1.5,-1.2,-1,-0.8,-0.6,0.6,0.8,1,1.2,1.5]),t=R.pick([0,1]),eta=R.pick([0.5,1]);
+  const h=sig(w1*x),o=sig(w2*h),dO=(t-o)*o*(1-o),dH=h*(1-h)*w2*dO,ans=w1+eta*dH*x;
+  const w2n=w2+eta*dO*h,late=w1+eta*h*(1-h)*w2n*dO*x;
+  return {stem:`A chain of two sigmoid neurons, ${mi("x \\to h \\to o")}, with no biases: ${mi("h = f(w_1x)")} and ${mi("o = f(w_2h)")}. After one backpropagation step on this pattern, what is the new ${mi("w_1")}?`,
+    given:grid([[`x = ${fn(x)}`,`w_1 = ${fn(w1)}`,`w_2 = ${fn(w2)}`],[`t = ${t}`,`\\eta = ${fn(eta)}`]]),
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(late,4)),v:late,why:`Used ${mi("w_2")} after its update. Backpropagation computes every delta with the weights from before the update.`},
+      {t:mi(fx(w1+eta*w2*dO*x,4)),v:w1+eta*w2*dO*x,why:`Left out the hidden neuron's own derivative, ${mi("h(1 - h)")}.`},
+      {t:mi(fx(w1+eta*dO*x,4)),v:w1+eta*dO*x,why:`Used the output delta ${mi("\\delta_o")}. The hidden weight needs the hidden delta ${mi("\\delta_h = h(1 - h)\\,w_2\\,\\delta_o")}.`}],
+    sol:`<p>Forward pass</p>`+steps([`h &= f(w_1x) = f(${fx(w1*x,2)}) = ${fx(h,4)}`,`o &= f(w_2h) = f(${fx(w2*h,4)}) = ${fx(o,4)}`])
+      +`<p>Backward pass, with the old ${mi("w_2")}</p>`+steps([`\\delta_o &= (t - o)\\,o(1 - o)`,
+      `&= (${t} - ${fx(o,4)})\\cdot ${fx(o*(1-o),4)} = ${fx(dO,4)}`,
+      `\\delta_h &= h(1 - h)\\,w_2\\,\\delta_o`,
+      `&= ${fx(h*(1-h),4)}\\cdot ${par(fn(w2))}\\cdot ${par(fx(dO,4))} = ${fx(dH,5)}`,
+      `w_1 &\\leftarrow w_1 + \\eta\\,\\delta_h x`,
+      `&= ${fn(w1)} + ${fn(eta)}\\cdot ${par(fx(dH,5))}\\cdot ${fn(x)}`,
+      `&= ${bx(fx(ans,4))}`]),tol:0.0006};
+}},
+
+{id:"hdelta",lec:3,kind:"calc",topic:"Hidden-layer delta",gen(R){
+  const h=R.step(0.1,0.9,0.05),a=R.step(-1.5,1.5,0.1,1),b=R.step(-1.5,1.5,0.1,1),d1=R.step(-0.2,0.2,0.01,1),d2=R.step(-0.2,0.2,0.01,1);
+  const f=h*(1-h),S=a*d1+b*d2,ans=f*S;
+  if(Math.abs(ans)<0.003)return null;
+  return {stem:`Hidden neuron ${mi("j")} (sigmoid) has output ${mi("h")} and feeds output neurons 1 and 2. Using ${mi("\\delta_j = f'(u_j)\\sum_k w_{kj}\\delta_k")}, what is ${mi("\\delta_j")}?`,
+    given:grid([[`h = ${fn(h)}`],[`w_{1j} = ${fn(a)}`,`w_{2j} = ${fn(b)}`],[`\\delta_1 = ${fn(d1)}`,`\\delta_2 = ${fn(d2)}`]]),
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(S,4)),v:S,why:`Left out ${mi("f'(u_j) = h(1 - h)")}. The weighted sum must be multiplied by the hidden neuron's own derivative.`},
+      {t:mi(fx(f*a*d1,4)),v:f*a*d1,why:"Followed only the path through output 1. A hidden neuron collects error from every neuron it feeds."},
+      {t:mi(fx(f*(d1+d2),4)),v:f*(d1+d2),why:`Added the deltas without weighting them by ${mi("w_{1j}")} and ${mi("w_{2j}")}.`}],
+    sol:steps([`f'(u_j) &= h(1 - h) = ${fn(h)}\\cdot ${fn(1-h)} = ${fx(f,4)}`,
+      `\\textstyle\\sum_k w_{kj}\\delta_k &= ${fn(a)}\\cdot ${par(fn(d1))}`,
+      `&\\quad {}+ ${par(fn(b))}\\cdot ${par(fn(d2))}`,
+      `&= ${fx(S,4)}`,
+      `\\delta_j &= ${fx(f,4)}\\cdot ${par(fx(S,4))} = ${bx(fx(ans,4))}`]),tol:0.0005};
+}},
+
+{id:"sigwhy",lec:3,kind:"concept",topic:"The sigmoid's derivative",
+  stem:`Why is the sigmoid ${mi("f(u) = 1/(1 + e^{-au})")} convenient for backpropagation?`,
+  ans:{t:`Its derivative comes straight from the output: ${mi("f'(u) = a\\,o(1 - o)")}.`},
+  wrong:[{t:"Its derivative is always 1, so the deltas never shrink.",why:`That is the linear function. The sigmoid's derivative is at most ${mi("a/4")} (0.25 when ${mi("a = 1")}).`},
+    {t:`Its output lies between ${mi("-1")} and ${mi("1")}, centred on zero.`,why:`That describes ${mi("\\tanh")}. The sigmoid's output lies between 0 and 1.`},
+    {t:"Unlike the threshold function, it needs no learning rate.",why:"Every gradient method needs a learning rate. The point is that the sigmoid is differentiable and the threshold function is not."}],
+  sol:`The delta rule needs ${mi("f'(u)")}. The forward pass already gives ${mi("o")}, so ${mi("f'(u) = a\\,o(1 - o)")} costs one multiplication and no extra exponentials.`},
+
+{id:"sat",lec:3,kind:"concept",topic:"Saturated neurons",
+  stem:`A sigmoid output neuron gives ${mi("o = 0.99")} while its target is ${mi("t = 0")}. Its weights barely change. Why?`,
+  ans:{t:`It is saturated: ${mi("f'(u) = o(1 - o) \\approx 0.0099")}, so ${mi("\\delta = (t - o)\\,f'(u) \\approx -0.0098")} is tiny.`},
+  wrong:[{t:`The error ${mi("t - o")} is too small to produce a useful update, so ${mi("\\delta")} is close to zero.`,why:`${mi("t - o = -0.99")}, close to the largest error possible. The small factor is ${mi("f'(u)")}.`},
+    {t:"The delta rule only updates hidden neurons; output neurons keep their weights.",why:"The generalized delta rule starts at the output neurons, which are the ones with targets."},
+    {t:"The learning rate is applied only to hidden layers, so this neuron's step is zero.",why:`The same ${mi("\\eta")} scales every weight change.`}],
+  sol:`A sigmoid that outputs nearly 0 or 1 sits on a flat part of its curve, where ${mi("f' \\approx 0")}. Lecture 4 gives this as a reason to keep initial weights small: large weights push neurons into saturation.`},
+
+/* ---------- Lecture 4 ---------- */
+{id:"ce",lec:4,kind:"calc",topic:"Softmax and cross-entropy",gen(R){
+  const z=[R.step(-1,3,0.1),R.step(-1,3,0.1),R.step(-1,3,0.1)],c=R.int(0,2);
+  const e=z.map(Math.exp),S=e.reduce((a,b)=>a+b),p=e.map(v=>v/S),L=-Math.log(p[c]);
+  let k=p.indexOf(Math.max(...p));if(k===c)k=p.indexOf(Math.min(...p));
+  if(k===c)return null;
+  return {stem:`A 3-class network outputs the scores ${mi(`z = ${vec(z)}`)} before its softmax. The true class is class ${c+1}. What is the categorical cross-entropy loss ${mi("L = -\\sum_k y_k \\ln p_k")}?`,
+    ans:{t:mi(fx(L,3)),v:L},
+    wrong:[{t:mi(fx(-Math.log10(p[c]),3)),v:-Math.log10(p[c]),why:`Used log base 10. Cross-entropy uses the natural log, ${mi("\\ln")}.`},
+      {t:mi(fx(1-p[c],3)),v:1-p[c],why:`${mi("1 - p")} is not the cross-entropy. With a one-hot target, the loss is ${mi("-\\ln p")} of the true class.`},
+      {t:mi(fx(-Math.log(p[k]),3)),v:-Math.log(p[k]),why:`Took ${mi(`-\\ln p_${k+1}`)}; the one-hot target picks the true class, ${c+1}.`}],
+    sol:steps([`e^{z} &= ${vec(e,v=>fx(v,3))}`,
+      `\\textstyle\\sum_k e^{z_k} &= ${fx(S,3)}`,
+      `p &= \\operatorname{softmax}(z)`,
+      `&= ${vec(p,v=>fx(v,3))}`,
+      `L &= -\\ln p_${c+1} = -\\ln ${fx(p[c],3)} = ${bx(fx(L,3))}`]),tol:0.005};
+}},
+
+{id:"mom",lec:4,kind:"calc",topic:"Momentum",gen(R){
+  const al=R.pick([0.5,0.8,0.9]),dw0=R.step(-0.3,0.3,0.01,1),eta=R.pick([0.1,0.2,0.5]),d=R.step(-0.5,0.5,0.05,1),y=R.step(0.1,1,0.1),w=R.step(-1,1,0.1);
+  const g=eta*d*y,dw=al*dw0+g,ans=w+dw;
+  return {stem:`The generalized delta rule with momentum: ${mi("\\Delta w(n) = \\alpha\\,\\Delta w(n-1) + \\eta\\,\\delta(n)\\,y(n)")}. What is the weight after this step?`,
+    given:grid([[`w = ${fn(w)}`,`\\Delta w(n-1) = ${fn(dw0)}`],[`\\alpha = ${fn(al)}`,`\\eta = ${fn(eta)}`],[`\\delta = ${fn(d)}`,`y = ${fn(y)}`]]),
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(w+g,4)),v:w+g,why:`Left out the momentum term ${mi("\\alpha\\,\\Delta w(n-1)")}.`},
+      {t:mi(fx(w+g-al*dw0,4)),v:w+g-al*dw0,why:"Subtracted the momentum term. It is added, so the weight keeps moving the way it was already moving."},
+      {t:mi(fx(dw,4)),v:dw,why:`This is ${mi("\\Delta w(n)")}, the change. The new weight is ${mi("w + \\Delta w(n)")}.`}],
+    sol:steps([`\\Delta w(n) &= \\alpha\\,\\Delta w(n-1) + \\eta\\,\\delta y`,
+      `&= ${fn(al)}\\cdot ${par(fn(dw0))} + ${fn(eta)}\\cdot ${par(fn(d))}\\cdot ${fn(y)}`,
+      `&= ${fx(al*dw0,4)} ${sgn(g,4)} = ${fx(dw,4)}`,
+      `w &\\leftarrow ${fn(w)} ${sgn(dw,4)} = ${bx(fx(ans,4))}`]),tol:0.001};
+}},
+
+{id:"adam",lec:4,kind:"calc",topic:"Adam, first step",gen(R){
+  const w=R.step(-1,1,0.1),g=R.step(-3,3,0.1,1),eta=R.pick([0.001,0.01,0.1]);
+  if(Math.abs(g)<0.2||Math.abs(Math.abs(g)-1)<1e-9)return null;
+  const m=0.1*g,v=0.001*g*g,ans=w-eta*g/(Math.abs(g)+1e-8),nb=w-eta*m/(Math.sqrt(v)+1e-8);
+  return {stem:`Adam with the defaults ${mi("\\beta_1 = 0.9")}, ${mi("\\beta_2 = 0.999")}, ${mi("\\varepsilon = 10^{-8}")} and learning rate ${mi(`\\eta = ${fn(eta)}`)}, starting from ${mi("m_0 = v_0 = 0")}. A weight ${mi(`w = ${fn(w)}`)} receives its first gradient ${mi(`g_1 = ${fn(g)}`)}. What is the weight after this first step?`,
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(nb,4)),v:nb,why:`Skipped the bias correction. With ${mi("m_1 = 0.1g")} and ${mi("v_1 = 0.001g^2")}, ${mi("m_1/\\sqrt{v_1} \\approx 3.162\\operatorname{sign}(g)")}, a step more than three times too big.`},
+      {t:mi(fx(w-eta*g,4)),v:w-eta*g,why:`This is plain gradient descent, ${mi("w - \\eta g")}. Adam divides by ${mi("\\sqrt{\\hat v}")}, which cancels the size of the gradient.`},
+      {t:mi(fx(w+eta*Math.sign(g),4)),v:w+eta*Math.sign(g),why:"Wrong direction. Adam subtracts, like gradient descent."}],
+    sol:steps([`m_1 &= 0.9\\cdot 0 + 0.1\\cdot ${par(fn(g))} = ${fn(m)}`,
+      `v_1 &= 0.999\\cdot 0 + 0.001\\cdot ${par(fn(g))}^2 = ${fx(v,5)}`,
+      `\\hat m_1 &= \\frac{m_1}{1 - 0.9} = ${fn(g)}`,
+      `\\hat v_1 &= \\frac{v_1}{1 - 0.999} = ${fn(g*g)}`,
+      `w &\\leftarrow w - \\eta\\,\\frac{\\hat m_1}{\\sqrt{\\hat v_1} + \\varepsilon}`,
+      `&= ${fn(w)} - ${fn(eta)}\\cdot\\frac{${fn(g)}}{${fn(Math.abs(g))}} = ${bx(fx(ans,4))}`])
+      +`<p>On the first step ${mi("\\hat m_1/\\sqrt{\\hat v_1} = \\operatorname{sign}(g)")}, so Adam moves the weight by exactly ${mi("\\eta")}.</p>`,tol:0.0005};
+}},
+
+{id:"l2",lec:4,kind:"calc",topic:"L2 regularization",gen(R){
+  const w=R.step(-1.5,1.5,0.1,1),g=R.step(-1,1,0.1,1),e=R.pick([0.1,0.2,0.5]),a=R.pick([0.1,0.2,0.5]);
+  if(Math.abs(w)<0.3)return null;
+  const k=1-e*a,ans=k*w-e*g;
+  return {stem:`The loss has an L2 penalty: ${mi("\\tilde J(w) = J(w) + \\tfrac{1}{2}\\alpha\\|w\\|^2")}. With learning rate ${mi(`\\varepsilon = ${fn(e)}`)} and ${mi(`\\alpha = ${fn(a)}`)}, a weight ${mi(`w = ${fn(w)}`)} has ${mi(`\\nabla J(w) = ${fn(g)}`)}. What is ${mi("w")} after one gradient step on ${mi("\\tilde J")}?`,
+    ans:{t:mi(fx(ans,4)),v:ans},
+    wrong:[{t:mi(fx(w-e*g,4)),v:w-e*g,why:`Ignored the penalty. This is the plain gradient step on ${mi("J")}.`},
+      {t:mi(fx((1-a)*w-e*g,4)),v:(1-a)*w-e*g,why:`Shrank ${mi("w")} by ${mi("(1 - \\alpha)")}. The penalty's gradient ${mi("\\alpha w")} is multiplied by the learning rate too, so the factor is ${mi("(1 - \\varepsilon\\alpha)")}.`},
+      {t:mi(fx(w-e*(a*Math.sign(w)+g),4)),v:w-e*(a*Math.sign(w)+g),why:`This is the L1 update, with ${mi("\\alpha\\operatorname{sign}(w)")}. The L2 penalty's gradient is ${mi("\\alpha w")}.`}],
+    sol:steps([`\\nabla\\tilde J &= \\nabla J + \\alpha w`,
+      `w &\\leftarrow w - \\varepsilon(\\nabla J + \\alpha w)`,
+      `&= (1 - \\varepsilon\\alpha)\\,w - \\varepsilon\\nabla J`,
+      `&= (1 - ${fn(e)}\\cdot ${fn(a)})\\cdot ${par(fn(w))}`,
+      `&\\quad {}- ${fn(e)}\\cdot ${par(fn(g))}`,
+      `&= ${fn(k)}\\cdot ${par(fn(w))} ${sgn(-e*g)}`,
+      `&= ${fx(k*w,4)} ${sgn(-e*g,4)} = ${bx(fx(ans,4))}`]),tol:0.002};
+}},
+
+{id:"ls",lec:4,kind:"calc",topic:"Label smoothing",gen(R){
+  const k=R.pick([3,4,5]),e=R.pick([0.1,0.2,0.3]),c=R.int(0,k-1);
+  const mk=(on,off)=>vec(Array.from({length:k},(_,i)=>i===c?on:off));
+  const on=1-(k-1)*e/k,off=e/k;
+  return {stem:`A ${k}-class problem uses label smoothing with ${mi(`\\varepsilon = ${fn(e)}`)}. A sample of class ${c+1} has the one-hot target ${mi(mk(1,0))}. What is its smoothed target?`,
+    ans:{t:mi(mk(on,off))},
+    wrong:[{t:mi(mk(1-e,e/(k-1))),why:`Shared ${mi("\\varepsilon")} among the ${mi("k - 1")} wrong classes only. The slides give every wrong class ${mi("\\varepsilon/k")}, so the true class keeps ${mi("1 - (k-1)\\,\\varepsilon/k")}.`},
+      {t:mi(mk(1-e/k,off)),why:`Took only one share ${mi("\\varepsilon/k")} from the true class, so the target no longer sums to 1.`},
+      {t:mi(mk(1-e,off)),why:`Took the full ${mi("\\varepsilon")} from the true class but handed out only ${mi("(k-1)\\,\\varepsilon/k")}, so the target no longer sums to 1.`}],
+    sol:`<p>Every wrong class gets ${mi("\\varepsilon/k")}; the true class keeps the rest.</p>`+steps([`\\frac{\\varepsilon}{k} &= \\frac{${fn(e)}}{${k}} = ${fn(off)}`,
+      `1 - \\frac{(k-1)\\,\\varepsilon}{k} &= 1 - \\frac{${k-1}\\cdot ${fn(e)}}{${k}} = ${fn(on)}`,
+      `\\text{target} &= ${bx(mk(on,off))}`])+`<p>The smoothed target still sums to 1.</p>`};
+}},
+
+{id:"nsize",lec:4,kind:"calc",topic:"How many training samples",gen(R){
+  const L=[R.int(2,10),R.int(3,12)];if(R.u()<0.4)L.push(R.int(3,8));L.push(R.int(1,4));
+  const eps=R.pick([0.1,0.05,0.2]);
+  let W=0,Wn=0;const parts=[];
+  for(let i=1;i<L.length;i++){W+=(L[i-1]+1)*L[i];Wn+=L[i-1]*L[i];parts.push(`(${L[i-1]} + 1)\\cdot ${L[i]}`);}
+  const N=Math.round(W/eps),f=v=>Number.isInteger(v)?intT(v):fn(v);
+  return {stem:`A fully connected MLP has layer sizes ${L.join("-")} (inputs first) and every neuron has a bias. Using ${mi("N = O(W/\\varepsilon)")} with ${mi(`\\varepsilon = ${fn(eps)}`)}, about how many training samples does it need for good generalization?`,
+    ans:{t:mi(f(N)),v:N},
+    wrong:[{t:mi(f(Math.round(Wn/eps))),v:Math.round(Wn/eps),why:`Counted only the weights. ${mi("W")} is the number of free parameters: weights and biases.`},
+      {t:mi(f(+(W*eps).toFixed(2))),v:W*eps,why:`Multiplied by ${mi("\\varepsilon")}. The rule divides: ${mi("N = O(W/\\varepsilon)")}.`},
+      {t:mi(f(W)),v:W,why:`This is ${mi("W")}, the number of free parameters, not the number of samples.`}],
+    sol:steps([`W &= ${parts.join(" + ")}`,`&= ${intT(W)}`,
+      `N &\\approx W/\\varepsilon = ${intT(W)}/${fn(eps)} = ${bx(intT(N))}`]),tol:0.5};
+}},
+
+{id:"lr",lec:4,kind:"concept",topic:"Learning rate",
+  stem:"During training, the loss jumps up and down from epoch to epoch and slowly grows. What is the most likely cause?",
+  ans:{t:`The learning rate ${mi("\\eta")} is too large.`},
+  wrong:[{t:`The learning rate ${mi("\\eta")} is too small.`,why:`A small ${mi("\\eta")} makes the loss fall slowly and steadily; it does not make it jump.`},
+    {t:"The training set is too large.",why:"More data makes the gradient more reliable, not less stable."},
+    {t:"The network has not trained for enough epochs.",why:"Training longer does not stop the oscillation; the steps themselves are too big."}],
+  sol:`From the slides: when ${mi("\\eta")} is too large, the weight changes become unstable (oscillatory). Lower ${mi("\\eta")}, or add momentum, which smooths the direction of the steps.`},
+
+{id:"overfit",lec:4,kind:"concept",topic:"Overfitting",
+  stem:"A network reaches 99% accuracy on its training set but only 71% on the test set. What is happening, and what helps?",
+  ans:{t:"Overfitting. Add training data (for example by augmentation) or regularization such as an L1/L2 penalty or dropout."},
+  wrong:[{t:"Underfitting. Add more layers and train for longer so the network learns more.",why:"An underfitting model does badly on the training set too. Here training accuracy is nearly perfect."},
+    {t:"The learning rate is too high. Lower it and train again from the start.",why:"A learning rate that is too high shows as an unstable training loss; it would not reach 99% training accuracy."},
+    {t:"The test set is too large. Use a smaller one so the two accuracies agree.",why:"The size of the test set does not create a gap between training and test accuracy."}],
+  sol:"A large gap between training and test accuracy means the network has memorized its training set. The slides list three remedies: parameter penalties (L1, L2), dataset expansion and dropout."},
+
+{id:"init",lec:4,kind:"concept",topic:"Weight initialization",
+  stem:"Which initialization do the slides recommend for a deep network with ReLU activations?",
+  ans:{t:"He initialization."},
+  wrong:[{t:"Xavier initialization.",why:"Xavier gives stable gradients for sigmoid and tanh. For ReLU the slides recommend He."},
+    {t:"All weights set to zero.",why:"With equal weights, every neuron in a layer computes the same output and gets the same update, so they never become different."},
+    {t:"Large random values, so the signal does not fade.",why:"Large weights saturate neurons and make gradients explode or vanish."}],
+  sol:"The slides' comparison table: Xavier gives stable gradients for sigmoid and tanh; He gives stable gradients for ReLU and prevents dead neurons."},
+
+{id:"dropout",lec:4,kind:"concept",topic:"Dropout at test time",
+  stem:"A layer is trained with a dropout rate of 0.5. What happens to that layer at test time?",
+  ans:{t:"No neurons are dropped, and the layer's outputs are scaled by 0.5 to balance having all of them active."},
+  wrong:[{t:"The same half of the neurons that was dropped last during training stays dropped.",why:"Dropout picks neurons at random during training only. At test time every neuron is used."},
+    {t:"A new random half of the neurons is dropped for every test sample.",why:"That would make predictions random. At test time no neurons are dropped."},
+    {t:"All neurons are used, and their outputs are doubled to make up for training.",why:"With every neuron active the sum is already too large; outputs are scaled down, not up."}],
+  sol:"During training each neuron is present only half the time, so the next layer is used to about half the signal. At test time all neurons are active, so the outputs are scaled by 0.5 to match."},
+
+/* ---------- Lecture 5 ---------- */
+{id:"head",lec:5,kind:"calc",topic:"New classifier layer",gen(R){
+  const n=R.pick([512,1024,2048,4096]),K=R.int(2,12),ans=(n+1)*K;
+  return {stem:`A network pre-trained on ImageNet (1000 classes) has ${int(n)} neurons in the layer just before its classifier. You replace the classifier with a new layer for ${K} classes and freeze every other layer. How many parameters are trained?`,
+    ans:{t:mi(intT(ans)),v:ans},
+    wrong:[{t:mi(intT(n*K)),v:n*K,why:`Forgot the biases, one for each of the ${mi("K")} new output neurons.`},
+      {t:mi(intT(n*K+1)),v:n*K+1,why:`Counted one bias for the whole layer. Each of the ${mi("K")} neurons has its own.`},
+      {t:mi(intT((n+1)*1000)),v:(n+1)*1000,why:"This is the size of the original 1000-class layer, which you removed."}],
+    sol:steps([`(n_{\\text{prev}} + 1)\\cdot K &= (${intT(n)} + 1)\\cdot ${K}`,`&= ${bx(intT(ans))}`])+`<p>All other layers are frozen, so nothing else is trained.</p>`,tol:0.5};
+}},
+
+{id:"tl",lec:5,kind:"concept",topic:"How much to retrain",
+  stem:"A network trained to recognize human faces (task A) is reused to recognize dog faces (task B). Why is replacing only the last layer not enough?",
+  ans:{t:"The layers before the last detect high-level features of human faces, so more layers must be removed and retrained."},
+  wrong:[{t:"The two tasks are different, so transfer learning cannot be used at all here.",why:"Both tasks take images and share low-level features such as edges and textures, which is what transfer learning needs."},
+    {t:"Replacing the last layer is always enough; it just needs more epochs.",why:"Training longer cannot fix features that describe the wrong thing."},
+    {t:"Every layer must be trained from scratch, with random weights.",why:"The early layers' generic features still help. Throwing them away wastes the pre-training."}],
+  sol:"From the slides: the number of layers to remove depends on how similar the tasks are. Early layers find generic features that transfer; late layers are specific to task A."},
+
+/* ---------- Lecture 6 ---------- */
+{id:"osize",lec:6,kind:"calc",topic:"Convolution output size",gen(R){
+  const W=R.pick([28,32,64,96,100,128,224,227]),K=R.pick([3,5,7,11]),P=R.int(1,3),S=R.pick([2,3,4]),Ci=R.pick([1,3]),F=R.pick([8,16,32,64,96]);
+  if(P>(K-1)/2||K>W/4)return null;
+  const o=Math.floor((W-K+2*P)/S)+1,noP=Math.floor((W-K)/S)+1,noOne=Math.floor((W-K+2*P)/S),q=(W-K+2*P)/S;
+  const shp=(a,d)=>`${a}\\times ${a}\\times ${d}`;
+  return {stem:`An input of ${mi(shp(W,Ci))} goes through a convolutional layer with ${F} filters of size ${mi(`${K}\\times ${K}`)}, stride ${S} and zero-padding ${P}. What is the size of the output volume?`,
+    ans:{t:mi(shp(o,F))},
+    wrong:[{t:mi(shp(noP,F)),why:`Left out the padding ${mi("2P")}.`},
+      {t:mi(shp(noOne,F)),why:`Forgot the ${mi("+1")}, which counts the filter's first position.`},
+      {t:mi(shp(o,Ci)),why:"The output depth is the number of filters, not the input's depth."}],
+    sol:steps([`W_o &= \\left\\lfloor\\frac{W_i - K + 2P}{S}\\right\\rfloor + 1`,
+      `&= \\left\\lfloor\\frac{${W} - ${K} + ${2*P}}{${S}}\\right\\rfloor + 1`,
+      `&= \\lfloor ${fn(q)}\\rfloor + 1 = ${o}`,
+      `\\text{depth} &= \\text{number of filters} = ${F}`,
+      `\\text{output} &= ${bx(shp(o,F))}`])};
+}},
+
+{id:"cparams",lec:6,kind:"calc",topic:"Convolution parameters",gen(R){
+  const K=R.pick([1,3,5,7]),Ci=R.pick([1,3,16,32,64]),F=R.pick([8,16,32,64,128]);
+  if(K===1&&Ci===1)return null;
+  const ans=(K*K*Ci+1)*F;
+  return {stem:`A convolutional layer applies ${F} filters of size ${mi(`${K}\\times ${K}`)} to an input with ${Ci} channel${Ci>1?"s":""}. How many trainable parameters does it have?`,
+    ans:{t:mi(intT(ans)),v:ans},
+    wrong:[{t:mi(intT(K*K*Ci*F)),v:K*K*Ci*F,why:"Forgot the biases, one per filter."},
+      {t:mi(intT((K*K+1)*F)),v:(K*K+1)*F,why:`Forgot that each filter spans every input channel: it is ${mi("K\\times K\\times C_{\\text{in}}")}.`},
+      {t:mi(intT(K*K*Ci*F+1)),v:K*K*Ci*F+1,why:"Counted one bias for the whole layer. Every filter has its own."}],
+    sol:steps([`&(K\\cdot K\\cdot C_{\\text{in}} + 1)\\cdot F`,`&= (${K}\\cdot ${K}\\cdot ${Ci} + 1)\\cdot ${F}`,
+      `&= ${intT(K*K*Ci+1)}\\cdot ${F} = ${bx(intT(ans))}`]),tol:0.5};
+}},
+
+{id:"conv",lec:6,kind:"calc",topic:"Convolution by hand",gen(R){
+  const X=Array.from({length:4},()=>Array.from({length:4},()=>R.int(0,3)));
+  const Wf=Array.from({length:3},()=>Array.from({length:3},()=>R.pick([-1,0,1])));
+  const b=R.pick([-2,-1,1,2]),[i,j]=R.pick([[0,1],[1,0]]);
+  const at=(r,c,F)=>{let s=0;for(let m=0;m<3;m++)for(let n=0;n<3;n++)s+=X[r+m][c+n]*F[m][n];return s;};
+  const flip=Wf.map((r,m)=>r.map((_,n)=>Wf[2-m][2-n]));
+  const s=at(i,j,Wf),y=s+b;
+  const mat=M=>`\\begin{bmatrix}${M.map(r=>r.join(" & ")).join("\\\\")}\\end{bmatrix}`;
+  const rows=[0,1,2].map(m=>[0,1,2].filter(n=>Wf[m][n]).map(n=>`${X[i+m][j+n]}\\cdot ${par(String(Wf[m][n]))}`).join(" + ")).filter(Boolean);
+  return {stem:`Stride 1 and no padding, so the output is ${mi("2\\times 2")}. Using the slides' definition, with no flipping,${md("y(i, j) = \\sum_m\\sum_n x(i + m,\\, j + n)\\,w(m, n) + b")}what is the output in row ${i+1}, column ${j+1}?`,
+    given:`<div class="mats">${md(`x = ${mat(X)}`)}${md(`w = ${mat(Wf)}`)}${md(`b = ${b}`)}</div>`,
+    ans:{t:mi(String(y)),v:y},
+    wrong:[{t:mi(String(at(j,i,Wf)+b)),v:at(j,i,Wf)+b,why:`Swapped row and column: this is the output in row ${j+1}, column ${i+1}.`},
+      {t:mi(String(at(i,j,flip)+b)),v:at(i,j,flip)+b,why:"Rotated the filter by 180° first. The slides slide the filter as it is."},
+      {t:mi(String(s)),v:s,why:`Forgot to add the bias ${mi("b")}.`}],
+    sol:`<p>The filter covers rows ${i+1}–${i+3} and columns ${j+1}–${j+3} of ${mi("x")}:</p>`+md(mat([0,1,2].map(m=>X[i+m].slice(j,j+3))))
+      +steps([...(rows.length?rows.map((r,k)=>k?`&\\quad {}+ ${r}`:`\\textstyle\\sum x\\cdot w &= ${r}`):[`\\textstyle\\sum x\\cdot w &= 0`]),
+        ...(rows.length?[`&= ${s}`]:[]),
+        `y(${i+1}, ${j+1}) &= ${s} ${sgn(b)} = ${bx(y)}`]),tol:0.5};
+}},
+
+{id:"share",lec:6,kind:"concept",topic:"Why convolution is cheap",
+  stem:"Why does a convolutional layer need far fewer parameters than a fully connected layer on the same image?",
+  ans:{t:"Each filter is small, and the same filter is reused at every position of the image."},
+  wrong:[{t:"Pooling removes most of the weights after each convolution.",why:"Pooling has no weights at all. The saving comes from the convolution itself."},
+    {t:"Convolution only works on one channel, so colour images are reduced first.",why:"A filter spans all the input channels; colour images are not reduced."},
+    {t:"It uses ReLU, which has no parameters to learn.",why:"Activation functions are not where the parameters are in either layer type."}],
+  sol:`A dense layer connects every input to every neuron: a ${mi("500\\times 500\\times 3")} image with 100 neurons needs ${mi("(750{,}000 + 1)\\cdot 100 = 75{,}000{,}100")} parameters. A filter sees only a small region and is shared across the image, so 16 filters of ${mi("5\\times 5\\times 3")} need ${mi("(75 + 1)\\cdot 16 = 1{,}216")}.`},
+
+{id:"pool",lec:6,kind:"concept",topic:"Pooling",
+  stem:`Max pooling with a ${mi("2\\times 2")} window and stride 2 is applied to a ${mi("32\\times 32\\times 16")} volume. What is the output size?`,
+  ans:{t:mi("16\\times 16\\times 16")},
+  wrong:[{t:mi("16\\times 16\\times 8"),why:"Pooling works on each channel separately, so the depth stays 16."},
+    {t:mi("31\\times 31\\times 16"),why:`That would be stride 1. With stride 2, ${mi("\\lfloor (32 - 2)/2\\rfloor + 1 = 16")}.`},
+    {t:mi("16\\times 16\\times 1"),why:"Pooling does not merge channels; each of the 16 is pooled on its own."}],
+  sol:`${mi("\\lfloor (32 - 2)/2\\rfloor + 1 = 16")} on each side, and the depth is unchanged. Pooling has no parameters to learn.`},
+
+/* ---------- Lecture 7 ---------- */
+{id:"rnn",lec:7,kind:"calc",topic:"RNN forward pass",gen(R){
+  const Waa=R.step(-1,1,0.1),Wax=R.step(-1.5,1.5,0.1,1),b=R.step(-0.5,0.5,0.1),x1=R.step(-2,2,0.5,1),x2=R.step(-2,2,0.5,1);
+  if(Math.abs(Waa)<0.3)return null;
+  const z1=Wax*x1+b,a1=Math.tanh(z1),z2=Waa*a1+Wax*x2+b,a2=Math.tanh(z2);
+  const noRec=Math.tanh(Wax*x2+b),lin=Waa*z1+Wax*x2+b,s1=sig(z1),s2=sig(Waa*s1+Wax*x2+b);
+  const A=t=>`a^{\\langle ${t}\\rangle}`,Xt=t=>`x^{\\langle ${t}\\rangle}`;
+  return {stem:`A one-unit RNN computes ${mi(`${A("t")} = \\tanh(W_{aa}${A("t-1")} + W_{ax}${Xt("t")} + b_a)`)}, starting from ${mi(`${A(0)} = 0`)}. What is ${mi(A(2))}?`,
+    given:grid([[`W_{aa} = ${fn(Waa)}`,`W_{ax} = ${fn(Wax)}`,`b_a = ${fn(b)}`],[`${Xt(1)} = ${fn(x1)}`,`${Xt(2)} = ${fn(x2)}`]]),
+    ans:{t:mi(fx(a2,4)),v:a2},
+    wrong:[{t:mi(fx(noRec,4)),v:noRec,why:`Left out the recurrent term ${mi(`W_{aa}${A(1)}`)}, so step 2 forgets step 1.`},
+      {t:mi(fx(lin,4)),v:lin,why:`Skipped the ${mi("\\tanh")} at both steps, which makes the recurrence linear.`},
+      {t:mi(fx(s2,4)),v:s2,why:`Used the sigmoid. This RNN's hidden state uses ${mi("\\tanh")}.`}],
+    sol:steps([`${A(1)} &= \\tanh(W_{ax}${Xt(1)} + b_a)`,
+      `&= \\tanh(${fn(Wax)}\\cdot ${par(fn(x1))} ${sgn(b)})`,
+      `&= \\tanh(${fx(z1,2)}) = ${fx(a1,4)}`,
+      `${A(2)} &= \\tanh(W_{aa}${A(1)} + W_{ax}${Xt(2)} + b_a)`,
+      `&= \\tanh\\big(${par(fn(Waa))}\\cdot ${par(fx(a1,4))}`,
+      `&\\qquad {}+ ${fn(Wax)}\\cdot ${par(fn(x2))} ${sgn(b)}\\big)`,
+      `&= \\tanh(${fx(z2,4)}) = ${bx(fx(a2,4))}`]),tol:0.002};
+}},
+
+{id:"lstm",lec:7,kind:"calc",topic:"LSTM cell update",gen(R){
+  const f=R.step(0.1,0.95,0.05),i=R.step(0.1,0.95,0.05),o=R.step(0.1,0.95,0.05),Ct=R.step(-0.9,0.9,0.1,1),Cp=R.step(-1.5,1.5,0.1,1);
+  if(Math.abs(f-i)<0.1)return null;
+  const C=f*Cp+i*Ct,h=o*Math.tanh(C),sw=o*Math.tanh(i*Cp+f*Ct);
+  return {stem:`An LSTM cell has these gate values, candidate ${mi("\\tilde C_t")} and previous cell state ${mi("C_{t-1}")}. What is the new hidden state ${mi("h_t")}?`,
+    given:grid([[`f_t = ${fn(f)}`,`i_t = ${fn(i)}`,`o_t = ${fn(o)}`],[`\\tilde C_t = ${fn(Ct)}`,`C_{t-1} = ${fn(Cp)}`]]),
+    ans:{t:mi(fx(h,4)),v:h},
+    wrong:[{t:mi(fx(o*C,4)),v:o*C,why:`Left out the ${mi("\\tanh")}: ${mi("h_t = o_t\\cdot\\tanh(C_t)")}.`},
+      {t:mi(fx(sw,4)),v:sw,why:`Swapped the gates. The forget gate scales the old state ${mi("C_{t-1}")}; the input gate scales the candidate ${mi("\\tilde C_t")}.`},
+      {t:mi(fx(Math.tanh(C),4)),v:Math.tanh(C),why:`Forgot the output gate ${mi("o_t")}.`}],
+    sol:steps([`C_t &= f_t\\cdot C_{t-1} + i_t\\cdot\\tilde C_t`,
+      `&= ${fn(f)}\\cdot ${par(fn(Cp))} + ${fn(i)}\\cdot ${par(fn(Ct))} = ${fx(C,4)}`,
+      `h_t &= o_t\\cdot\\tanh(C_t)`,
+      `&= ${fn(o)}\\cdot\\tanh(${fx(C,4)})`,
+      `&= ${fn(o)}\\cdot ${par(fx(Math.tanh(C),4))} = ${bx(fx(h,4))}`]),tol:0.002};
+}},
+
+{id:"attn",lec:7,kind:"calc",topic:"Attention weights",gen(R){
+  const q=[R.int(0,2),R.int(0,2),R.int(0,2)],K=[0,1,2].map(()=>[R.int(0,2),R.int(0,2),R.int(0,2)]);
+  const s=K.map(k=>k.reduce((a,v,j)=>a+v*q[j],0)),T=s.reduce((a,b)=>a+b);
+  if(T===0||new Set(s).size<3)return null;
+  const al=softmax(s),j=R.int(0,2),sc=softmax(s.map(v=>v/Math.sqrt(3))),e=s.map(Math.exp),E=e.reduce((a,b)=>a+b);
+  let k=al.indexOf(Math.max(...al));if(k===j)k=al.indexOf(Math.min(...al));
+  return {stem:`Self-attention as in the slides' example: the weights are ${mi("\\operatorname{softmax}(q\\cdot k_i)")}, with no scaling. The query is ${mi(`q = ${vec(q)}`)} and the keys are ${mi(`k_1 = ${vec(K[0])}`)}, ${mi(`k_2 = ${vec(K[1])}`)} and ${mi(`k_3 = ${vec(K[2])}`)}. How much weight does the query give to input ${j+1}?`,
+    ans:{t:mi(fx(al[j],3)),v:al[j]},
+    wrong:[{t:mi(fx(s[j]/T,3)),v:s[j]/T,why:`Divided the raw scores by their sum. Softmax exponentiates first: ${mi("e^{s_j}/\\sum_i e^{s_i}")}.`},
+      {t:mi(fx(sc[j],3)),v:sc[j],why:`Divided the scores by ${mi("\\sqrt{3}")} first. The slides' example uses the plain dot product.`},
+      {t:mi(fx(al[k],3)),v:al[k],why:`This is the weight on input ${k+1}.`}],
+    sol:steps([`s_i &= q\\cdot k_i:\\quad s = (${s.join(", ")})`,
+      `e^{s} &= ${vec(e,v=>fx(v,3))}`,
+      `\\textstyle\\sum_i e^{s_i} &= ${fx(E,3)}`,
+      `\\operatorname{softmax}(s) &= ${vec(al,v=>fx(v,3))}`])
+      +`<p>The weight on input ${j+1} is ${mi(bx(fx(al[j],3)))}.</p>`,tol:0.005};
+}},
+
+{id:"rtypes",lec:7,kind:"concept",topic:"RNN architectures",
+  stem:"Sentiment analysis reads a whole review and outputs a single label. Which RNN architecture is that?",
+  ans:{t:"Many to one"},
+  wrong:[{t:"One to many",why:"One to many takes one input and outputs a sequence, as in image captioning."},
+    {t:"Many to many",why:"That gives one output per input word, as in named entity recognition."},
+    {t:"One to one",why:"One to one has no sequence at all; it is a plain feed-forward network."}],
+  sol:"The RNN reads the review word by word and answers once, after the last word."},
+
+{id:"lstmwhy",lec:7,kind:"concept",topic:"Why LSTMs remember",
+  stem:"Why can an LSTM keep information over many more steps than a vanilla RNN?",
+  ans:{t:"Its cell state is updated by addition and scaled by the forget gate, so information and gradients can cross many steps almost unchanged."},
+  wrong:[{t:"It uses ReLU instead of tanh, so its activations never saturate.",why:"LSTMs use sigmoid gates and tanh. The difference is the additive cell-state path."},
+    {t:"It has more parameters than an RNN, so it can simply memorize more of the sequence.",why:"Size alone does not stop the gradient from vanishing; a large vanilla RNN still forgets."},
+    {t:"It reads the sequence backwards, so the early inputs are processed last.",why:"The reading direction is not what lets an LSTM remember; the additive cell state is."}],
+  sol:`In a vanilla RNN the gradient is multiplied by ${mi("W\\cdot\\tanh'")} at every step and vanishes. Along an LSTM's cell state it is multiplied by the forget gate ${mi("f")}, which the network can keep close to 1.`},
+
+{id:"gru",lec:7,kind:"concept",topic:"GRU",
+  stem:"How does a GRU differ from an LSTM?",
+  ans:{t:"It has two gates, reset and update, and no separate cell state."},
+  wrong:[{t:"It has three gates: input, forget and output.",why:"Those are the LSTM's three gates."},
+    {t:"It has no gates; it is a vanilla RNN with another activation.",why:"The GRU is a gated unit, with an update gate and a reset gate."},
+    {t:"It adds a fourth gate to the LSTM to control attention.",why:"The GRU is simpler than the LSTM, not larger."}],
+  sol:"The update gate does the job of the LSTM's forget and input gates together; the reset gate decides how much of the past to forget. With fewer gates, a GRU has fewer parameters."},
+];
+
+/* ================= VARIANTS ================= */
+function valid(g){
+  const all=[g.ans,...g.wrong];
+  if(all.length!==4||new Set(all.map(o=>o.t)).size!==4)return false;
+  if(g.tol!==undefined&&all.every(o=>typeof o.v==="number")){
+    if(all.some(o=>!isFinite(o.v)))return false;
+    for(let a=0;a<4;a++)for(let b=a+1;b<4;b++)if(Math.abs(all[a].v-all[b].v)<g.tol)return false;
+  }
+  return true;
+}
+/* seed picks the numbers (and the order of the wrong options); pos is the letter, 0–3, that the correct answer goes in */
+function make(q,seed,pos){
+  let g=q;
+  if(q.kind==="calc"){
+    g=null;
+    for(let a=0;a<400&&!g;a++){const c=q.gen(rng((hash(q.id)+seed*7919+a*104729)>>>0));if(c&&valid(c))g=c;}
+    if(!g)throw new Error("no valid variant for "+q.id);
+  }
+  const opts=rng((hash(q.id)^seed)>>>0).shuffle(g.wrong.map(o=>({...o,ok:false})));
+  opts.splice(pos,0,{...g.ans,ok:true});
+  return {stem:g.stem,given:g.given,opts,sol:g.sol};
+}
+/* Correct letters for n questions: as even as possible over A–D (which letters get the spare ones is random),
+   in random order, and never the same letter three times in a row. rand() returns [0, 1). */
+function spread(n,rand=Math.random){
+  const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  const L=sh([0,1,2,3]);
+  for(let t=0;;t++){
+    const a=sh(Array.from({length:n},(_,k)=>L[k%4]));
+    if(t>=2000||a.every((v,k)=>k<2||v!==a[k-1]||v!==a[k-2]))return a;
+  }
+}
+
+/* ================= QUIZ FLOW =================
+   One question at a time; answers can change freely and nothing is marked until the whole quiz is submitted. */
+const LEC={1:"Introduction to machine learning",2:"Neurons and the perceptron",3:"MLP and backpropagation",4:"Cost functions and optimization",5:"Transfer learning",6:"Convolutional neural networks",7:"Recurrent neural networks"};
+const LET="ABCD",KEY="dl-quiz-v2";
+const $=s=>document.querySelector(s);
+const smooth=()=>matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth";
+const CONV=[
+  `<b>Bias as a weight.</b> ${mi("x_0 = 1")}, so ${mi("x = (1, x_1, x_2)")} and ${mi("w = (w_0, w_1, w_2)")}, where ${mi("w_0")} is the bias.`,
+  `<b>Sigmoid.</b> ${mi("f(u) = 1/(1 + e^{-u})")} with slope ${mi("a = 1")}, so ${mi("f'(u) = o(1 - o)")}.`,
+  `<b>Error and update.</b> ${mi("E = \\tfrac{1}{2}(t - o)^2")} for one pattern; ${mi("\\Delta w = -\\eta\\,\\partial E/\\partial w = \\eta\\,\\delta x")}.`,
+  `<b>Logs.</b> ${mi("\\ln")} is the natural logarithm.`,
+  `<b>Rounding.</b> Options are rounded, mostly to 4 decimals. Keep 5 or more decimals in the steps in between.`];
+
+/* MathJax typesets the whole page when it first loads; anything rendered after that is queued here */
+let texQ=Promise.resolve();
+function tex(el){
+  const MJ=window.MathJax;
+  if(!MJ||!MJ.typesetPromise)return;
+  texQ=texQ.then(()=>MJ.startup.promise).then(()=>MJ.typesetPromise([el])).catch(e=>console.warn(e));
+}
+/* keep an opening bracket and trailing punctuation on the same line as the inline formula they touch */
+const glue=h=>h.replace(/(\(?)(\\\([\s\S]*?\\\))([.,;:?!)]*)/g,(m,a,b,c)=>a||c?`<span class="nw">${a}${b}${c}</span>`:m);
+function put(el,html){const MJ=window.MathJax;if(MJ&&MJ.typesetClear)MJ.typesetClear([el]);el.innerHTML=glue(html);}
+
+let st=null;   // {order:[question index], seed:{i:n}, pos:{i:letter of the correct answer}, ans:{i:chosen letter}, cur, done, retake}
+let confirmOpen=false,resetArmed=false,resetTimer=0,filter="all";
+const cache=new Map();
+const V=id=>{const k=`${id}:${st.seed[id]}:${st.pos[id]}`;if(!cache.has(k))cache.set(k,make(QS[id],st.seed[id],st.pos[id]));return cache.get(k);};
+
+/* ---------- storage ---------- */
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(!s||!Array.isArray(s.order)||!s.order.length)return null;
+    const seen=new Set(),seed={},pos={},ans={};
+    for(const id of s.order){
+      if(!Number.isInteger(id)||id<0||id>=QS.length||seen.has(id))return null;
+      seen.add(id);
+      const sd=s.seed&&s.seed[id],p=s.pos&&s.pos[id],a=s.ans&&s.ans[id];
+      if(!Number.isInteger(sd)||!Number.isInteger(p)||p<0||p>3)return null;
+      seed[id]=sd;pos[id]=p;
+      if(Number.isInteger(a)&&a>=0&&a<4)ans[id]=a;
+    }
+    const cur=Number.isInteger(s.cur)&&s.cur>=0&&s.cur<s.order.length?s.cur:0;
+    return {order:s.order,seed,pos,ans,cur,done:!!s.done,retake:!!s.retake};
+  }catch(e){return null;}
+}
+function save(){try{if(st)localStorage.setItem(KEY,JSON.stringify(st));else localStorage.removeItem(KEY);}catch(e){}}
+
+/* ---------- attempts ---------- */
+/* questions keep the course order; each attempt draws new numbers and spreads the correct letters evenly */
+function startWith(ids,retake){
+  const order=ids.slice().sort((a,b)=>a-b),L=spread(order.length),seed={},pos={};
+  order.forEach((id,k)=>{seed[id]=1+Math.floor(Math.random()*2147483646);pos[id]=L[k];});
+  st={order,seed,pos,ans:{},cur:0,done:false,retake};
+  confirmOpen=false;resetArmed=false;filter="all";cache.clear();
+  save();render();window.scrollTo(0,0);$("#qText").focus({preventScroll:true});
+}
+const answered=()=>st.order.filter(id=>id in st.ans).length;
+const stateOf=id=>!(id in st.ans)?"skip":V(id).opts[st.ans[id]].ok?"ok":"no";
+function score(){
+  let right=0,skipped=0;const by={};
+  st.order.forEach(id=>{const c=stateOf(id),l=QS[id].lec,b=by[l]||(by[l]={n:0,r:0});b.n++;if(c==="ok"){right++;b.r++;}if(c==="skip")skipped++;});
+  return {right,skipped,n:st.order.length,by,missed:st.order.filter(id=>stateOf(id)!=="ok")};
+}
+
+/* ---------- views ---------- */
+function show(v){["intro","quiz","results"].forEach(x=>{$("#"+x).hidden=x!==v;});}
+function render(){
+  if(!st)show("intro");
+  else if(st.done){renderResults();show("results");}
+  else{renderQuestion();renderProgress();show("quiz");}
+  renderBar();
+}
+function renderBar(){
+  const c=$("#countTxt"),p=$("#prog");
+  if(!st){c.textContent=`${QS.length} questions`;p.querySelector("i").style.width="0%";p.setAttribute("aria-valuemax",QS.length);p.setAttribute("aria-valuenow",0);return;}
+  const n=st.order.length,a=answered();
+  p.setAttribute("aria-valuemax",n);p.setAttribute("aria-valuenow",a);
+  p.querySelector("i").style.width=(a/n*100)+"%";
+  c.textContent=st.done?`Scored · ${score().right} / ${n}`:`${a} of ${n} answered`;
+}
+
+/* quiz */
+function renderQuestion(){
+  const n=st.order.length,id=st.order[st.cur],v=V(id),sel=st.ans[id];
+  $("#qNum").textContent=`Question ${st.cur+1} of ${n}`;
+  $("#retakeTag").hidden=!st.retake;
+  put($("#qText"),v.stem);
+  const g=$("#qGiven");g.hidden=!v.given;put(g,v.given||"");
+  put($("#opts"),v.opts.map((o,i)=>`<button type="button" class="opt" data-i="${i}" aria-pressed="${sel===i}"><span class="L" aria-hidden="true">${LET[i]}</span><span class="t"><span class="sr">${LET[i]}. </span>${o.t}</span></button>`).join(""));
+  tex($("#qcard"));
+  $("#prev").disabled=st.cur===0;
+  $("#next").textContent=st.cur===n-1?"Go to submit ↓":"Next →";
+}
+function renderProgress(){
+  const n=st.order.length,left=n-answered();
+  $("#gridNav").innerHTML=st.order.map((id,k)=>{const done=id in st.ans,cur=k===st.cur;
+    return `<button type="button" class="gn${done?" done":""}${cur?" cur":""}" data-k="${k}" aria-label="Question ${k+1}, ${done?"answered":"not answered"}"${cur?' aria-current="step"':""}>${k+1}</button>`;}).join("");
+  $("#nextUn").hidden=left===0;
+  $("#finishNote").textContent=left>0
+    ?`${left} question${left>1?"s are":" is"} still unanswered. You can submit now, but unanswered questions count as zero.`
+    :"Every question has an answer. You can still change any of them before you submit.";
+  $("#confirmMsg").innerHTML=left>0
+    ?`<b>Score your answers now?</b> ${left} unanswered question${left>1?"s":""} will be scored as zero, and your answers lock once they are scored.`
+    :"<b>Score your answers now?</b> Your answers lock once they are scored.";
+  $("#confirmNo").textContent=left>0?"Keep answering":"Keep reviewing";
+  $("#confirm").hidden=!confirmOpen;
+  const rb=$("#resetBtn");rb.textContent=resetArmed?"Click again to clear every answer":"Start over";rb.classList.toggle("armed",resetArmed);
+  renderBar();
+}
+function choose(i){
+  st.ans[st.order[st.cur]]=i;save();
+  document.querySelectorAll("#opts .opt").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.i===i)));
+  renderProgress();
+}
+function go(k,focusQ){
+  if(k<0||k>=st.order.length)return;
+  st.cur=k;save();renderQuestion();renderProgress();
+  const card=$("#qcard");
+  if(focusQ||card.getBoundingClientRect().top<60)card.scrollIntoView({behavior:focusQ?smooth():"auto",block:"start"});
+  if(focusQ)$("#qText").focus({preventScroll:true});
+}
+function nextUnanswered(){
+  const n=st.order.length;
+  for(let s=1;s<=n;s++){const k=(st.cur+s)%n;if(!(st.order[k] in st.ans))return k;}
+  return -1;
+}
+$("#startBtn").addEventListener("click",()=>startWith(QS.map((_,i)=>i),false));
+$("#opts").addEventListener("click",e=>{const b=e.target.closest(".opt");if(b)choose(+b.dataset.i);});
+$("#prev").addEventListener("click",()=>go(st.cur-1,false));
+$("#next").addEventListener("click",()=>{
+  if(st.cur<st.order.length-1)go(st.cur+1,false);
+  else{$("#finish").scrollIntoView({behavior:smooth(),block:"start"});$("#finishBtn").focus({preventScroll:true});}
+});
+$("#gridNav").addEventListener("click",e=>{const b=e.target.closest(".gn");if(b)go(+b.dataset.k,true);});
+$("#nextUn").addEventListener("click",()=>{const k=nextUnanswered();if(k>=0)go(k,true);});
+$("#finishBtn").addEventListener("click",()=>{confirmOpen=true;renderProgress();$("#confirmYes").focus();});
+$("#confirmNo").addEventListener("click",()=>{confirmOpen=false;renderProgress();$("#finishBtn").focus();});
+$("#confirmYes").addEventListener("click",()=>{
+  st.done=true;confirmOpen=false;filter="all";save();render();window.scrollTo(0,0);$("#scoreHead").focus({preventScroll:true});
+});
+$("#resetBtn").addEventListener("click",()=>{
+  clearTimeout(resetTimer);
+  if(!resetArmed){resetArmed=true;renderProgress();resetTimer=setTimeout(()=>{resetArmed=false;if(st&&!st.done)renderProgress();},5000);return;}
+  resetArmed=false;st=null;save();render();window.scrollTo(0,0);
+});
+document.addEventListener("keydown",e=>{
+  if($("#quiz").hidden||!st||e.metaKey||e.ctrlKey||e.altKey)return;
+  const t=e.target;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable))return;
+  const map={a:0,b:1,c:2,d:3,"1":0,"2":1,"3":2,"4":3};
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  if(k in map){e.preventDefault();choose(map[k]);}
+  else if(k==="ArrowRight"&&st.cur<st.order.length-1){e.preventDefault();go(st.cur+1,false);}
+  else if(k==="ArrowLeft"&&st.cur>0){e.preventDefault();go(st.cur-1,false);}
+});
+
+/* results */
+function verdict(p){
+  if(p>=90)return "Excellent. You know this material well.";
+  if(p>=75)return "Good. Go through the questions you missed below, then retake just those.";
+  if(p>=50)return "Getting there. Work through the worked solutions below and revisit the lectures with the lowest scores.";
+  return "Keep going. Re-read the lectures with the lowest scores, then retake the quiz.";
+}
+const TAG={ok:"Correct",no:"Incorrect",skip:"Not answered"};
+function reviewItem(id,k){
+  const q=QS[id],v=V(id),a=st.ans[id],c=stateOf(id);
+  const opts=v.opts.map((o,i)=>{
+    const mine=i===a,cls=o.ok?" right":mine?" wrong":"";
+    const tag=o.ok?(mine?"Your answer · correct":"Correct answer"):mine?"Your answer":"";
+    return `<li class="ro${cls}"><span class="L" aria-hidden="true">${LET[i]}</span><div class="ro-b"><div class="t"><span class="sr">${LET[i]}. </span>${o.t}</div>${tag?`<span class="tag">${tag}</span>`:""}${mine&&!o.ok?`<p class="why">${o.why}</p>`:""}</div></li>`;
+  }).join("");
+  return `<article class="rv ${c}" id="rv${k+1}" data-ok="${c==="ok"}" tabindex="-1" aria-labelledby="rv${k+1}h">
+  <div class="rv-head" id="rv${k+1}h"><span class="rv-n">${k+1}</span><span class="eyebrow">Lecture ${q.lec} · ${q.topic}</span><span class="st ${c}">${TAG[c]}</span></div>
+  <div class="q-stem">${v.stem}</div>${v.given?`<div class="given">${v.given}</div>`:""}
+  <ol class="ro-list">${opts}</ol>${c==="skip"?`<p class="skipnote">No answer given, scored 0.</p>`:""}
+  <details class="sol"${c==="ok"?"":" open"}><summary>Worked solution</summary><div class="sol-body">${q.kind==="calc"?v.sol:`<p>${v.sol}</p>`}</div></details>
+</article>`;
+}
+function renderResults(){
+  const s=score(),pct=Math.round(s.right/s.n*100),wrong=s.n-s.right;
+  $("#sScope").textContent=st.retake?"Your result · retake of missed questions":"Your result";
+  $("#sNum").textContent=s.right;$("#sDen").textContent=`/ ${s.n}`;
+  $("#scoreHead").setAttribute("aria-label",`${s.right} out of ${s.n} correct`);
+  $("#sPct").textContent=`${pct}% · ${s.right} correct · ${wrong-s.skipped} incorrect`+(s.skipped?` · ${s.skipped} unanswered (scored 0)`:"");
+  $("#keySkip").hidden=s.skipped===0;
+  $("#sVerdict").textContent=verdict(pct);
+  const rm=$("#retakeMiss");rm.hidden=wrong===0;rm.textContent=`Retake the ${wrong} question${wrong>1?"s":""} I missed`;
+  $("#dots").innerHTML=st.order.map((id,k)=>{const c=stateOf(id);
+    return `<button type="button" class="dot ${c}" data-k="${k+1}" aria-label="Question ${k+1}, ${TAG[c].toLowerCase()}">${k+1}</button>`;}).join("");
+  $("#byLec").innerHTML=Object.keys(s.by).sort((a,b)=>a-b).map(l=>{const b=s.by[l],p=b.r/b.n*100;
+    return `<li><span class="nm"><span>L${l}</span>${LEC[l]}</span><b>${b.r} / ${b.n}</b><span class="meter" role="img" aria-label="${Math.round(p)} percent"><i style="width:${p}%"></i></span></li>`;}).join("");
+  $("#filterChips").innerHTML=[["all",`All (${s.n})`],["no",`Missed (${wrong})`]].map(([k,l])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("");
+  const rv=$("#review");
+  put(rv,st.order.map(reviewItem).join("")+`<p class="empty" id="noMistakes" hidden>No mistakes to show. Every answer was correct.</p>`);
+  tex(rv);
+  applyFilter();
+}
+function applyFilter(){
+  document.querySelectorAll("#filterChips .chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f===filter)));
+  let shown=0;
+  document.querySelectorAll("#review .rv").forEach(r=>{const hide=filter==="no"&&r.dataset.ok==="true";r.hidden=hide;if(!hide)shown++;});
+  $("#noMistakes").hidden=shown>0;
+}
+$("#filterChips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;filter=b.dataset.f;applyFilter();});
+$("#dots").addEventListener("click",e=>{const b=e.target.closest(".dot");if(!b)return;
+  const item=$("#rv"+b.dataset.k);if(!item)return;
+  if(item.hidden){filter="all";applyFilter();}
+  item.scrollIntoView({behavior:smooth(),block:"start"});item.focus({preventScroll:true});});
+$("#retakeMiss").addEventListener("click",()=>{const m=score().missed;if(m.length)startWith(m,true);});
+$("#retakeAll").addEventListener("click",()=>startWith(QS.map((_,i)=>i),false));
+
+/* ---------- start ---------- */
+$("#nTotal").textContent=QS.length;
+document.querySelectorAll(".conv").forEach(u=>{u.innerHTML=glue(CONV.map(c=>`<li>${c}</li>`).join(""));});
+st=load();
+try{render();}catch(e){console.warn(e);st=null;save();render();}
+tex($(".page"));
+
+/* ================= THEME TOGGLE ================= */
+(function(){
+  const root=document.documentElement,mq=matchMedia("(prefers-color-scheme: dark)");
+  const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  const current=()=>root.getAttribute("data-theme")||(mq.matches?"dark":"light");
+  function paint(){const dark=current()==="dark",label=dark?"Switch to light mode":"Switch to dark mode";
+    document.querySelectorAll(".theme-toggle").forEach(b=>{b.innerHTML=dark?SUN:MOON;b.setAttribute("aria-label",label);b.title=label;});}
+  document.querySelectorAll(".theme-toggle").forEach(b=>b.addEventListener("click",()=>{
+    const next=current()==="dark"?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("dl-theme",next);}catch(e){}paint();}));
+  mq.addEventListener("change",paint);
+  paint();
+})();
+
+</script>
+</body>
+</html>
