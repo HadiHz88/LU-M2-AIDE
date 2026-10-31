@@ -7,6 +7,9 @@ const { execFileSync } = require("child_process");
 
 const SOFFICE = "/Applications/LibreOffice.app/Contents/MacOS/soffice";
 const norm = (s) => s.replace(/\s+/g, " ").trim();
+// Keep the blank pages that odd-page section breaks insert (style.toml open_right); LibreOffice drops them by default,
+// which would shift every later page number by one per blank page.
+const PDF_KEEP_BLANKS = 'pdf:writer_pdf_Export:{"IsSkipEmptyPages":{"type":"boolean","value":"false"}}';
 
 /**
  * @param {Buffer} docxBuffer
@@ -18,7 +21,7 @@ function pageMap(docxBuffer, needles, skipMarkers) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "paginate-"));
   const docx = path.join(dir, "doc.docx");
   fs.writeFileSync(docx, docxBuffer);
-  execFileSync(SOFFICE, ["--headless", "--convert-to", "pdf", "--outdir", dir, docx], { stdio: "ignore" });
+  execFileSync(SOFFICE, ["--headless", "--convert-to", PDF_KEEP_BLANKS, "--outdir", dir, docx], { stdio: "ignore" });
   const text = execFileSync("pdftotext", [path.join(dir, "doc.pdf"), "-"]).toString("utf8");
   fs.rmSync(dir, { recursive: true, force: true });
 
@@ -33,7 +36,8 @@ function pageMap(docxBuffer, needles, skipMarkers) {
     if (i < 0) throw new Error(`paginate: could not find "${key}" in the laid-out document`);
     pages[n] = i + 1; // physical page = displayed page (cover counts as page 1, number hidden)
   }
-  return { pages, pageCount: pageLines.filter((l) => l.length).length };
+  // pdftotext ends every page with a form feed, so the last split element is empty; blank pages still count
+  return { pages, pageCount: pageLines.length - (pageLines[pageLines.length - 1].length ? 0 : 1) };
 }
 
 /** Lay a .docx out with LibreOffice into `outDir`; returns the PDF path and its page count. */

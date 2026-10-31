@@ -5,7 +5,7 @@ const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell, Header, Footer,
   AlignmentType, HeadingLevel, WidthType, BorderStyle, ShadingType, PageNumber, SimpleField,
-  VerticalAlign, TableLayoutType, TableOfContents,
+  VerticalAlign, TableLayoutType, TableOfContents, SectionType,
 } = require("docx");
 const cfg = require("./config");
 
@@ -22,9 +22,20 @@ let corpus = [];
 let outline = [];
 let captions = { Figure: [], Table: [] };
 const seq = { Table: 0, Figure: 0 };
-function reset() {
+// Print layout (RULES.md §4): with open_right, top-level parts start on a right-hand (odd) page. "chapters" = from
+// the first numbered section on (sections, References, Appendices); "all" = front matter too. Word's "odd page"
+// section break inserts the blank left-hand page only when one is needed, and keeps doing so after edits.
+let openRight = R.open_right ?? "off";
+let inChapters = false;               // becomes true at the first numbered Heading 1
+let oddStarts = new WeakSet();        // paragraphs that open a new odd-page section
+function reset({ open_right } = {}) {
   corpus = []; outline = []; captions = { Figure: [], Table: [] }; seq.Table = 0; seq.Figure = 0;
+  openRight = open_right ?? R.open_right ?? "off"; inChapters = false; oddStarts = new WeakSet();
+  if (!["off", "chapters", "all"].includes(openRight)) throw new Error(`report.open_right must be off, chapters or all (got "${openRight}")`);
 }
+const opensRight = (kind) => openRight === "all" || (openRight === "chapters" && kind === "chapter");
+// A top-level part: either a page break before it, or (open_right) the start of a new odd-page section
+function partStart(p, kind) { if (opensRight(kind)) oddStarts.add(p); return p; }
 
 // ---------- inline markup: *italic*, **bold** ----------
 function runs(text, base = {}) {
@@ -48,10 +59,12 @@ const para = (children, o = {}) => new Paragraph({ children, ...o });
 
 const body = (text) => para(runs(text), { alignment: AlignmentType.JUSTIFIED, spacing: { line: LINE, after: 120 } });
 // RULES.md §4: every top-level section starts on a new page (project.toml: report.section_page_break).
-const h1 = (text, o = {}) => (
-  outline.push({ title: text, level: 1 }),
-  para([run(text)], { heading: HeadingLevel.HEADING_1, pageBreakBefore: R.section_page_break, ...o })
-);
+function h1(text, o = {}) {
+  outline.push({ title: text, level: 1 });
+  if (/^\d+\s/.test(text)) inChapters = true; // "1 Introduction": the front matter is over
+  const kind = inChapters ? "chapter" : "front";
+  return partStart(para([run(text)], { heading: HeadingLevel.HEADING_1, pageBreakBefore: R.section_page_break && !opensRight(kind), ...o }), kind);
+}
 const h2 = (text) => (outline.push({ title: text, level: 2 }), para([run(text)], { heading: HeadingLevel.HEADING_2 }));
 
 function bullets(items) {
@@ -215,9 +228,11 @@ const PLACEHOLDER_PAGE = 88; // same width as a real 1–2 digit page number, so
 
 function frontTitle(text, first) {
   const newPage = first || R.front_matter_separate_pages; // style.toml: each list on its own page
-  return para([run(text, { font: R.heading_font, size: pt(16), bold: true, color: C.primary })], {
-    pageBreakBefore: newPage, spacing: { before: newPage ? 0 : 360, after: 160, line: 240 }, keepNext: true,
+  const odd = newPage && opensRight("front");
+  const p = para([run(text, { font: R.heading_font, size: pt(16), bold: true, color: C.primary })], {
+    pageBreakBefore: newPage && !odd, spacing: { before: newPage ? 0 : 360, after: 160, line: 240 }, keepNext: true,
   });
+  return odd ? partStart(p, "front") : p;
 }
 
 function contentsBlock(pages) {
@@ -276,22 +291,33 @@ function buildDocument({ title, runningTitle, children, pages = {} }) {
           paragraph: { spacing: { before: 200, after: 120, line: 240 }, keepNext: true, outlineLevel: 1 } },
       ],
     },
-    sections: [{
+    sections: splitSections(children).map((group, i) => ({
       properties: {
-        titlePage: true,
+        ...(i === 0 ? { titlePage: true } : { type: SectionType.ODD_PAGE }),
         page: { size: { width: PAGE_W, height: PAGE_H }, margin: { top: MARGIN, bottom: MARGIN, left: MARGIN, right: MARGIN } },
       },
       headers: {
-        first: new Header({ children: [para([])] }),
+        ...(i === 0 ? { first: new Header({ children: [para([])] }) } : {}),
         default: new Header({ children: [para([run(runningTitle, { size: pt(9), color: C.muted, italics: true })], { alignment: AlignmentType.RIGHT })] }),
       },
       footers: {
-        first: new Footer({ children: [para([])] }),
+        ...(i === 0 ? { first: new Footer({ children: [para([])] }) } : {}),
         default: new Footer({ children: [para([new TextRun({ children: [PageNumber.CURRENT], size: pt(10), color: C.muted })], { alignment: AlignmentType.CENTER })] }),
       },
-      children,
-    }],
+      children: group,
+    })),
   });
+}
+
+// One section for the whole report, or (open_right) a new odd-page section at each part that opens on the right.
+// Page numbers run on across sections; the cover stays page 1, so right-hand pages are the odd ones.
+function splitSections(children) {
+  const groups = [[]];
+  for (const c of children) {
+    if (oddStarts.has(c) && groups[groups.length - 1].length) groups.push([]);
+    groups[groups.length - 1].push(c);
+  }
+  return groups;
 }
 
 // ---------- checks ----------

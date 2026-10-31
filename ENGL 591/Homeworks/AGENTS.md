@@ -84,6 +84,7 @@ Content-slide titles are single assertions of **≤ 50 characters** (the build e
 - Decimal numbers must be in `facts.md`. Citations must be `@key`s present in `references.bib`; hand-typed "Author et al., 2020" is refused.
 - No informal wording (contractions, "I think", "a lot of", "pretty", …).
 - Contents, List of Figures and List of Tables after the abstract, with page numbers verified by a second layout pass. Each section starts on a new page.
+- Double-sided print versions on request: `print_variants = ["chapters", "all"]` in `project.toml` [report] also writes `…_Report_v<N>_Print_ChaptersOnly.docx` / `…_Print_WithFrontMatter.docx`, where parts open on a right-hand page.
 - Slide titles ≤ 50 characters.
 
 ## 5. Where to change what
