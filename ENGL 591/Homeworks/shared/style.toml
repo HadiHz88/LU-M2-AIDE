@@ -27,6 +27,11 @@ list_of_figures = true            # included whenever the report has figures
 list_of_tables = true             # included whenever the report has tables
 front_matter_separate_pages = true   # Contents, List of Figures and List of Tables each start a new page
 reference_alignment = "justified"  # reference list: "justified" like the body (long URLs get break points), or "left"
+# Double-sided printing: parts open on a right-hand (odd) page, with a blank left-hand page inserted when needed.
+#   "off" = every part just starts a new page (screen / single-sided) · "chapters" = from 1 Introduction on
+#   (sections, References, Appendices) · "all" = front matter too (Acknowledgements, Abstract, Contents, lists).
+# A project can also build extra print versions: project.toml [report] print_variants = ["chapters", "all"].
+open_right = "off"
 length_pages_mini = [4, 6]
 length_pages_final = [15, 25]
 

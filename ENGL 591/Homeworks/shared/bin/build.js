@@ -47,8 +47,8 @@ async function buildReport(project, src) {
   const { pageMap } = require("../lib/paginate");
   const meta = project.meta;
 
-  const make = async (pages) => {
-    K.reset();
+  const make = async (pages, layout) => {
+    K.reset(layout);
     const bib = new Bibliography(path.join(project.sources, "references.bib"));
     const children = await render({
       src: src.read("report.md"), data: src.data, bib, meta, sources: project.sources,
@@ -59,21 +59,29 @@ async function buildReport(project, src) {
     return { buf: await K.Packer.toBuffer(doc), words, uncited: bib.uncited() };
   };
 
-  // Two-pass build: lay out once to learn each heading/caption page, then rebuild with real numbers.
-  let pages = {}, res;
-  for (let pass = 1; ; pass++) {
-    res = await make(pages);
-    const found = pageMap(res.buf, K.pageNeedles(), K.FRONT_TITLES).pages;
-    const stable = Object.keys(found).every((k) => found[k] === pages[k]);
-    pages = found;
-    if (stable) break;
-    if (pass === 3) throw new Error("contents: page numbers did not stabilise after 3 passes");
+  // The main report, plus one print version per project.toml [report] print_variants entry (style.toml open_right)
+  const PRINT = { chapters: "Print_ChaptersOnly", all: "Print_WithFrontMatter" };
+  const layouts = [{ suffix: "" }, ...(meta.report.print_variants || []).map((mode) => {
+    if (!PRINT[mode]) throw new Error(`project.toml: print_variants entries must be "chapters" or "all" (got "${mode}")`);
+    return { open_right: mode, suffix: `_${PRINT[mode]}` };
+  })];
+  for (const layout of layouts) {
+    // Two-pass build: lay out once to learn each heading/caption page, then rebuild with real numbers.
+    let pages = {}, res;
+    for (let pass = 1; ; pass++) {
+      res = await make(pages, layout);
+      const found = pageMap(res.buf, K.pageNeedles(), K.FRONT_TITLES);
+      const stable = Object.keys(found.pages).every((k) => found.pages[k] === pages[k]);
+      pages = found.pages;
+      res.pageCount = found.pageCount;
+      if (stable) break;
+      if (pass === 3) throw new Error("contents: page numbers did not stabilise after 3 passes");
+    }
+    const out = path.join(project.out, cfg.filename(meta.file_label, "Report", meta.version, "docx").replace(/\.docx$/, `${layout.suffix}.docx`));
+    fs.writeFileSync(out, res.buf);
+    console.log(`report  ✓ ${path.relative(cfg.HOMEWORKS, out)}  (~${res.words} words, ${res.pageCount} pages, contents verified)`);
+    if (layout.suffix === "" && res.uncited.length) console.log(`        note: references.bib entries not cited (left out of the list): ${res.uncited.join(", ")}`);
   }
-  const out = path.join(project.out, cfg.filename(meta.file_label, "Report", meta.version, "docx"));
-  fs.writeFileSync(out, res.buf);
-  const last = Math.max(...Object.values(pages));
-  console.log(`report  ✓ ${path.relative(cfg.HOMEWORKS, out)}  (~${res.words} words, ${last}+ pages, contents verified)`);
-  if (res.uncited.length) console.log(`        note: references.bib entries not cited (left out of the list): ${res.uncited.join(", ")}`);
 }
 
 // IEEE conference paper (project.toml: [report] format = "ieee"): one pass (no contents block), then a PDF,

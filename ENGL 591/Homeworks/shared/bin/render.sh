@@ -8,7 +8,8 @@ mkdir -p "$out"
 SOFFICE="/Applications/LibreOffice.app/Contents/MacOS/soffice"
 for f in "$@"; do
   base="$(basename "${f%.*}")"
-  "$SOFFICE" --headless --convert-to pdf --outdir "$out" "$f" >/dev/null 2>&1
+  # Keep the blank pages inserted before parts that open on a right-hand page (style.toml open_right)
+  "$SOFFICE" --headless --convert-to 'pdf:writer_pdf_Export:{"IsSkipEmptyPages":{"type":"boolean","value":"false"}}' --outdir "$out" "$f" >/dev/null 2>&1
   rm -f "$out/$base"-*.jpg
   case "$f" in
     *.pptx) pdftoppm -jpeg -r 150 "$out/$base.pdf" "$out/$base" ;;
