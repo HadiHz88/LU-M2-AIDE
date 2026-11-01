@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Worked Examples by Hand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Same palette and type as Summary.html and Practice-Quiz.html.
+   One reading column. Every number on this page was computed by script, not by hand, so it can be trusted as an answer key. */
+:root{
+  --bg:#EEF0F4; --surface:#F9FAFC; --surface-2:#E2E6EC; --ink:#141922; --ink-2:#414A58; --muted:#687384; --line:#CBD2DC;
+  --accent:#A3470A; --accent-soft:#F5E1D1;
+  --pos:#2563C9; --pos-soft:#DCE7FA; --neg:#C2255C; --neg-soft:#F8DCE6; --ok:#18794E; --ok-soft:#D7F0E3;
+  --code-bg:#E3E7ED;
+  --font-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:10px; --read:720px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+    --accent:#F0A057; --accent-soft:#3A2516;
+    --pos:#6AA6F8; --pos-soft:#18263D; --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+    --code-bg:#1A2029; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+  --accent:#F0A057; --accent-soft:#3A2516;
+  --pos:#6AA6F8; --pos-soft:#18263D; --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+  --code-bg:#1A2029; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:64px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16.5px; line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--font-display); text-wrap:balance; margin:0; line-height:1.15; letter-spacing:-0.01em}
+h1{font-size:clamp(2.3rem,6vw,3.8rem); font-weight:800; letter-spacing:-0.03em; line-height:1}
+h1 em{font-style:normal; color:var(--accent)}
+h2{font-size:clamp(1.7rem,3.4vw,2.3rem); font-weight:800}
+h3{font-size:1.3rem; font-weight:700}
+h4{font-size:1rem; font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+code{font-family:var(--font-mono); font-size:.86em; background:var(--code-bg); padding:1px 5px; border-radius:4px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .okc{color:var(--ok)}
+
+/* top bar */
+.bar{position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--line);
+  margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px))); margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar-in{max-width:860px; margin:0 auto; display:flex; align-items:center; gap:8px}
+.bar-links{display:flex; gap:4px; overflow-x:auto; padding-block:8px; scrollbar-width:none; flex:1; min-width:0}
+.bar-links::-webkit-scrollbar{display:none}
+.bar a{flex:none; text-decoration:none; color:var(--ink-2); font-size:.86rem; padding:6px 10px; border-radius:999px; white-space:nowrap}
+.bar a:hover{color:var(--ink)}
+.bar a.active{background:var(--ink); color:var(--bg)}
+.btn{font:inherit; font-size:.82rem; border:1.5px solid var(--line); background:transparent; color:var(--ink); padding:5px 12px; border-radius:999px; cursor:pointer; white-space:nowrap; flex:none}
+.btn:hover{border-color:var(--ink-2)}
+
+main{max-width:860px; margin:0 auto; padding-block:40px 80px}
+.intro{display:grid; gap:18px; max-width:var(--read)}
+.lede{font-size:1.12rem; color:var(--ink-2)}
+section.part{margin-top:72px; padding-top:48px; border-top:1px solid var(--line); display:grid; grid-template-columns:minmax(0,1fr); gap:40px}
+.part-head{display:grid; gap:10px; max-width:var(--read)}
+.part-head .tag{font-family:var(--font-mono); font-size:.75rem; color:var(--muted); letter-spacing:.08em}
+.part-head .tag b{color:var(--accent)}
+.sub{display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-content:start; min-width:0}
+.sub > p,.sub > ul,.sub > ol,.sub > h3,.sub > h4{max-width:var(--read)}
+.sub > p{color:var(--ink-2)}
+ul.pts,ol.pts{margin:0; padding-left:1.2em; display:grid; gap:8px; max-width:var(--read)}
+ul.pts li,ol.pts li{color:var(--ink-2)}
+ul.pts li b,ol.pts li b{color:var(--ink)}
+.note{font-size:.92rem; color:var(--ink-2); border-left:2px solid var(--accent); padding-left:12px; max-width:var(--read)}
+.eq{background:var(--code-bg); padding:10px 16px; border-radius:8px; overflow-x:auto; overflow-y:hidden; justify-self:start; max-width:100%; font-size:1.02rem}
+.eq mjx-container[display="true"]{margin:2px 0!important; text-align:left!important}
+mjx-container{color:inherit}
+.practice,.given,.traps,details > div{grid-template-columns:minmax(0,1fr)}
+.practice li,.practice p,.given p{min-width:0; overflow-wrap:anywhere}
+@media (max-width:560px){p mjx-container:not([display]),li mjx-container:not([display]){display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle}}
+.tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.9rem}
+th,td{text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:700; background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right; font-family:var(--font-mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+td.m{font-family:var(--font-mono); font-size:.84rem; white-space:nowrap}
+tr.hl td{background:var(--accent-soft)}
+.given{max-width:var(--read); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; display:grid; gap:8px}
+.given .eyebrow{color:var(--accent)}
+.given p{color:var(--ink-2)}
+.traps{max-width:var(--read); padding:16px 18px; display:grid; gap:10px; border:1px dashed var(--accent); border-radius:var(--radius)}
+.traps h4{color:var(--accent); font-family:var(--font-mono); font-size:.76rem; letter-spacing:.1em; text-transform:uppercase}
+.traps ul{margin:0; padding-left:1.2em; display:grid; gap:6px; color:var(--ink-2)}
+
+/* step-by-step lines: label on the left, arithmetic on the right */
+.calc{max-width:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:6px 0; display:grid}
+.calc .ln{display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; padding:7px 16px; border-bottom:1px solid var(--line); align-items:baseline}
+.calc .ln:last-child{border-bottom:0}
+.calc .ln > b{font-family:var(--font-mono); font-size:.8rem; color:var(--muted); font-weight:600}
+.calc .ln > span{display:block; overflow-x:auto; overflow-y:hidden; min-width:0}
+.calc .ln.res{background:var(--accent-soft)}
+@media (max-width:560px){.calc .ln{grid-template-columns:minmax(0,1fr); gap:2px}}
+
+/* practice problems */
+.practice{max-width:var(--read); border:1px solid var(--line); border-left:3px solid var(--ok); border-radius:var(--radius); background:var(--surface); padding:16px 18px; display:grid; gap:12px}
+.practice > .eyebrow{color:var(--ok)}
+.practice ol{margin:0; padding-left:1.3em; display:grid; gap:8px; color:var(--ink-2)}
+details{border-top:1px solid var(--line); padding-top:10px}
+summary{cursor:pointer; font-weight:700; color:var(--ok); list-style-position:inside}
+details > div{display:grid; gap:10px; padding-top:10px}
+
+/* conv grids */
+.grids{display:flex; flex-wrap:wrap; gap:18px 26px; align-items:center}
+.gwrap{display:grid; gap:6px; justify-items:center}
+.gwrap .eyebrow{font-size:.66rem}
+table.grid{width:auto; border-collapse:separate; border-spacing:3px; font-family:var(--font-mono); font-size:.9rem}
+table.grid td{width:34px; height:34px; padding:0; text-align:center; vertical-align:middle; border:1px solid var(--line); border-radius:5px; background:var(--surface)}
+table.grid td.win{background:var(--accent-soft); border-color:var(--accent); font-weight:600}
+table.grid td.pad{color:var(--muted); background:transparent; border-style:dashed}
+table.grid td.drop{color:var(--muted); background:transparent; text-decoration:line-through}
+table.grid td.out{background:var(--ok-soft); border-color:var(--ok); font-weight:600}
+.op{font-family:var(--font-mono); font-size:1.4rem; color:var(--muted)}
+
+svg text{font-family:var(--font-mono)}
+.fig{max-width:var(--read); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:12px}
+.fig svg{display:block; width:100%; height:auto}
+
+@media print{
+  .bar,.btn{display:none!important}
+  body{font-size:12.5px; background:#fff}
+  section.part{break-before:page; margin-top:0; padding-top:0; border-top:0}
+  .calc,.tbl,.practice,.given,.fig,.eq{break-inside:avoid}
+  details[open]{break-inside:avoid}
+}
+</style>
+<script>try{var t=localStorage.getItem("dl-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" id="MathJax-script"></script>
+</head>
+<body>
+
+<nav class="bar" aria-label="Sections"><div class="bar-in">
+  <div class="bar-links" id="barLinks">
+    <a href="#top">Start</a>
+    <a href="#bp">1 · Backprop</a>
+    <a href="#cnn">2 · CNN</a>
+    <a href="#rnn">3 · RNN</a>
+    <a href="#sheet">Σ · Formulas</a>
+  </div>
+  <button class="btn" id="toggleAll" type="button">Show all answers</button>
+</div></nav>
+
+<main>
+
+<header class="intro" id="top">
+  <span class="eyebrow">MIAI504 · Neural Networks &amp; Deep Learning</span>
+  <h1>Worked examples, <em>by hand</em></h1>
+  <p class="lede">Every computation the exam can ask you to do on paper, written out step by step: one backprop pass through a 2-2-2 network, convolution and shape tracing for CNNs, and an RNN, LSTM, GRU and attention step.</p>
+  <ul class="pts">
+    <li><b>How to use it:</b> read the givens, cover what follows, do the step on paper, then uncover and compare. Only read ahead once your number matches.</li>
+    <li><b>Practice problems</b> (green boxes) use fresh numbers. Their answers are folded away. Use them for a timed redo.</li>
+    <li><b>Every number here was computed by a script</b>, so if yours differs past the 4th decimal, the mistake is in your working.</li>
+  </ul>
+</header>
+
+<!-- ====================================================== 1 BACKPROP -->
+<section class="part" id="bp">
+  <div class="part-head">
+    <span class="tag"><b>PART 1</b> · LECTURES 03–04</span>
+    <h2>Backpropagation by hand</h2>
+    <p class="muted">Start with one neuron to see the chain rule, then do the full Lecture 03 example (slides 47–58).</p>
+  </div>
+
+  <div class="sub">
+    <h3>1.1 Warm-up: one sigmoid neuron</h3>
+    <div class="given">
+      <span class="eyebrow">Given</span>
+      <p>Input \(x = 1.5\), weight \(w = 0.8\), bias \(b = -0.2\), target \(t = 1\), learning rate \(\eta = 0.5\). Sigmoid activation, error \(E = \tfrac12 (t - o)^2\).</p>
+    </div>
+    <p>The whole idea of backprop is in one line. The error depends on \(w\) only through a chain \(w \to z \to o \to E\), so you multiply the three local derivatives:</p>
+    <div class="eq">\[\frac{\partial E}{\partial w} = \underbrace{\frac{\partial E}{\partial o}}_{(o-t)} \cdot \underbrace{\frac{\partial o}{\partial z}}_{o(1-o)} \cdot \underbrace{\frac{\partial z}{\partial w}}_{x}\]</div>
+    <div class="calc">
+      <div class="ln"><b>forward</b><span>\(z = 0.8 \cdot 1.5 - 0.2 = 1.0\), &nbsp;\(o = \sigma(1.0) = 0.731058579\)</span></div>
+      <div class="ln"><b>error</b><span>\(E = \tfrac12(1 - 0.731058579)^2 = 0.036164744\)</span></div>
+      <div class="ln"><b>∂E/∂o</b><span>\(o - t = -0.268941421\)</span></div>
+      <div class="ln"><b>∂o/∂z</b><span>\(o(1-o) = 0.731058579 \cdot 0.268941421 = 0.196611933\)</span></div>
+      <div class="ln"><b>δ = ∂E/∂z</b><span>\(-0.268941421 \cdot 0.196611933 = -0.052877093\)</span></div>
+      <div class="ln"><b>∂E/∂w</b><span>\(\delta \cdot x = -0.052877093 \cdot 1.5 = -0.079315639\)</span></div>
+      <div class="ln"><b>∂E/∂b</b><span>\(\delta \cdot 1 = -0.052877093\)</span></div>
+      <div class="ln res"><b>update</b><span>\(w^+ = 0.8 - 0.5(-0.079315639) = 0.839657820\), &nbsp;\(b^+ = -0.2 - 0.5(-0.052877093) = -0.173561454\)</span></div>
+    </div>
+    <p>The gradient is negative, so the weight goes <b>up</b>. That makes sense: the output is too low (0.73 vs 1), and a bigger weight pushes it higher.</p>
+    <p>The quantity \(\delta\), the error at a neuron's input, is the thing you will carry backwards through a network. Once you have a neuron's \(\delta\), the gradient for any weight coming into it is just \(\delta \times\) whatever that weight multiplies.</p>
+  </div>
+
+  <div class="sub">
+    <h3>1.2 The course example: a 2-2-2 network</h3>
+    <p>This is Example 3 in Lecture 03 (slides 47–58). The slides show the working as images, so here it is in full.</p>
+    <div class="fig" role="img" aria-label="Network: inputs i1=0.05 and i2=0.10, hidden h1 and h2, outputs o1 and o2. w1=0.15 i1 to h1, w2=0.20 i2 to h1, w3=0.25 i1 to h2, w4=0.30 i2 to h2, w5=0.40 h1 to o1, w6=0.45 h2 to o1, w7=0.50 h1 to o2, w8=0.55 h2 to o2, b1=0.35 into both hidden, b2=0.60 into both outputs.">
+      <svg viewBox="0 0 640 310" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--line)" stroke-width="2" fill="none">
+          <line x1="80" y1="90" x2="320" y2="90"/><line x1="80" y1="210" x2="320" y2="90"/>
+          <line x1="80" y1="90" x2="320" y2="210"/><line x1="80" y1="210" x2="320" y2="210"/>
+          <line x1="320" y1="90" x2="560" y2="90"/><line x1="320" y1="210" x2="560" y2="90"/>
+          <line x1="320" y1="90" x2="560" y2="210"/><line x1="320" y1="210" x2="560" y2="210"/>
+        </g>
+        <g stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" fill="none">
+          <line x1="200" y1="280" x2="320" y2="90"/><line x1="200" y1="280" x2="320" y2="210"/>
+          <line x1="440" y1="280" x2="560" y2="90"/><line x1="440" y1="280" x2="560" y2="210"/>
+        </g>
+        <g font-size="12.5" fill="var(--accent)">
+          <text x="150" y="82">w1 = .15</text>
+          <text x="112" y="182">w2 = .20</text>
+          <text x="112" y="126">w3 = .25</text>
+          <text x="150" y="230">w4 = .30</text>
+          <text x="390" y="82">w5 = .40</text>
+          <text x="352" y="182">w6 = .45</text>
+          <text x="352" y="126">w7 = .50</text>
+          <text x="390" y="230">w8 = .55</text>
+        </g>
+        <g fill="var(--surface)" stroke="var(--ink-2)" stroke-width="2">
+          <circle cx="80" cy="90" r="24"/><circle cx="80" cy="210" r="24"/>
+          <circle cx="320" cy="90" r="24"/><circle cx="320" cy="210" r="24"/>
+          <circle cx="560" cy="90" r="24"/><circle cx="560" cy="210" r="24"/>
+        </g>
+        <g fill="var(--surface-2)" stroke="var(--muted)" stroke-width="1.5">
+          <rect x="176" y="266" width="48" height="28" rx="6"/><rect x="416" y="266" width="48" height="28" rx="6"/>
+        </g>
+        <g font-size="14" fill="var(--ink)" text-anchor="middle" font-weight="600">
+          <text x="80" y="95">i1</text><text x="80" y="215">i2</text>
+          <text x="320" y="95">h1</text><text x="320" y="215">h2</text>
+          <text x="560" y="95">o1</text><text x="560" y="215">o2</text>
+          <text x="200" y="285" font-size="12">b1</text><text x="440" y="285" font-size="12">b2</text>
+        </g>
+        <g font-size="12" fill="var(--muted)" text-anchor="middle">
+          <text x="80" y="54">.05</text><text x="80" y="252">.10</text>
+          <text x="560" y="54">t = .01</text><text x="560" y="252">t = .99</text>
+          <text x="262" y="300">.35</text><text x="502" y="300">.60</text>
+        </g>
+      </svg>
+    </div>
+    <div class="given">
+      <span class="eyebrow">Given</span>
+      <p>Inputs \(i_1 = 0.05,\ i_2 = 0.10\). Targets \(t_1 = 0.01,\ t_2 = 0.99\). Weights as in the figure. Biases \(b_1 = 0.35\) (shared by both hidden neurons) and \(b_2 = 0.60\) (shared by both outputs). Logistic sigmoid everywhere, \(\eta = 0.5\), \(E = \sum \tfrac12(t - o)^2\). Biases are <b>not</b> updated in this example.</p>
+    </div>
+
+    <h4>Step 1 · Forward pass</h4>
+    <p>For each neuron: weighted sum of what comes in, then sigmoid. Hidden layer first, then use the hidden outputs as inputs to the output layer.</p>
+    <div class="calc">
+      <div class="ln"><b>net h1</b><span>\(w_1 i_1 + w_2 i_2 + b_1 = 0.15(0.05) + 0.20(0.10) + 0.35 = 0.3775\)</span></div>
+      <div class="ln"><b>out h1</b><span>\(\sigma(0.3775) = 1/(1+e^{-0.3775}) = 0.593269992\)</span></div>
+      <div class="ln"><b>net h2</b><span>\(0.25(0.05) + 0.30(0.10) + 0.35 = 0.3925\)</span></div>
+      <div class="ln"><b>out h2</b><span>\(\sigma(0.3925) = 0.596884378\)</span></div>
+      <div class="ln"><b>net o1</b><span>\(w_5 h_1 + w_6 h_2 + b_2 = 0.40(0.593269992) + 0.45(0.596884378) + 0.60 = 1.105905967\)</span></div>
+      <div class="ln"><b>out o1</b><span>\(\sigma(1.105905967) = 0.751365070\)</span></div>
+      <div class="ln"><b>net o2</b><span>\(0.50(0.593269992) + 0.55(0.596884378) + 0.60 = 1.224921404\)</span></div>
+      <div class="ln"><b>out o2</b><span>\(\sigma(1.224921404) = 0.772928465\)</span></div>
+    </div>
+
+    <h4>Step 2 · Total error</h4>
+    <div class="calc">
+      <div class="ln"><b>E o1</b><span>\(\tfrac12(0.01 - 0.751365070)^2 = 0.274811083\)</span></div>
+      <div class="ln"><b>E o2</b><span>\(\tfrac12(0.99 - 0.772928465)^2 = 0.023560026\)</span></div>
+      <div class="ln res"><b>E total</b><span>\(0.274811083 + 0.023560026 = 0.298371109\)</span></div>
+    </div>
+
+    <h4>Step 3 · Output layer: w5 in full, then the rest</h4>
+    <p>\(w_5\) connects \(h_1\) to \(o_1\). It only affects the error through \(o_1\), so:</p>
+    <div class="eq">\[\frac{\partial E}{\partial w_5} = \frac{\partial E}{\partial o_1}\cdot\frac{\partial o_1}{\partial net_{o1}}\cdot\frac{\partial net_{o1}}{\partial w_5} = (o_1 - t_1)\cdot o_1(1-o_1)\cdot h_1 = \delta_{o1}\cdot h_1\]</div>
+    <div class="calc">
+      <div class="ln"><b>∂E/∂o1</b><span>\(o_1 - t_1 = 0.751365070 - 0.01 = 0.741365070\)</span></div>
+      <div class="ln"><b>∂o1/∂net</b><span>\(o_1(1 - o_1) = 0.751365070 \cdot 0.248634930 = 0.186815602\)</span></div>
+      <div class="ln"><b>δ o1</b><span>\(0.741365070 \cdot 0.186815602 = 0.138498562\)</span></div>
+      <div class="ln"><b>∂E/∂w5</b><span>\(\delta_{o1} \cdot h_1 = 0.138498562 \cdot 0.593269992 = 0.082167041\)</span></div>
+      <div class="ln res"><b>w5 new</b><span>\(0.40 - 0.5 \cdot 0.082167041 = 0.358916480\)</span></div>
+    </div>
+    <p>Do the same for \(o_2\): \(\delta_{o2} = (0.772928465 - 0.99)\cdot 0.175510053 = -0.038098237\). It is negative because \(o_2\) is below its target, so the weights into \(o_2\) will go up.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Weight</th><th>Gradient = δ × input</th><th class="num">∂E/∂w</th><th class="num">Old</th><th class="num">New = old − 0.5·grad</th></tr></thead>
+      <tbody>
+        <tr><td>w5 (h1→o1)</td><td class="m">δo1 · h1</td><td class="num">0.082167041</td><td class="num">0.40</td><td class="num">0.358916480</td></tr>
+        <tr><td>w6 (h2→o1)</td><td class="m">δo1 · h2</td><td class="num">0.082667628</td><td class="num">0.45</td><td class="num">0.408666186</td></tr>
+        <tr><td>w7 (h1→o2)</td><td class="m">δo2 · h1</td><td class="num">−0.022602540</td><td class="num">0.50</td><td class="num">0.511301270</td></tr>
+        <tr><td>w8 (h2→o2)</td><td class="m">δo2 · h2</td><td class="num">−0.022740242</td><td class="num">0.55</td><td class="num">0.561370121</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Write the new weights down but <b>keep using the old \(w_5 \dots w_8\)</b> in step 4. The whole backward pass uses the weights from the forward pass. Updating them all at the end is what the course and most textbooks do.</p>
+
+    <h4>Step 4 · Hidden layer: w1 in full, then the rest</h4>
+    <p>\(w_1\) connects \(i_1\) to \(h_1\). The difference from the output layer: \(h_1\) feeds <b>both</b> outputs, so its error is the sum of what flows back from each one.</p>
+    <div class="eq">\[\frac{\partial E}{\partial h_1} = \delta_{o1} w_5 + \delta_{o2} w_7 \qquad \delta_{h1} = \frac{\partial E}{\partial h_1}\cdot h_1(1-h_1) \qquad \frac{\partial E}{\partial w_1} = \delta_{h1}\cdot i_1\]</div>
+    <div class="calc">
+      <div class="ln"><b>∂E/∂h1</b><span>\(0.138498562(0.40) + (-0.038098237)(0.50) = 0.055399425 - 0.019049118 = 0.036350306\)</span></div>
+      <div class="ln"><b>h1(1−h1)</b><span>\(0.593269992 \cdot 0.406730008 = 0.241300709\)</span></div>
+      <div class="ln"><b>δ h1</b><span>\(0.036350306 \cdot 0.241300709 = 0.008771355\)</span></div>
+      <div class="ln"><b>∂E/∂w1</b><span>\(\delta_{h1}\cdot i_1 = 0.008771355 \cdot 0.05 = 0.000438568\)</span></div>
+      <div class="ln res"><b>w1 new</b><span>\(0.15 - 0.5 \cdot 0.000438568 = 0.149780716\)</span></div>
+    </div>
+    <p>Same for \(h_2\), which uses \(w_6\) and \(w_8\) (the weights leaving \(h_2\)): \(\partial E/\partial h_2 = 0.138498562(0.45) + (-0.038098237)(0.55) = 0.041370323\), and \(\delta_{h2} = 0.041370323 \cdot 0.240613417 = 0.009954255\).</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Weight</th><th>Gradient = δ × input</th><th class="num">∂E/∂w</th><th class="num">Old</th><th class="num">New</th></tr></thead>
+      <tbody>
+        <tr><td>w1 (i1→h1)</td><td class="m">δh1 · i1</td><td class="num">0.000438568</td><td class="num">0.15</td><td class="num">0.149780716</td></tr>
+        <tr><td>w2 (i2→h1)</td><td class="m">δh1 · i2</td><td class="num">0.000877135</td><td class="num">0.20</td><td class="num">0.199561432</td></tr>
+        <tr><td>w3 (i1→h2)</td><td class="m">δh2 · i1</td><td class="num">0.000497713</td><td class="num">0.25</td><td class="num">0.249751144</td></tr>
+        <tr><td>w4 (i2→h2)</td><td class="m">δh2 · i2</td><td class="num">0.000995425</td><td class="num">0.30</td><td class="num">0.299502287</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>Step 5 · Check</h4>
+    <p>A second forward pass with all 8 new weights gives \(o_1 = 0.742088\) and \(o_2 = 0.775285\): both moved toward their targets. The total error drops from 0.298371109 to <b>0.291027774</b>.</p>
+    <p class="note">The slides say 0.291027924. That small gap comes from rounding in the original source, not from a different method. If you get 0.29102777, you did it right.</p>
+  </div>
+
+  <div class="sub">
+    <h3>1.3 Variations the exam can throw at you</h3>
+    <p>The method above never changes. Only one of the three chain-rule factors changes.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>If the question says…</th><th>What changes</th></tr></thead>
+      <tbody>
+        <tr><td><b>Update the biases too</b></td><td>A bias is a weight whose input is always 1. So \(\partial E/\partial b = \delta\), summed over every neuron that shares it. In the example: \(\partial E/\partial b_2 = \delta_{o1} + \delta_{o2} = 0.100400325\), and \(\partial E/\partial b_1 = \delta_{h1} + \delta_{h2} = 0.018725609\).</td></tr>
+        <tr><td><b>Linear output</b> (regression; Lecture 03, Example 1)</td><td>\(f'(net) = 1\), so \(\delta_o = o - t\).</td></tr>
+        <tr><td><b>Sigmoid with slope a</b>: \(f = 1/(1+e^{-a x})\)</td><td>\(f' = a\, f(1-f)\). Multiply every \(o(1-o)\) by \(a\).</td></tr>
+        <tr><td><b>tanh</b></td><td>\(f' = 1 - f^2\) (use the output value, not the net value).</td></tr>
+        <tr><td><b>ReLU</b></td><td>\(f' = 1\) if net &gt; 0, else 0. A neuron with net ≤ 0 passes no error back.</td></tr>
+        <tr><td><b>Error written as \(\tfrac12(t-o)^2\) with \(\Delta w = +\eta\,\delta\,x\)</b></td><td>The same rule with the sign flipped: here \(\delta = (t - o) f'\). Pick one convention and keep it through the whole problem.</td></tr>
+        <tr><td><b>Mean error over N samples</b>: \(\tfrac{1}{2N}\sum\)</td><td>Batch learning: compute the gradient for each sample, average them, then do one update.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>Softmax with cross-entropy</h4>
+    <p>Scores \(z = (2.0,\ 1.0,\ 0.1)\), true class is the first one, so \(t = (1, 0, 0)\).</p>
+    <div class="calc">
+      <div class="ln"><b>exponentials</b><span>\(e^{2} = 7.389056,\ e^{1} = 2.718282,\ e^{0.1} = 1.105171\), sum \(= 11.212509\)</span></div>
+      <div class="ln"><b>softmax</b><span>\(p = (0.659001,\ 0.242433,\ 0.098566)\), which sums to 1</span></div>
+      <div class="ln"><b>loss</b><span>\(-\ln p_{true} = -\ln 0.659001 = 0.417030\)</span></div>
+      <div class="ln res"><b>δ = p − t</b><span>\((-0.340999,\ 0.242433,\ 0.098566)\)</span></div>
+    </div>
+    <p>Remember this result: with softmax and cross-entropy together, the output \(\delta\) is just \(p - t\). There is no extra derivative factor, so this pair does not suffer from the slow learning that sigmoid with squared error has when the output saturates.</p>
+
+    <h4>Momentum, two steps</h4>
+    <p>\(w_0 = 1.0\), \(\eta = 0.1\), \(\beta = 0.9\), \(v_0 = 0\). Gradients at steps 1 and 2: 0.4 and 0.3.</p>
+    <div class="calc">
+      <div class="ln"><b>rule</b><span>\(v_t = \beta v_{t-1} - \eta\, g_t, \quad w_t = w_{t-1} + v_t\)</span></div>
+      <div class="ln"><b>step 1</b><span>\(v_1 = 0.9(0) - 0.1(0.4) = -0.04, \quad w_1 = 0.96\)</span></div>
+      <div class="ln res"><b>step 2</b><span>\(v_2 = 0.9(-0.04) - 0.1(0.3) = -0.066, \quad w_2 = 0.894\)</span></div>
+    </div>
+    <p>Plain gradient descent would reach 0.93 after these two steps. Momentum gets further (0.894) because the first step's velocity carries over.</p>
+  </div>
+
+  <div class="traps">
+    <h4>Where marks are lost</h4>
+    <ul>
+      <li>Using the <b>updated</b> \(w_5\dots w_8\) when computing hidden deltas. Always use the old weights.</li>
+      <li>For a hidden neuron, forgetting to <b>sum</b> the error coming back from every output it feeds.</li>
+      <li>Computing \(\sigma'(net)\) as \(net(1-net)\). It is \(out(1-out)\): use the neuron's output.</li>
+      <li>Multiplying \(\delta\) by the wrong input. For \(w_5\) the input is \(h_1\) (the neuron the weight comes <b>from</b>), not \(i_1\).</li>
+      <li>Rounding to 2–3 decimals early. Hidden-layer gradients here are around 0.0004, so keep at least 6 significant figures.</li>
+    </ul>
+  </div>
+
+  <div class="practice">
+    <span class="eyebrow">Practice · timed, 25 minutes</span>
+    <p>Same network shape, new numbers. \(i_1 = 0.2,\ i_2 = 0.6\). \(w_1 = 0.1,\ w_2 = 0.3,\ w_3 = 0.2,\ w_4 = 0.4\). \(w_5 = 0.5,\ w_6 = -0.3,\ w_7 = 0.6,\ w_8 = 0.2\). \(b_1 = 0.25,\ b_2 = 0.1\) (not updated). Targets \(t_1 = 1,\ t_2 = 0\). Sigmoid, \(\eta = 0.5\).</p>
+    <ol>
+      <li>Do the forward pass and compute the total error.</li>
+      <li>Compute \(\delta_{o1}, \delta_{o2}\) and the new \(w_5 \dots w_8\).</li>
+      <li>Compute \(\delta_{h1}, \delta_{h2}\) and the new \(w_1 \dots w_4\).</li>
+    </ol>
+    <details><summary>Answers</summary><div>
+      <div class="tbl"><table>
+        <tbody>
+          <tr><td>net h1, h1</td><td class="num">0.45 → 0.610639234</td></tr>
+          <tr><td>net h2, h2</td><td class="num">0.53 → 0.629483112</td></tr>
+          <tr><td>net o1, o1</td><td class="num">0.216474683 → 0.553908317</td></tr>
+          <tr><td>net o2, o2</td><td class="num">0.592280163 → 0.643888150</td></tr>
+          <tr class="hl"><td>E total</td><td class="num">0.099498895 + 0.207295975 = 0.306794869</td></tr>
+          <tr><td>δo1, δo2</td><td class="num">−0.110226531, 0.147641106</td></tr>
+          <tr><td>new w5, w6, w7, w8</td><td class="num">0.533654322, −0.265307130, 0.554922274, 0.153531209</td></tr>
+          <tr><td>∂E/∂h1, ∂E/∂h2</td><td class="num">0.033471398, 0.062596180</td></tr>
+          <tr><td>δh1, δh2</td><td class="num">0.007958125, 0.014599565</td></tr>
+          <tr><td>new w1, w2, w3, w4</td><td class="num">0.099204188, 0.297612563, 0.198540043, 0.395620130</td></tr>
+          <tr class="hl"><td>E after one update</td><td class="num">0.293781085</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Watch \(w_6\): it starts negative. \(\partial E/\partial h_2 = \delta_{o1}w_6 + \delta_{o2}w_8 = (-0.110226531)(-0.3) + (0.147641106)(0.2)\). The two negatives multiply to a positive.</p>
+    </div></details>
+  </div>
+</section>
+
+<!-- ====================================================== 2 CNN -->
+<section class="part" id="cnn">
+  <div class="part-head">
+    <span class="tag"><b>PART 2</b> · LECTURES 05–06</span>
+    <h2>CNN mechanics by hand</h2>
+    <p class="muted">Convolution, stride, padding, pooling, multiple channels, then tracing a whole network's shapes and parameter counts.</p>
+  </div>
+
+  <div class="sub">
+    <h3>2.1 One convolution, stride 1</h3>
+    <p>A convolution layer slides a small kernel over the input. At each position it multiplies the overlapping numbers element by element and adds them up, giving one output number. (Strictly this is cross-correlation, since the kernel isn't flipped. Deep learning calls it convolution anyway.)</p>
+    <div class="grids">
+      <div class="gwrap"><span class="eyebrow">Input 5×5</span>
+        <table class="grid"><tbody>
+          <tr><td class="win">1</td><td class="win">2</td><td class="win">0</td><td>1</td><td>3</td></tr>
+          <tr><td class="win">0</td><td class="win">1</td><td class="win">2</td><td>3</td><td>1</td></tr>
+          <tr><td class="win">1</td><td class="win">0</td><td class="win">1</td><td>2</td><td>0</td></tr>
+          <tr><td>2</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+          <tr><td>0</td><td>2</td><td>1</td><td>0</td><td>2</td></tr>
+        </tbody></table></div>
+      <span class="op">∗</span>
+      <div class="gwrap"><span class="eyebrow">Kernel 3×3</span>
+        <table class="grid"><tbody>
+          <tr><td>1</td><td>0</td><td>−1</td></tr>
+          <tr><td>1</td><td>0</td><td>−1</td></tr>
+          <tr><td>1</td><td>0</td><td>−1</td></tr>
+        </tbody></table></div>
+      <span class="op">=</span>
+      <div class="gwrap"><span class="eyebrow">Output 3×3</span>
+        <table class="grid"><tbody>
+          <tr><td class="out">−1</td><td>−3</td><td>−1</td></tr>
+          <tr><td>0</td><td>−4</td><td>1</td></tr>
+          <tr><td>1</td><td>0</td><td>−1</td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="calc">
+      <div class="ln"><b>top-left</b><span>\(1(1) + 2(0) + 0(-1) + 0(1) + 1(0) + 2(-1) + 1(1) + 0(0) + 1(-1) = 1 - 2 + 1 - 1 = -1\)</span></div>
+      <div class="ln"><b>next →</b><span>window is columns 2–4 of rows 1–3: \((2+1+0) - (1+3+2) = -3\)</span></div>
+      <div class="ln"><b>shortcut</b><span>this kernel computes (left column sum) − (right column sum) of each window. It is a vertical-edge detector.</span></div>
+      <div class="ln res"><b>size</b><span>\((5 - 3)/1 + 1 = 3\), so 3×3</span></div>
+    </div>
+    <p>Then add the bias (here 0) and apply the activation. Each output cell is literally one neuron that only looks at a 3×3 patch, and every one of those neurons shares the same 9 weights.</p>
+  </div>
+
+  <div class="sub">
+    <h3>2.2 Stride 2</h3>
+    <p>Stride 2 means the window jumps 2 cells at a time. Windows start at rows/columns 0 and 2 only.</p>
+    <div class="calc">
+      <div class="ln"><b>size</b><span>\(\lfloor (5 - 3)/2 \rfloor + 1 = 2\), so 2×2</span></div>
+      <div class="ln res"><b>output</b><span>\(\begin{bmatrix}-1 & -1\\ 1 & -1\end{bmatrix}\) (the 4 corners of the stride-1 output)</span></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>2.3 Padding 1, then ReLU, then 2×2 max pooling</h3>
+    <p>Padding adds a border of zeros so the kernel can be centred on edge pixels. With \(P = 1\) the 5×5 input becomes 7×7, and the output stays 5×5 ("same" padding).</p>
+    <div class="grids">
+      <div class="gwrap"><span class="eyebrow">Padded input 7×7, first window</span>
+        <table class="grid"><tbody>
+          <tr><td class="pad win">0</td><td class="pad win">0</td><td class="pad win">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td></tr>
+          <tr><td class="pad win">0</td><td class="win">1</td><td class="win">2</td><td>0</td><td>1</td><td>3</td><td class="pad">0</td></tr>
+          <tr><td class="pad win">0</td><td class="win">0</td><td class="win">1</td><td>2</td><td>3</td><td>1</td><td class="pad">0</td></tr>
+          <tr><td class="pad">0</td><td>1</td><td>0</td><td>1</td><td>2</td><td>0</td><td class="pad">0</td></tr>
+          <tr><td class="pad">0</td><td>2</td><td>1</td><td>0</td><td>1</td><td>1</td><td class="pad">0</td></tr>
+          <tr><td class="pad">0</td><td>0</td><td>2</td><td>1</td><td>0</td><td>2</td><td class="pad">0</td></tr>
+          <tr><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td><td class="pad">0</td></tr>
+        </tbody></table></div>
+      <div class="gwrap"><span class="eyebrow">Conv output 5×5</span>
+        <table class="grid"><tbody>
+          <tr><td class="out">−3</td><td>−1</td><td>−1</td><td>−2</td><td>4</td></tr>
+          <tr><td>−3</td><td>−1</td><td>−3</td><td>−1</td><td>6</td></tr>
+          <tr><td>−2</td><td>0</td><td>−4</td><td>1</td><td>6</td></tr>
+          <tr><td>−3</td><td>1</td><td>0</td><td>−1</td><td>3</td></tr>
+          <tr><td>−3</td><td>1</td><td>2</td><td>−2</td><td>1</td></tr>
+        </tbody></table></div>
+    </div>
+    <p>Top-left: the window covers \(\begin{bmatrix}0&0&0\\0&1&2\\0&0&1\end{bmatrix}\), giving (left column 0) − (right column 0 + 2 + 1) = −3.</p>
+    <p>Now ReLU sets the negatives to 0, and 2×2 max pooling with stride 2 takes the largest value in each 2×2 block:</p>
+    <div class="grids">
+      <div class="gwrap"><span class="eyebrow">After ReLU</span>
+        <table class="grid"><tbody>
+          <tr><td class="win">0</td><td class="win">0</td><td>0</td><td>0</td><td class="drop">4</td></tr>
+          <tr><td class="win">0</td><td class="win">0</td><td>0</td><td>0</td><td class="drop">6</td></tr>
+          <tr><td>0</td><td>0</td><td>0</td><td>1</td><td class="drop">6</td></tr>
+          <tr><td>0</td><td>1</td><td>0</td><td>0</td><td class="drop">3</td></tr>
+          <tr><td class="drop">0</td><td class="drop">1</td><td class="drop">2</td><td class="drop">0</td><td class="drop">1</td></tr>
+        </tbody></table></div>
+      <span class="op">→</span>
+      <div class="gwrap"><span class="eyebrow">Max pool 2×2</span>
+        <table class="grid"><tbody>
+          <tr><td class="out">0</td><td>0</td></tr>
+          <tr><td>1</td><td>1</td></tr>
+        </tbody></table></div>
+    </div>
+    <p><b>The edge case:</b> \(\lfloor (5-2)/2 \rfloor + 1 = 2\), not 2.5. The window can't fit a third time, so the last row and column (crossed out) are simply <b>dropped</b>. Here that throws away the strongest activations in the map, the 6s. That is why architectures choose sizes that divide evenly, or pad before pooling.</p>
+  </div>
+
+  <div class="sub">
+    <h3>2.4 The output-size formula and its edge cases</h3>
+    <div class="eq">\[O = \left\lfloor \frac{W - K + 2P}{S} \right\rfloor + 1\]</div>
+    <p>\(W\) = input width (or height), \(K\) = kernel size, \(P\) = padding on each side, \(S\) = stride. Apply it to height and width separately if they differ. Pooling uses the same formula.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Case</th><th>Rule</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Division not whole</td><td>Round down (floor). The leftover cells are ignored.</td><td class="m">W=28, K=3, S=2: ⌊25/2⌋+1 = 13</td></tr>
+        <tr><td>"Same" padding</td><td>With S = 1, \(P = (K-1)/2\) keeps the size.</td><td class="m">K=3 → P=1; K=5 → P=2</td></tr>
+        <tr><td>"Valid" padding</td><td>P = 0. The output shrinks by K − 1.</td><td class="m">32, K=5 → 28</td></tr>
+        <tr><td>Pooling</td><td>Usually K = S and P = 0. It halves the size when K = S = 2. No parameters.</td><td class="m">28 → 14</td></tr>
+        <tr><td>1×1 convolution</td><td>Keeps width and height. Only changes the number of channels (mixes them).</td><td class="m">14×14×64 → 14×14×16</td></tr>
+        <tr><td>Output depth</td><td>Always equals the <b>number of filters</b>, whatever the input depth.</td><td class="m">any input, 32 filters → depth 32</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <h3>2.5 Several input channels</h3>
+    <p>With a colour image (3 channels) or a previous layer with many feature maps, <b>each filter has the same depth as its input</b>. You convolve each channel with its own slice of the filter, add up the slices, and add one bias. One filter therefore gives <b>one</b> output map, however many channels go in.</p>
+    <div class="grids">
+      <div class="gwrap"><span class="eyebrow">Channel A</span>
+        <table class="grid"><tbody><tr><td class="win">1</td><td class="win">0</td><td>2</td></tr><tr><td class="win">3</td><td class="win">1</td><td>0</td></tr><tr><td>0</td><td>2</td><td>1</td></tr></tbody></table></div>
+      <div class="gwrap"><span class="eyebrow">Kernel slice A</span>
+        <table class="grid"><tbody><tr><td>1</td><td>−1</td></tr><tr><td>0</td><td>2</td></tr></tbody></table></div>
+      <div class="gwrap"><span class="eyebrow">Channel B</span>
+        <table class="grid"><tbody><tr><td class="win">0</td><td class="win">1</td><td>1</td></tr><tr><td class="win">2</td><td class="win">0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody></table></div>
+      <div class="gwrap"><span class="eyebrow">Kernel slice B</span>
+        <table class="grid"><tbody><tr><td>2</td><td>0</td></tr><tr><td>1</td><td>−1</td></tr></tbody></table></div>
+    </div>
+    <div class="calc">
+      <div class="ln"><b>slice A</b><span>\(1(1) + 0(-1) + 3(0) + 1(2) = 3\)</span></div>
+      <div class="ln"><b>slice B</b><span>\(0(2) + 1(0) + 2(1) + 0(-1) = 2\)</span></div>
+      <div class="ln"><b>top-left</b><span>\(3 + 2 + \text{bias } 1 = 6\)</span></div>
+      <div class="ln res"><b>full output</b><span>A gives \(\begin{bmatrix}3&-2\\6&3\end{bmatrix}\), B gives \(\begin{bmatrix}2&1\\4&1\end{bmatrix}\); sum + 1 = \(\begin{bmatrix}6&0\\11&5\end{bmatrix}\), one 2×2 map</span></div>
+    </div>
+    <div class="eq">\[\text{params per conv layer} = (K \cdot K \cdot C_{in} + 1)\cdot C_{out}\]</div>
+    <p>Here: \((2\cdot2\cdot2 + 1)\cdot 1 = 9\) parameters. The "+1" is the one bias per filter.</p>
+  </div>
+
+  <div class="sub">
+    <h3>2.6 Tracing a whole network</h3>
+    <p>This is the classic exam question: given an architecture, fill in the shape after each layer and the number of parameters. Example: a LeNet-5 style network on a 32×32 greyscale image.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Layer</th><th>Size calculation</th><th>Output</th><th class="num">Parameters</th></tr></thead>
+      <tbody>
+        <tr><td>Input</td><td></td><td class="m">32×32×1</td><td class="num">0</td></tr>
+        <tr><td>Conv 5×5, 6 filters</td><td class="m">32−5+1 = 28</td><td class="m">28×28×6</td><td class="num">(5·5·1+1)·6 = 156</td></tr>
+        <tr><td>Max pool 2×2, S=2</td><td class="m">⌊26/2⌋+1 = 14</td><td class="m">14×14×6</td><td class="num">0</td></tr>
+        <tr><td>Conv 5×5, 16 filters</td><td class="m">14−5+1 = 10</td><td class="m">10×10×16</td><td class="num">(5·5·6+1)·16 = 2,416</td></tr>
+        <tr><td>Max pool 2×2, S=2</td><td class="m">10/2 = 5</td><td class="m">5×5×16</td><td class="num">0</td></tr>
+        <tr><td>Flatten</td><td class="m">5·5·16</td><td class="m">400</td><td class="num">0</td></tr>
+        <tr><td>FC 120</td><td></td><td class="m">120</td><td class="num">400·120+120 = 48,120</td></tr>
+        <tr><td>FC 84</td><td></td><td class="m">84</td><td class="num">120·84+84 = 10,164</td></tr>
+        <tr><td>FC 10 (softmax)</td><td></td><td class="m">10</td><td class="num">84·10+10 = 850</td></tr>
+        <tr class="hl"><td colspan="3"><b>Total</b></td><td class="num">61,706</td></tr>
+      </tbody>
+    </table></div>
+    <p>Notice where the parameters are: the two conv layers hold 2,572 of them, and the first fully connected layer alone holds 48,120. Convolutions are cheap because of <b>weight sharing</b> (one small kernel reused everywhere) and <b>local connectivity</b> (each output only sees a patch).</p>
+
+    <h4>Second trace: colour input, "same" padding and a stride that doesn't divide</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Layer</th><th>Size calculation</th><th>Output</th><th class="num">Parameters</th></tr></thead>
+      <tbody>
+        <tr><td>Input RGB</td><td></td><td class="m">64×64×3</td><td class="num">0</td></tr>
+        <tr><td>Conv 3×3, 32, S=1, P=1</td><td class="m">(64−3+2)/1+1 = 64</td><td class="m">64×64×32</td><td class="num">(3·3·3+1)·32 = 896</td></tr>
+        <tr><td>Max pool 2×2, S=2</td><td class="m">32</td><td class="m">32×32×32</td><td class="num">0</td></tr>
+        <tr><td>Conv 3×3, 64, S=2, P=0</td><td class="m">⌊(32−3)/2⌋+1 = ⌊14.5⌋+1 = 15</td><td class="m">15×15×64</td><td class="num">(3·3·32+1)·64 = 18,496</td></tr>
+        <tr><td>Conv 3×3, 128, S=1, P=0</td><td class="m">15−3+1 = 13</td><td class="m">13×13×128</td><td class="num">(3·3·64+1)·128 = 73,856</td></tr>
+        <tr><td>Max pool 2×2, S=2</td><td class="m">⌊11/2⌋+1 = 6 (last row/col dropped)</td><td class="m">6×6×128</td><td class="num">0</td></tr>
+        <tr><td>Flatten → FC 10</td><td class="m">6·6·128 = 4,608</td><td class="m">10</td><td class="num">4,608·10+10 = 46,090</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>The "parameter trap" comparison</b> (video 6): a single fully connected layer of just 100 neurons on the raw 64×64×3 image would need \(12{,}288 \cdot 100 + 100 = 1{,}228{,}900\) parameters. The first conv layer above does useful work with 896.</p>
+  </div>
+
+  <div class="sub">
+    <h3>2.7 How a CNN is trained</h3>
+    <ul class="pts">
+      <li><b>Same backprop as Part 1.</b> A conv layer is a layer of neurons with shared weights and local connections.</li>
+      <li><b>Shared weights:</b> a kernel weight is used at every position, so its gradient is the <b>sum</b> of the gradients from all positions.</li>
+      <li><b>Max pooling:</b> the gradient goes only to the cell that was the maximum in each window. The other cells get 0. Average pooling splits it equally.</li>
+      <li><b>Transfer learning (Lecture 05):</b> take a network pretrained on a big dataset. With a small dataset similar to the original, freeze the conv layers and retrain only the new classifier head. With more data or a different domain, also fine-tune the top layers with a small learning rate.</li>
+    </ul>
+  </div>
+
+  <div class="practice">
+    <span class="eyebrow">Practice</span>
+    <ol>
+      <li>Input 227×227×3. Conv 11×11, 96 filters, stride 4, no padding. Output size and parameters?</li>
+      <li>Then max pool 3×3 with stride 2. Output size?</li>
+      <li>Input 7×7, kernel 3×3, stride 2, padding 1. Output size?</li>
+      <li>Conv 3×3 from 16 channels to 32 channels. Parameters?</li>
+      <li>A 1×1 conv from 64 channels to 16. Parameters, and what happens to width and height?</li>
+    </ol>
+    <details><summary>Answers</summary><div>
+      <ol class="pts">
+        <li>\((227-11)/4 + 1 = 55\), so 55×55×96. Parameters \((11\cdot11\cdot3+1)\cdot 96 = 34{,}944\). (This is AlexNet's first layer.)</li>
+        <li>\(\lfloor(55-3)/2\rfloor+1 = 27\), so 27×27×96, with 0 parameters.</li>
+        <li>\(\lfloor(7-3+2)/2\rfloor + 1 = 4\), so 4×4.</li>
+        <li>\((3\cdot3\cdot16+1)\cdot32 = 4{,}640\).</li>
+        <li>\((1\cdot1\cdot64+1)\cdot16 = 1{,}040\). Width and height don't change; only the depth goes 64 → 16.</li>
+      </ol>
+    </div></details>
+  </div>
+</section>
+
+<!-- ====================================================== 3 RNN -->
+<section class="part" id="rnn">
+  <div class="part-head">
+    <span class="tag"><b>PART 3</b> · LECTURE 07</span>
+    <h2>RNNs by hand, from zero</h2>
+    <p class="muted">An RNN is one small network applied at every time step, passing a memory \(h\) from each step to the next. Everything below uses scalars so you can do it on paper.</p>
+  </div>
+
+  <div class="sub">
+    <h3>3.1 The idea and the equations</h3>
+    <p>A feed-forward network sees one input and forgets it. For sequences (text, speech, time series) the meaning depends on order and context. An RNN keeps a <b>hidden state</b> \(h_t\) that summarises everything seen so far, and updates it at each step:</p>
+    <div class="eq">\[h_t = \tanh(W_{xh}\, x_t + W_{hh}\, h_{t-1} + b) \qquad y_t = W_{hy}\, h_t\]</div>
+    <ul class="pts">
+      <li><b>The same weights</b> \(W_{xh}, W_{hh}, W_{hy}\) are used at every time step. That is what lets it handle sequences of any length.</li>
+      <li>\(h_0\) is usually 0.</li>
+      <li>"Unrolling" means drawing one copy of the network per time step, linked by \(h\). An unrolled RNN is just a deep feed-forward network with shared weights.</li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>Type</th><th>Input → output</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>One-to-one</td><td>1 → 1</td><td>Ordinary classification (not really recurrent)</td></tr>
+        <tr><td>One-to-many</td><td>1 → sequence</td><td>Image captioning: one image in, a sentence out</td></tr>
+        <tr><td>Many-to-one</td><td>sequence → 1</td><td>Sentiment of a review; output only at the last step</td></tr>
+        <tr><td>Many-to-many (same length)</td><td>sequence → sequence, aligned</td><td>Tagging each word (part of speech, named entities)</td></tr>
+        <tr><td>Many-to-many (encoder-decoder)</td><td>sequence → different-length sequence</td><td>Machine translation</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <h3>3.2 Forward pass over 3 time steps</h3>
+    <div class="given">
+      <span class="eyebrow">Given · many-to-one</span>
+      <p>\(w_x = 0.6,\ w_h = 0.8,\ w_y = 1.5,\ b = 0,\ h_0 = 0\). Input sequence \(x = (1.0,\ 0.5,\ -1.0)\). Output only at the last step, target \(t = 0.5\), \(E = \tfrac12(y_3 - t)^2\).</p>
+    </div>
+    <div class="calc">
+      <div class="ln"><b>t = 1</b><span>\(net_1 = 0.6(1.0) + 0.8(0) = 0.6, \quad h_1 = \tanh(0.6) = 0.537050\)</span></div>
+      <div class="ln"><b>t = 2</b><span>\(net_2 = 0.6(0.5) + 0.8(0.537050) = 0.729640, \quad h_2 = \tanh(0.729640) = 0.622845\)</span></div>
+      <div class="ln"><b>t = 3</b><span>\(net_3 = 0.6(-1.0) + 0.8(0.622845) = -0.101724, \quad h_3 = \tanh(-0.101724) = -0.101375\)</span></div>
+      <div class="ln"><b>output</b><span>\(y_3 = 1.5 \cdot (-0.101375) = -0.152062\)</span></div>
+      <div class="ln res"><b>error</b><span>\(E = \tfrac12(-0.152062 - 0.5)^2 = 0.212592\)</span></div>
+    </div>
+    <p>Notice how \(h_2\) carries the first two inputs forward: without it, step 3 would only see \(x_3 = -1\).</p>
+  </div>
+
+  <div class="sub">
+    <h3>3.3 Backpropagation through time (BPTT)</h3>
+    <p>Unroll the network, then backprop exactly as in Part 1, from step 3 back to step 1. Two new things:</p>
+    <ul class="pts">
+      <li>The error reaches \(h_{k-1}\) <b>through</b> \(h_k\): \(\ \partial E/\partial h_{k-1} = \delta_k \cdot w_h\), where \(\delta_k = \partial E/\partial h_k \cdot (1 - h_k^2)\) (tanh derivative).</li>
+      <li>Because \(w_h\) is used at every step, its gradient is the <b>sum</b> over the steps: \(\ \partial E/\partial w_h = \sum_k \delta_k\, h_{k-1}\). Same for \(w_x\): \(\sum_k \delta_k\, x_k\).</li>
+    </ul>
+    <div class="calc">
+      <div class="ln"><b>start</b><span>\(\partial E/\partial y_3 = y_3 - t = -0.652062\); &nbsp;\(\partial E/\partial w_y = -0.652062 \cdot h_3 = 0.066103\); &nbsp;\(\partial E/\partial h_3 = -0.652062 \cdot 1.5 = -0.978093\)</span></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Step k</th><th class="num">∂E/∂h_k</th><th class="num">1 − h_k²</th><th class="num">δ_k</th><th class="num">δ_k · h_{k−1} (for w_h)</th><th class="num">δ_k · x_k (for w_x)</th></tr></thead>
+      <tbody>
+        <tr><td>3</td><td class="num">−0.978093</td><td class="num">0.989723</td><td class="num">−0.968041</td><td class="num">−0.602940</td><td class="num">0.968041</td></tr>
+        <tr><td>2</td><td class="num">−0.968041·0.8 = −0.774433</td><td class="num">0.612064</td><td class="num">−0.474003</td><td class="num">−0.254563</td><td class="num">−0.237001</td></tr>
+        <tr><td>1</td><td class="num">−0.474003·0.8 = −0.379202</td><td class="num">0.711578</td><td class="num">−0.269832</td><td class="num">0 (h₀ = 0)</td><td class="num">−0.269832</td></tr>
+        <tr class="hl"><td colspan="4"><b>Sum = gradient</b></td><td class="num">∂E/∂w_h = −0.857503</td><td class="num">∂E/∂w_x = 0.461208</td></tr>
+      </tbody>
+    </table></div>
+    <p>Update as usual, \(w \leftarrow w - \eta\,\partial E/\partial w\). (These values were checked against a numerical gradient.)</p>
+
+    <h4>Why RNNs forget: vanishing and exploding gradients</h4>
+    <p>Look at the \(\partial E/\partial h_k\) column: each step back multiplies by \(w_h (1 - h_k^2)\). Here those factors are 0.79, 0.49 and 0.57, so the signal from step 3 shrinks fast. Over 20 steps with a factor around 0.4: \(0.4^{20} \approx 10^{-8}\). The early inputs get almost no gradient, so the network <b>cannot learn long-range dependencies</b>. If the factor is above 1 (say 1.5), it explodes instead: \(1.5^{20} \approx 3{,}325\).</p>
+    <ul class="pts">
+      <li><b>Exploding:</b> fixed with <b>gradient clipping</b> (cap the gradient's size).</li>
+      <li><b>Vanishing:</b> fixed by changing the cell: LSTM and GRU.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h3>3.4 One LSTM step</h3>
+    <p>An LSTM adds a second memory, the <b>cell state</b> \(c_t\), and three gates. Each gate is a sigmoid between 0 (block) and 1 (let through).</p>
+    <div class="eq">\[\begin{aligned}
+      f_t &= \sigma(W_f x_t + U_f h_{t-1} + b_f) && \text{forget: how much old memory to keep}\\
+      i_t &= \sigma(W_i x_t + U_i h_{t-1} + b_i) && \text{input: how much new info to write}\\
+      \tilde c_t &= \tanh(W_c x_t + U_c h_{t-1} + b_c) && \text{candidate: the new info itself}\\
+      o_t &= \sigma(W_o x_t + U_o h_{t-1} + b_o) && \text{output: how much memory to show}\\
+      c_t &= f_t \odot c_{t-1} + i_t \odot \tilde c_t \qquad h_t = o_t \odot \tanh(c_t)
+    \end{aligned}\]</div>
+    <div class="given">
+      <span class="eyebrow">Given</span>
+      <p>\(x_t = 1,\ h_{t-1} = 0.5,\ c_{t-1} = 0.8\). Weights \((W, U, b)\): forget \((0.5, 0.5, 0)\), input \((1, -1, 0)\), candidate \((0.8, 0.4, 0)\), output \((0.5, 1, -0.5)\).</p>
+    </div>
+    <div class="calc">
+      <div class="ln"><b>forget</b><span>\(f = \sigma(0.5 + 0.25) = \sigma(0.75) = 0.679179\)</span></div>
+      <div class="ln"><b>input</b><span>\(i = \sigma(1 - 0.5) = \sigma(0.5) = 0.622459\)</span></div>
+      <div class="ln"><b>candidate</b><span>\(\tilde c = \tanh(0.8 + 0.2) = \tanh(1.0) = 0.761594\)</span></div>
+      <div class="ln"><b>output gate</b><span>\(o = \sigma(0.5 + 0.5 - 0.5) = \sigma(0.5) = 0.622459\)</span></div>
+      <div class="ln"><b>cell</b><span>\(c = 0.679179(0.8) + 0.622459(0.761594) = 0.543343 + 0.474061 = 1.017404\)</span></div>
+      <div class="ln res"><b>hidden</b><span>\(h = 0.622459 \cdot \tanh(1.017404) = 0.622459 \cdot 0.768807 = 0.478551\)</span></div>
+    </div>
+    <p><b>Why this fixes vanishing gradients:</b> the cell state is updated by <b>addition</b> (\(f \cdot c_{t-1} + \dots\)), not by squashing it through a weight matrix and a tanh at every step. Going back one step, the gradient along the cell path is just multiplied by \(f\). When the forget gate stays near 1, the gradient passes through many steps almost unchanged.</p>
+  </div>
+
+  <div class="sub">
+    <h3>3.5 One GRU step</h3>
+    <p>A GRU merges the cell and hidden state and uses only two gates, so it has fewer parameters and is faster. It usually performs about as well as an LSTM.</p>
+    <div class="eq">\[\begin{aligned}
+      z_t &= \sigma(W_z x_t + U_z h_{t-1}) && \text{update gate}\\
+      r_t &= \sigma(W_r x_t + U_r h_{t-1}) && \text{reset gate}\\
+      \tilde h_t &= \tanh(W x_t + U (r_t \odot h_{t-1})) && \text{candidate}\\
+      h_t &= (1 - z_t)\odot h_{t-1} + z_t \odot \tilde h_t
+    \end{aligned}\]</div>
+    <p>Same \(x_t = 1,\ h_{t-1} = 0.5\). Update gate weights \((0.5, 0.5)\), reset \((1, -1)\), candidate \((0.8, 0.4)\).</p>
+    <div class="calc">
+      <div class="ln"><b>update</b><span>\(z = \sigma(0.75) = 0.679179\)</span></div>
+      <div class="ln"><b>reset</b><span>\(r = \sigma(0.5) = 0.622459\), &nbsp;\(r \cdot h_{t-1} = 0.311230\)</span></div>
+      <div class="ln"><b>candidate</b><span>\(\tilde h = \tanh(0.8 + 0.4 \cdot 0.311230) = \tanh(0.924492) = 0.728015\)</span></div>
+      <div class="ln res"><b>hidden</b><span>\(h = (1 - 0.679179)(0.5) + 0.679179(0.728015) = 0.654863\)</span></div>
+    </div>
+    <p class="note">Some books swap the roles: \(h_t = z_t \odot h_{t-1} + (1-z_t)\odot\tilde h_t\). Both are correct; use the one in your exam statement.</p>
+  </div>
+
+  <div class="sub">
+    <h3>3.6 Parameter counts and the variants</h3>
+    <p>For input size \(x\) and hidden size \(h\), one vanilla RNN cell has \(h\cdot x\) (input weights) \(+\ h\cdot h\) (recurrent weights) \(+\ h\) (bias). An LSTM has 4 such blocks (3 gates + candidate); a GRU has 3.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Cell</th><th>Formula</th><th class="num">x = 10, h = 20</th></tr></thead>
+      <tbody>
+        <tr><td>Vanilla RNN</td><td class="m">h(x + h) + h</td><td class="num">200 + 400 + 20 = 620</td></tr>
+        <tr><td>LSTM</td><td class="m">4 · [h(x + h) + h]</td><td class="num">2,480</td></tr>
+        <tr><td>GRU</td><td class="m">3 · [h(x + h) + h]</td><td class="num">1,860</td></tr>
+        <tr><td>Bidirectional (any cell)</td><td class="m">2 × the cell</td><td class="num">e.g. BiLSTM 4,960</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="pts">
+      <li><b>Bidirectional RNN / BiLSTM:</b> one RNN reads left to right, another right to left, and their hidden states are concatenated. Each position then sees past and future context. It needs the whole sequence up front, so it doesn't work for real-time generation.</li>
+      <li><b>Encoder-decoder:</b> the encoder reads the whole input and its final hidden state becomes a fixed-size <b>context vector</b>. The decoder generates the output from it. The weakness: one fixed vector must hold an entire long sentence (the bottleneck).</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h3>3.7 Attention, one step by hand</h3>
+    <p>Attention removes the bottleneck. At each output step, the decoder looks back at <b>all</b> encoder states and takes a weighted average, with weights chosen by relevance.</p>
+    <div class="given">
+      <span class="eyebrow">Given</span>
+      <p>Encoder states \(h_1 = (1, 0),\ h_2 = (0, 1),\ h_3 = (1, 1)\). Current decoder state (the query) \(s = (1, 2)\). Dot-product scores.</p>
+    </div>
+    <div class="calc">
+      <div class="ln"><b>1 · scores</b><span>\(s\cdot h_1 = 1,\quad s\cdot h_2 = 2,\quad s\cdot h_3 = 3\)</span></div>
+      <div class="ln"><b>2 · softmax</b><span>\(e^1, e^2, e^3 = 2.718, 7.389, 20.086\), sum \(30.193\), so \(\alpha = (0.090,\ 0.245,\ 0.665)\)</span></div>
+      <div class="ln res"><b>3 · context</b><span>\(c = 0.090(1,0) + 0.245(0,1) + 0.665(1,1) = (0.755,\ 0.910)\)</span></div>
+    </div>
+    <p>The decoder pays most attention to \(h_3\), the state most aligned with its query. The context \(c\) is then fed into the decoder along with \(s\).</p>
+    <p><b>Self-attention</b> (the core of Transformers) does the same thing within one sequence: every position builds a query \(Q\), a key \(K\) and a value \(V\) from its own vector, and attends to every other position:</p>
+    <div class="eq">\[\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V\]</div>
+    <p>Dividing by \(\sqrt{d_k}\) keeps the scores from growing with the vector size, which would make the softmax too peaked. Scaled, the example above becomes scores \((0.707, 1.414, 2.121)\), weights \((0.140, 0.284, 0.576)\): a softer spread. Unlike an RNN there's no step-by-step recurrence, so all positions are computed in parallel.</p>
+  </div>
+
+  <div class="traps">
+    <h4>Where marks are lost</h4>
+    <ul>
+      <li>Forgetting that the RNN weights are <b>shared</b>, so the gradient is a <b>sum</b> over time steps.</li>
+      <li>Using \(\sigma'\) instead of \(\tanh' = 1 - h^2\) for the hidden state.</li>
+      <li>Counting LSTM parameters with 3 blocks instead of 4. The candidate \(\tilde c\) has weights too.</li>
+      <li>Saying LSTMs fix <b>exploding</b> gradients. They mainly fix vanishing ones; exploding is handled by clipping.</li>
+    </ul>
+  </div>
+
+  <div class="practice">
+    <span class="eyebrow">Practice</span>
+    <ol>
+      <li>Scalar RNN with \(w_x = 1,\ w_h = 0.5,\ b = 0,\ h_0 = 0\), input \(x = (0.5, -0.5)\). Compute \(h_1, h_2\).</li>
+      <li>LSTM with input size 50 and hidden size 100. Parameters? And for a GRU?</li>
+      <li>Which RNN type for: (a) generating music from a genre label, (b) spam detection on an email, (c) translating French to English?</li>
+    </ol>
+    <details><summary>Answers</summary><div>
+      <ol class="pts">
+        <li>\(h_1 = \tanh(0.5) = 0.462117\); \(\ h_2 = \tanh(-0.5 + 0.5 \cdot 0.462117) = \tanh(-0.268941) = -0.262640\).</li>
+        <li>One block: \(100\cdot50 + 100\cdot100 + 100 = 15{,}100\). LSTM: \(4 \times 15{,}100 = 60{,}400\). GRU: \(3 \times 15{,}100 = 45{,}300\).</li>
+        <li>(a) one-to-many, (b) many-to-one, (c) many-to-many encoder-decoder (ideally with attention).</li>
+      </ol>
+    </div></details>
+  </div>
+</section>
+
+<!-- ====================================================== FORMULA SHEET -->
+<section class="part" id="sheet">
+  <div class="part-head">
+    <span class="tag"><b>Σ</b> · ONE PAGE</span>
+    <h2>Formula sheet</h2>
+    <p class="muted">Copy this onto one sheet by hand the night before. Writing it out is part of learning it.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Topic</th><th>Formula</th></tr></thead>
+    <tbody>
+      <tr><td>Sigmoid</td><td>\(\sigma(z) = \frac{1}{1+e^{-z}},\ \ \sigma' = \sigma(1-\sigma)\) (with slope \(a\): \(a\,\sigma(1-\sigma)\))</td></tr>
+      <tr><td>tanh / ReLU</td><td>\(\tanh' = 1 - \tanh^2\); &nbsp;ReLU\('\) = 1 if \(z&gt;0\) else 0</td></tr>
+      <tr><td>Output delta</td><td>\(\delta_o = (o - t)\, f'(net_o)\); with softmax and cross-entropy, \(\delta = p - t\)</td></tr>
+      <tr><td>Hidden delta</td><td>\(\delta_h = \big(\sum_k \delta_k\, w_{hk}\big)\, f'(net_h)\), using the <b>old</b> weights</td></tr>
+      <tr><td>Weight gradient</td><td>\(\partial E/\partial w_{ij} = \delta_j \cdot (\text{input on that weight})\); bias: \(\delta_j\)</td></tr>
+      <tr><td>Update</td><td>\(w \leftarrow w - \eta\, \partial E/\partial w\)</td></tr>
+      <tr><td>Momentum</td><td>\(v \leftarrow \beta v - \eta g,\ \ w \leftarrow w + v\)</td></tr>
+      <tr><td>Softmax / CE</td><td>\(p_i = e^{z_i}/\sum_j e^{z_j}\); &nbsp;\(L = -\sum t_i \ln p_i\)</td></tr>
+      <tr><td>Conv output size</td><td>\(O = \lfloor (W - K + 2P)/S \rfloor + 1\); same padding \(P = (K-1)/2\)</td></tr>
+      <tr><td>Conv parameters</td><td>\((K\cdot K\cdot C_{in} + 1)\cdot C_{out}\); pooling has 0</td></tr>
+      <tr><td>FC parameters</td><td>\(n_{in}\cdot n_{out} + n_{out}\)</td></tr>
+      <tr><td>RNN</td><td>\(h_t = \tanh(W_{xh}x_t + W_{hh}h_{t-1} + b)\), \(\ y_t = W_{hy}h_t\)</td></tr>
+      <tr><td>BPTT</td><td>\(\partial E/\partial W = \sum_t (\dots)\); each step back multiplies by \(W_{hh}\cdot\tanh'\)</td></tr>
+      <tr><td>LSTM</td><td>\(c_t = f\odot c_{t-1} + i\odot\tilde c\), \(\ h_t = o\odot\tanh(c_t)\); params \(4[h(x+h)+h]\)</td></tr>
+      <tr><td>GRU</td><td>\(h_t = (1-z)\odot h_{t-1} + z\odot\tilde h\); params \(3[h(x+h)+h]\)</td></tr>
+      <tr><td>Attention</td><td>scores → softmax → weighted sum; \(\ \text{softmax}(QK^\top/\sqrt{d_k})\,V\)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var btn=document.getElementById("toggleAll"), all=document.querySelectorAll("details");
+  btn.addEventListener("click",function(){
+    var open=btn.getAttribute("data-open")!=="1";
+    all.forEach(function(d){d.open=open;});
+    btn.setAttribute("data-open",open?"1":"0");
+    btn.textContent=open?"Hide all answers":"Show all answers";
+  });
+  var links=[].slice.call(document.querySelectorAll("#barLinks a"));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute("href"));});
+  function spy(){
+    var y=window.scrollY+90, cur=0;
+    secs.forEach(function(s,i){if(s&&s.offsetTop<=y)cur=i;});
+    links.forEach(function(a,i){a.classList.toggle("active",i===cur);});
+  }
+  window.addEventListener("scroll",spy,{passive:true}); spy();
+})();
+</script>
+</body>
+</html>
