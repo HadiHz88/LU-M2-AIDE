@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIAI 504 Practice Exam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* One exam paper: three long problems, each split into parts. Solutions stay hidden until asked for.
+   Same palette and type as the field guide and the quiz: graphite neutrals, amber accent; green and rose only for marks. */
+:root{
+  --bg:#EEF0F4; --surface:#F9FAFC; --surface-2:#E2E6EC; --ink:#141922; --ink-2:#414A58; --muted:#687384; --line:#CBD2DC;
+  --accent:#A3470A; --accent-soft:#F5E1D1;
+  --neg:#C2255C; --neg-soft:#F8DCE6; --ok:#18794E; --ok-soft:#D7F0E3;
+  --code-bg:#E3E7ED;
+  --font-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:10px; --read:760px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+    --accent:#F0A057; --accent-soft:#3A2516;
+    --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+    --code-bg:#1A2029; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1015; --surface:#141921; --surface-2:#1C222C; --ink:#E5E9F0; --ink-2:#A8B1BF; --muted:#7C8696; --line:#29303B;
+  --accent:#F0A057; --accent-soft:#3A2516;
+  --neg:#F27BA3; --neg-soft:#3B1826; --ok:#4CC38A; --ok-soft:#14301F;
+  --code-bg:#1A2029; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:76px}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16.5px; line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0; line-height:1.15; letter-spacing:-0.01em}
+h1{font-size:clamp(2.4rem,7vw,3.8rem); font-weight:800; letter-spacing:-0.03em; line-height:1}
+h1 em{font-style:normal; color:var(--accent)}
+h2{font-size:clamp(1.5rem,4.2vw,2rem); font-weight:800}
+h3{font-size:1.08rem; font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+
+mjx-container[display="true"]{margin:.35em 0!important; max-width:100%; overflow-x:auto; overflow-y:hidden; padding:2px 0}
+mjx-container{color:inherit}
+.nw{white-space:nowrap}
+
+/* top bar */
+.topbar{position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--line);
+  margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px))); margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-top:env(safe-area-inset-top,0px)}
+.topbar-in{max-width:var(--read); margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; padding-block:9px}
+.brand{font-family:var(--font-mono); font-size:.78rem; letter-spacing:.06em; color:var(--ink-2); min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand b{color:var(--ink); font-weight:600}
+.topbar-r{display:flex; align-items:center; gap:8px; flex:none}
+.timer{display:inline-flex; align-items:center; gap:7px; font:inherit; font-family:var(--font-mono); font-size:.86rem; font-weight:600; font-variant-numeric:tabular-nums;
+  height:34px; padding:0 12px 0 10px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--ink); cursor:pointer}
+.timer:hover{border-color:var(--ink-2)}
+.timer svg{width:14px; height:14px}
+.timer.run{border-color:var(--accent); color:var(--accent)}
+.timer.over{border-color:var(--neg); color:var(--neg)}
+.marks{font-family:var(--font-mono); font-size:.78rem; color:var(--ink-2); font-variant-numeric:tabular-nums; white-space:nowrap}
+.theme-toggle{display:inline-grid; place-items:center; width:34px; height:34px; flex:none; padding:0; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--ink); cursor:pointer}
+.theme-toggle:hover{border-color:var(--ink-2)}
+.theme-toggle svg{width:17px; height:17px}
+
+.page{max-width:var(--read); margin:0 auto; padding-block:40px 0}
+.view{display:grid; gap:56px}
+.view>*,.problem>*,.part>*,.card>*{min-width:0}
+
+/* buttons */
+.btn{font:inherit; font-size:.92rem; font-weight:700; line-height:1.25; border-radius:999px; padding:10px 18px; border:1.5px solid var(--ink); background:transparent; color:var(--ink); cursor:pointer}
+.btn:hover{background:var(--ink); color:var(--bg)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.btn.primary:hover{filter:brightness(1.08); background:var(--accent); color:var(--surface)}
+.linkbtn{font:inherit; font-size:.92rem; background:none; border:0; padding:0; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+.linkbtn.armed{color:var(--neg); font-weight:700}
+.btn.armed,.btn.armed:hover{border-color:var(--neg); background:var(--neg-soft); color:var(--neg)}
+.row{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px}
+
+/* cover */
+.cover{display:grid; gap:22px}
+.lede{font-size:1.1rem; color:var(--ink-2); max-width:62ch}
+.facts{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); border-radius:var(--radius); background:var(--surface)}
+.facts div{padding:12px 16px; display:grid; gap:2px; border-left:1px solid var(--line)}
+.facts div:first-child{border-left:0}
+.facts b{font-family:var(--font-display); font-size:1.25rem; font-weight:800}
+.facts span{font-size:.82rem; color:var(--muted)}
+.plan{width:100%; border-collapse:collapse; font-size:.95rem}
+.plan th,.plan td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+.plan th{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.plan td.n{font-family:var(--font-mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+.plan a{color:var(--ink); text-decoration:none; font-weight:700}
+.plan a:hover{color:var(--accent)}
+.card{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:18px 20px; display:grid; gap:10px}
+.card ul,.card ol{margin:0; padding-left:1.2em; display:grid; gap:6px; color:var(--ink-2); font-size:.95rem}
+.card li b{color:var(--ink)}
+
+/* problems */
+.problem{display:grid; gap:26px; padding-top:8px; border-top:3px solid var(--ink)}
+.prob-head{display:grid; gap:8px}
+.prob-head .eyebrow{color:var(--accent)}
+.context{display:grid; gap:14px}
+.context p{max-width:68ch}
+.context ol.arch{margin:0; padding-left:1.3em; display:grid; gap:4px}
+.data{background:var(--code-bg); border-radius:8px; padding:10px 16px; overflow-x:auto; display:flex; flex-wrap:wrap; column-gap:32px; row-gap:4px; align-items:center}
+.figure{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:14px 12px 8px; overflow-x:auto}
+.figure svg{display:block; width:100%; min-width:560px; height:auto}
+.figure figcaption{font-size:.84rem; color:var(--muted); padding:6px 6px 0}
+figure{margin:0}
+.fig-line{stroke:var(--muted); stroke-width:1.2; fill:none}
+.fig-arrow{stroke:var(--ink-2); stroke-width:1.6; fill:none}
+.fig-node{fill:var(--surface); stroke:var(--ink-2); stroke-width:1.5}
+.fig-cell{fill:var(--bg); stroke:var(--ink-2); stroke-width:1.2}
+.fig-empty{fill:var(--surface-2); stroke:var(--muted); stroke-width:1}
+.fig-box{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.4}
+.fig-t{fill:var(--ink); font-family:var(--font-body); font-size:13px}
+.fig-m{fill:var(--ink); font-family:var(--font-mono); font-size:12.5px}
+.fig-s{fill:var(--muted); font-family:var(--font-mono); font-size:10.5px; letter-spacing:.04em}
+.fig-a{fill:var(--accent); font-family:var(--font-mono); font-size:11.5px; font-weight:600}
+table.spec{border-collapse:collapse; width:100%; font-size:.94rem}
+table.spec th,table.spec td{text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+table.spec th{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600}
+table.spec td:first-child{font-family:var(--font-mono); font-size:.86rem; white-space:nowrap}
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:4px 8px}
+.sub{font-family:var(--font-display); font-weight:700; font-size:1.02rem; padding-top:6px}
+
+.part{display:grid; gap:12px; padding-top:20px; border-top:1px solid var(--line)}
+.part-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
+.part-head h3{display:flex; gap:10px; align-items:baseline}
+.pn{font-family:var(--font-mono); font-size:.9rem; color:var(--accent); font-weight:600}
+ol.items{margin:0; padding-left:1.7em; display:grid; gap:8px}
+ol.items>li{padding-left:4px}
+ol.items>li::marker{font-family:var(--font-mono); font-size:.86rem; color:var(--muted)}
+.show{font-weight:700}
+
+.markgrp{display:flex; flex-wrap:wrap; align-items:center; gap:6px}
+.markgrp>span{font-size:.84rem; color:var(--muted); margin-right:4px}
+.mk{font:inherit; font-family:var(--font-mono); font-size:.8rem; font-weight:600; min-width:44px; height:32px; padding:0 10px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer; font-variant-numeric:tabular-nums}
+.mk:hover{border-color:var(--ink-2)}
+.mk[aria-pressed="true"]{color:var(--ink)}
+.mk.full[aria-pressed="true"]{background:var(--ok-soft); border-color:var(--ok)}
+.mk.half[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent)}
+.mk.zero[aria-pressed="true"]{background:var(--neg-soft); border-color:var(--neg)}
+
+.sol{border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:var(--radius); background:var(--surface); padding:14px 18px; display:grid; gap:10px; min-width:0}
+.sol>*{min-width:0}
+.sol .eyebrow{color:var(--ok)}
+.sol p,.sol li{color:var(--ink-2)}
+.sol b{color:var(--ink)}
+.sol ol{margin:0; padding-left:1.5em; display:grid; gap:10px}
+.sol ol>li::marker{font-family:var(--font-mono); font-size:.86rem; color:var(--muted)}
+.sol .note{font-size:.9rem; border-top:1px dashed var(--line); padding-top:8px}
+
+/* hand-in and score */
+.handin{gap:14px; padding:22px 24px}
+.handin .btn{justify-self:start}
+.confirm{border:1.5px solid var(--accent); border-radius:var(--radius); background:var(--bg); padding:14px 16px; display:grid; gap:12px}
+.notice{border:1.5px solid var(--ok); border-radius:var(--radius); background:var(--ok-soft); padding:14px 18px; display:grid; gap:4px}
+.notice b{font-family:var(--font-display); font-size:1.05rem}
+.timer:disabled{cursor:default}
+.timer:disabled:hover{border-color:var(--line)}
+.scorecard{border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:24px; display:grid; gap:14px}
+.scorecard .big{font-family:var(--font-display); font-size:clamp(3rem,10vw,4.4rem); font-weight:800; letter-spacing:-0.03em; line-height:1; font-variant-numeric:tabular-nums}
+.scorecard .big span{font-size:.45em; color:var(--muted); font-weight:700; margin-left:.2em}
+.byprob{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.byprob li{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center}
+.byprob b{font-family:var(--font-mono); font-size:.84rem; font-weight:600; font-variant-numeric:tabular-nums}
+.meter{grid-column:1 / -1; height:6px; border-radius:999px; background:var(--surface-2); overflow:hidden}
+.meter i{display:block; height:100%; width:0; background:var(--ink-2); border-radius:999px}
+
+footer{margin-top:64px; border-top:1px solid var(--line); padding:20px 0 40px; font-size:.86rem; color:var(--muted)}
+
+@media (max-width:640px){
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .facts div:nth-child(3){border-left:0}
+  .facts div:nth-child(n+3){border-top:1px solid var(--line)}
+  .marks{display:none}
+  .sol{padding:12px 14px}
+  .sol mjx-container[display="true"],.context mjx-container[display="true"]{font-size:90%}
+}
+@media (max-width:420px){
+  .brand .long{display:none}
+  .part-head{flex-direction:column; gap:4px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important; scroll-behavior:auto!important}}
+@media print{
+  body{background:#fff; color:#000; font-size:11pt}
+  .topbar,.partctl,.sol,.noprint,footer{display:none!important}
+  .problem{break-before:page}
+  .part{break-inside:avoid}
+}
+</style>
+<script>try{var t=localStorage.getItem("dl-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]]},svg:{fontCache:"global",displayAlign:"left",displayIndent:"0"},options:{enableMenu:false}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" id="MathJax-script"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <span class="brand"><b>MIAI 504</b><span class="long"> · Neural Networks</span> · Practice exam</span>
+    <div class="topbar-r">
+      <span class="marks" id="marksTxt" aria-live="polite"></span>
+      <button class="timer" type="button" id="timerBtn" aria-label="Start the timer"></button>
+      <button class="theme-toggle" type="button"></button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+<div class="view">
+
+<!-- ================= COVER ================= -->
+<section class="cover" aria-labelledby="title">
+  <span class="eyebrow">MIAI 504 · Neural Networks &amp; Deep Learning · Final exam training</span>
+  <h1 id="title">Practice <em>exam</em></h1>
+  <p class="lede">Three long problems. Each follows one network from start to finish: the forward pass, the gradients, then the updates, so every part builds on the previous one. There is no formula sheet. When a later part needs an earlier result, the question gives the value to reach (“show that…”), so you can carry on if you get stuck.</p>
+  <div class="facts">
+    <div><b>90 min</b><span>Duration</span></div>
+    <div><b>20 pts</b><span>Total</span></div>
+    <div><b>3</b><span>Problems, 22 parts</span></div>
+    <div><b>Calculator</b><span>Non-programmable. No documents.</span></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="plan">
+      <thead><tr><th>Problem</th><th>Lectures</th><th>Points</th><th>Suggested time</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#P1">1 · A small CNN, end to end</a></td><td class="n">3, 4, 6</td><td class="n">9</td><td class="n">40 min</td></tr>
+        <tr><td><a href="#P2">2 · Designing a photo classifier</a></td><td class="n">4, 5, 6</td><td class="n">5</td><td class="n">20 min</td></tr>
+        <tr><td><a href="#P3">3 · Reading sequences</a></td><td class="n">4, 7</td><td class="n">6</td><td class="n">30 min</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <span class="eyebrow">Conventions</span>
+    <ul>
+      <li><b>σ</b> is the logistic sigmoid (slope parameter 1), <b>tanh</b> the hyperbolic tangent, <b>ln</b> the natural logarithm.</li>
+      <li><b>Convolution</b> as in the course: the filter slides over the input without being flipped, and each output is the sum of the element-wise products plus the filter’s bias.</li>
+      <li><b>Error signal</b>: the solutions write \(\delta\) for the derivative of the loss with respect to a neuron’s weighted input. The slides’ \(\delta\) has the opposite sign. Either convention is fine if you stick to it.</li>
+      <li>Backpropagate with the weights <b>before</b> the update. Biases are <b>never</b> regularized.</li>
+      <li>Keep 4 decimal places. Small rounding differences from the given values don’t matter.</li>
+    </ul>
+  </div>
+
+  <div class="card noprint">
+    <span class="eyebrow">How to use this paper</span>
+    <ol>
+      <li><b>Work on paper</b>, like the real exam. Start the timer when you begin; it keeps running if you close the tab.</li>
+      <li><b>No solutions while you work.</b> When you are done, submit at the end of the paper. The timer stops and the solutions to every part appear at once.</li>
+      <li><b>Then mark yourself</b>: full, half or zero points for each part. Your total out of 20 is at the end of the paper.</li>
+      <li>Printing gives the paper without the solutions.</li>
+    </ol>
+  </div>
+
+  <div class="row noprint">
+    <button class="btn primary" type="button" id="startBtn">Start the 90-minute timer</button>
+  </div>
+</section>
+
+<section class="notice noprint" id="doneNote" hidden aria-live="polite">
+  <b>Submitted</b>
+  <p id="doneTxt"></p>
+</section>
+
+<!-- ================= PROBLEM 1 ================= -->
+<section class="problem" id="P1" aria-labelledby="P1h">
+  <div class="prob-head">
+    <span class="eyebrow">Problem 1 · 9 points · about 40 minutes</span>
+    <h2 id="P1h">A small CNN, end to end</h2>
+  </div>
+
+  <div class="context">
+    <p>A 3 × 3 single-band patch of a satellite image is classified into three land-cover classes: <b>water</b>, <b>vegetation</b> and <b>urban</b>. The network, in order:</p>
+    <ol class="arch">
+      <li>A convolution layer with two 2 × 2 filters \(K_1\) and \(K_2\), stride 1, no padding, biases \(b_1\) and \(b_2\).</li>
+      <li>ReLU, then max-pooling with a 2 × 2 window and stride 2 on each feature map. The two pooled values form the feature vector \(f = (f_1, f_2)\).</li>
+      <li>A hidden dense layer of 2 sigmoid neurons. Weight \(v_{ij}\) links \(f_j\) to hidden neuron \(i\), and \(a_i\) is its bias. Its outputs are \(h = (h_1, h_2)\).</li>
+      <li>An output layer of 3 neurons with softmax. Weight \(w_{kj}\) links \(h_j\) to output \(k\) (\(k\) = water, veg, urban), \(c_k\) is its bias, \(z_k\) its weighted input (logit) and \(p_k\) its probability.</li>
+      <li>The loss \(L\) is the cross-entropy with a one-hot target. This patch is <b>vegetation</b>.</li>
+    </ol>
+
+    <figure class="figure">
+      <svg viewBox="0 0 760 252" role="img" aria-labelledby="figP1t">
+        <title id="figP1t">Network of Problem 1: a 3 by 3 input, two 2 by 2 feature maps, ReLU and max-pooling to f1 and f2, two sigmoid hidden neurons, three softmax outputs.</title>
+        <!-- dense connections -->
+        <g class="fig-line">
+          <line x1="318" y1="64" x2="422" y2="64"/><line x1="318" y1="64" x2="422" y2="188"/>
+          <line x1="318" y1="188" x2="422" y2="64"/><line x1="318" y1="188" x2="422" y2="188"/>
+          <line x1="458" y1="64" x2="564" y2="40"/><line x1="458" y1="64" x2="564" y2="126"/><line x1="458" y1="64" x2="564" y2="212"/>
+          <line x1="458" y1="188" x2="564" y2="40"/><line x1="458" y1="188" x2="564" y2="126"/><line x1="458" y1="188" x2="564" y2="212"/>
+        </g>
+        <!-- input -->
+        <text class="fig-s" x="20" y="76">INPUT X</text>
+        <g>
+          <rect class="fig-cell" x="20" y="87" width="26" height="26"/><rect class="fig-cell" x="46" y="87" width="26" height="26"/><rect class="fig-cell" x="72" y="87" width="26" height="26"/>
+          <rect class="fig-cell" x="20" y="113" width="26" height="26"/><rect class="fig-cell" x="46" y="113" width="26" height="26"/><rect class="fig-cell" x="72" y="113" width="26" height="26"/>
+          <rect class="fig-cell" x="20" y="139" width="26" height="26"/><rect class="fig-cell" x="46" y="139" width="26" height="26"/><rect class="fig-cell" x="72" y="139" width="26" height="26"/>
+        </g>
+        <g class="fig-m" text-anchor="middle">
+          <text x="33" y="105">1</text><text x="59" y="105">2</text><text x="85" y="105">1</text>
+          <text x="33" y="131">0</text><text x="59" y="131">0</text><text x="85" y="131">1</text>
+          <text x="33" y="157">0</text><text x="59" y="157">1</text><text x="85" y="157">1</text>
+        </g>
+        <!-- conv arrows -->
+        <path class="fig-arrow" d="M106 118 C 130 118, 134 64, 160 64"/><path class="fig-arrow" d="M154 59 L161 64 L154 69"/>
+        <path class="fig-arrow" d="M106 134 C 130 134, 134 188, 160 188"/><path class="fig-arrow" d="M154 183 L161 188 L154 193"/>
+        <text class="fig-a" x="112" y="84" text-anchor="start">K₁</text>
+        <text class="fig-a" x="112" y="178" text-anchor="start">K₂</text>
+        <!-- maps -->
+        <text class="fig-s" x="168" y="32">MAP 1</text>
+        <rect class="fig-empty" x="168" y="40" width="24" height="24"/><rect class="fig-empty" x="192" y="40" width="24" height="24"/>
+        <rect class="fig-empty" x="168" y="64" width="24" height="24"/><rect class="fig-empty" x="192" y="64" width="24" height="24"/>
+        <text class="fig-s" x="168" y="156">MAP 2</text>
+        <rect class="fig-empty" x="168" y="164" width="24" height="24"/><rect class="fig-empty" x="192" y="164" width="24" height="24"/>
+        <rect class="fig-empty" x="168" y="188" width="24" height="24"/><rect class="fig-empty" x="192" y="188" width="24" height="24"/>
+        <!-- relu + pool -->
+        <path class="fig-arrow" d="M224 64 L292 64"/><path class="fig-arrow" d="M286 59 L293 64 L286 69"/>
+        <path class="fig-arrow" d="M224 188 L292 188"/><path class="fig-arrow" d="M286 183 L293 188 L286 193"/>
+        <text class="fig-s" x="258" y="120" text-anchor="middle">ReLU</text>
+        <text class="fig-s" x="258" y="136" text-anchor="middle">max-pool</text>
+        <!-- f nodes -->
+        <circle class="fig-node" cx="306" cy="64" r="15"/><text class="fig-t" x="306" y="69" text-anchor="middle">f₁</text>
+        <circle class="fig-node" cx="306" cy="188" r="15"/><text class="fig-t" x="306" y="193" text-anchor="middle">f₂</text>
+        <!-- hidden -->
+        <text class="fig-a" x="370" y="24" text-anchor="middle">V, a</text>
+        <circle class="fig-node" cx="440" cy="64" r="18"/><text class="fig-t" x="440" y="69" text-anchor="middle">h₁</text>
+        <circle class="fig-node" cx="440" cy="188" r="18"/><text class="fig-t" x="440" y="193" text-anchor="middle">h₂</text>
+        <text class="fig-s" x="440" y="100" text-anchor="middle">σ</text>
+        <text class="fig-s" x="440" y="224" text-anchor="middle">σ</text>
+        <!-- outputs -->
+        <text class="fig-a" x="510" y="24" text-anchor="middle">W, c</text>
+        <circle class="fig-node" cx="580" cy="40" r="16"/><text class="fig-t" x="580" y="45" text-anchor="middle">z₁</text>
+        <circle class="fig-node" cx="580" cy="126" r="16"/><text class="fig-t" x="580" y="131" text-anchor="middle">z₂</text>
+        <circle class="fig-node" cx="580" cy="212" r="16"/><text class="fig-t" x="580" y="217" text-anchor="middle">z₃</text>
+        <rect class="fig-box" x="616" y="22" width="26" height="208" rx="6"/>
+        <text class="fig-a" x="633" y="126" text-anchor="middle" transform="rotate(-90 633 126)">softmax</text>
+        <path class="fig-arrow" d="M596 40 L614 40"/><path class="fig-arrow" d="M596 126 L614 126"/><path class="fig-arrow" d="M596 212 L614 212"/>
+        <text class="fig-t" x="654" y="45">water</text>
+        <text class="fig-t" x="654" y="131">vegetation</text>
+        <text class="fig-t" x="654" y="217">urban</text>
+      </svg>
+      <figcaption>The feature maps are left empty: computing them is part 1.2.</figcaption>
+    </figure>
+
+    <div class="data">
+      <div>\[ X=\begin{pmatrix}1&2&1\\0&0&1\\0&1&1\end{pmatrix} \]</div>
+      <div>\[ K_1=\begin{pmatrix}1&-1\\0&1\end{pmatrix},\ b_1=0 \]</div>
+      <div>\[ K_2=\begin{pmatrix}0&1\\1&-1\end{pmatrix},\ b_2=-1 \]</div>
+    </div>
+    <div class="data">
+      <div>\[ V=\begin{pmatrix}v_{11}&v_{12}\\v_{21}&v_{22}\end{pmatrix}=\begin{pmatrix}0.5&-1.5\\0.5&0.5\end{pmatrix},\quad a=\begin{pmatrix}0.5\\-0.5\end{pmatrix} \]</div>
+      <div>\[ W=\begin{pmatrix}w_{\text{water},1}&w_{\text{water},2}\\w_{\text{veg},1}&w_{\text{veg},2}\\w_{\text{urban},1}&w_{\text{urban},2}\end{pmatrix}=\begin{pmatrix}1&-1\\-1&0.5\\0.5&1\end{pmatrix},\quad c=\begin{pmatrix}0\\0\\0\end{pmatrix} \]</div>
+    </div>
+  </div>
+
+  <!-- 1.1 -->
+  <div class="part" id="q1-1" data-pts="0.5" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.1</span>Architecture</h3></div>
+    <ol class="items" type="a">
+      <li>Give the size of each feature map before and after pooling.</li>
+      <li>Count the trainable parameters of each layer and <span class="show">show that the network has 25 in total</span>. Which operations have no parameters?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Before pooling: \(\lfloor (3-2+0)/1\rfloor+1 = 2\), so each map is 2 × 2. After pooling: \(\lfloor (2-2)/2\rfloor+1 = 1\), so each map becomes a single value. Two maps give \(f=(f_1,f_2)\).</li>
+        <li>
+          \[ \begin{aligned} \text{conv} &: (2\cdot 2\cdot 1+1)\cdot 2 = 10\\ \text{hidden} &: 2\cdot 2 + 2 = 6\\ \text{output} &: 3\cdot 2 + 3 = 9\\ \text{total} &= 10+6+9 = \mathbf{25} \end{aligned} \]
+          ReLU, max-pooling and softmax have no parameters: they are fixed functions.
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.2 -->
+  <div class="part" id="q1-2" data-pts="1" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.2</span>Convolution, ReLU, pooling</h3></div>
+    <ol class="items" type="a">
+      <li>Compute the two feature maps (before ReLU).</li>
+      <li>Apply ReLU and max-pooling. <span class="show">Show that \(f = (2,\ 1)\)</span>, and say which position of each map wins the pooling. You will need it in 1.7.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Slide each filter over the four 2 × 2 windows of \(X\). Top-left window \(\left(\begin{smallmatrix}1&2\\0&0\end{smallmatrix}\right)\), top-right \(\left(\begin{smallmatrix}2&1\\0&1\end{smallmatrix}\right)\), bottom-left \(\left(\begin{smallmatrix}0&0\\0&1\end{smallmatrix}\right)\), bottom-right \(\left(\begin{smallmatrix}0&1\\1&1\end{smallmatrix}\right)\).
+          \[ \begin{aligned} \text{map 1, top-left} &= 1\cdot1 + 2\cdot(-1) + 0\cdot 0 + 0\cdot 1 + 0 = -1\\ \text{map 1, top-right} &= 2 - 1 + 0 + 1 = 2 \end{aligned} \]
+          and so on, giving
+          \[ M_1=\begin{pmatrix}-1&2\\1&0\end{pmatrix},\qquad M_2=\begin{pmatrix}1&-1\\-2&0\end{pmatrix} \]
+          For \(M_2\), remember the bias \(b_2=-1\): top-left is \(0+2+0+0-1 = 1\).</li>
+        <li>ReLU: \(\left(\begin{smallmatrix}0&2\\1&0\end{smallmatrix}\right)\) and \(\left(\begin{smallmatrix}1&0\\0&0\end{smallmatrix}\right)\). Pooling takes the maximum of each 2 × 2 map: \(f_1 = 2\), won by the <b>top-right</b> of map 1; \(f_2 = 1\), won by the <b>top-left</b> of map 2. So \(f=(2,1)\).</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.3 -->
+  <div class="part" id="q1-3" data-pts="1" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.3</span>Dense layers and the loss</h3></div>
+    <ol class="items" type="a">
+      <li>Compute the hidden outputs and <span class="show">show that \(h \approx (0.5000,\ 0.7311)\)</span>.</li>
+      <li>Compute the logits and the softmax probabilities. <span class="show">Show that \(p_\text{veg} \approx 0.2016\)</span>. Which class does the network predict?</li>
+      <li>Compute the loss and <span class="show">show that \(L \approx 1.6012\)</span>. Compare it with the loss of a network that answers uniformly at random, and comment.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\[ \begin{aligned} u_1 &= 0.5\cdot 2 - 1.5\cdot 1 + 0.5 = 0 &&\Rightarrow\ h_1=\sigma(0)=0.5\\ u_2 &= 0.5\cdot 2 + 0.5\cdot 1 - 0.5 = 1 &&\Rightarrow\ h_2=\sigma(1)=0.7311 \end{aligned} \]</li>
+        <li>\[ \begin{aligned} z_\text{water} &= 1\cdot 0.5 - 1\cdot 0.7311 = -0.2311\\ z_\text{veg} &= -1\cdot 0.5 + 0.5\cdot 0.7311 = -0.1345\\ z_\text{urban} &= 0.5\cdot 0.5 + 1\cdot 0.7311 = 0.9811 \end{aligned} \]
+          Exponentials: 0.7937, 0.8742, 2.6673, sum 4.3351. So
+          \[ p = (0.1831,\ 0.2016,\ 0.6153) \]
+          The network predicts <b>urban</b>, which is wrong.</li>
+        <li>With a one-hot target only the true class counts: \(L = -\ln p_\text{veg} = -\ln 0.2016 = 1.6012\). A uniform guess gives \(-\ln(1/3) = \ln 3 \approx 1.0986\). The network does worse than guessing because it is fairly confident in the wrong class, and cross-entropy punishes exactly that.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.4 -->
+  <div class="part" id="q1-4" data-pts="1" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.4</span>The gradient of softmax with cross-entropy</h3></div>
+    <ol class="items" type="a">
+      <li>Starting only from the definitions of the softmax and of the cross-entropy, <span class="show">prove that \(\partial L/\partial z_k = p_k - y_k\)</span> for every output \(k\), where \(y\) is the one-hot target. Treat the cases \(j = k\) and \(j \ne k\) separately when you differentiate the softmax.</li>
+      <li>Give the numerical value of \(\partial L/\partial z_k\) for the three outputs, and explain the meaning of their signs.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>With \(p_k = e^{z_k}/\sum_m e^{z_m}\), the quotient rule gives
+          \[ \frac{\partial p_k}{\partial z_j}=\begin{cases}p_k(1-p_k) & j=k\\ -p_k\,p_j & j\ne k\end{cases}\quad=\ p_k(\mathbf{1}_{j=k}-p_j) \]
+          With \(L = -\sum_k y_k \ln p_k\):
+          \[ \frac{\partial L}{\partial z_j} = -\sum_k \frac{y_k}{p_k}\,p_k(\mathbf{1}_{j=k}-p_j) = -y_j + p_j\sum_k y_k = p_j - y_j \]
+          because the one-hot target sums to 1.</li>
+        <li>\[ \frac{\partial L}{\partial z} = (0.1831 - 0,\ 0.2016 - 1,\ 0.6153 - 0) = (0.1831,\ -0.7984,\ 0.6153) \]
+          A positive gradient means gradient descent will <b>lower</b> that logit (water and urban). The only negative one is the true class: its logit will be <b>raised</b>. The three values sum to 0.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.5 -->
+  <div class="part" id="q1-5" data-pts="0.75" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.5</span>Output-layer gradients</h3></div>
+    <ol class="items" type="a">
+      <li>Compute the gradient of \(L\) with respect to the six weights \(w_{kj}\) and the three biases \(c_k\). <span class="show">Show that \(\partial L/\partial w_{\text{veg},2} \approx -0.5836\)</span>.</li>
+      <li>Without computing anything, what would the gradients of the weights leaving \(h_j\) be if \(h_j\) were exactly 0? What does this tell you about how a weight learns?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Each weight’s gradient is the error at the neuron it feeds times the input it carries: \(\partial L/\partial w_{kj} = (p_k-y_k)\,h_j\) and \(\partial L/\partial c_k = p_k - y_k\).
+          \[ \frac{\partial L}{\partial W}=\begin{pmatrix}0.1831\cdot0.5 & 0.1831\cdot0.7311\\ -0.7984\cdot0.5 & -0.7984\cdot0.7311\\ 0.6153\cdot0.5 & 0.6153\cdot0.7311\end{pmatrix}=\begin{pmatrix}0.0915&0.1338\\-0.3992&\mathbf{-0.5836}\\0.3076&0.4498\end{pmatrix} \]
+          \[ \frac{\partial L}{\partial c} = (0.1831,\ -0.7984,\ 0.6153) \]</li>
+        <li>All zero. A weight’s gradient is proportional to the input it carries, so a weight whose input is 0 does not learn from that sample. This is why dead ReLU units, which always output 0, stop learning.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.6 -->
+  <div class="part" id="q1-6" data-pts="1.25" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.6</span>Back into the hidden layer</h3></div>
+    <ol class="items" type="a">
+      <li>Compute \(\partial L/\partial h_1\) and \(\partial L/\partial h_2\). <span class="show">Show that \(\partial L/\partial h_1 \approx 1.2891\)</span>.</li>
+      <li>Compute the error signals \(\delta_1\) and \(\delta_2\) of the hidden neurons. <span class="show">Show that \(\delta_1 \approx 0.3223\)</span>.</li>
+      <li>Compute the gradients of the four weights \(v_{ij}\) and of the two biases \(a_i\).</li>
+      <li>\(\delta_2\) is about 50 times smaller than \(\delta_1\). Give the two separate reasons, using the numbers above.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Each hidden output reaches the loss through all three outputs, so its derivative sums over them, using the old weights:
+          \[ \begin{aligned} \frac{\partial L}{\partial h_1} &= 1\cdot 0.1831 + (-1)(-0.7984) + 0.5\cdot 0.6153 = 1.2891\\ \frac{\partial L}{\partial h_2} &= (-1)\cdot 0.1831 + 0.5\cdot(-0.7984) + 1\cdot 0.6153 = 0.0330 \end{aligned} \]</li>
+        <li>Multiply by the sigmoid’s slope, computed from the output, \(h(1-h)\):
+          \[ \begin{aligned} \delta_1 &= 1.2891\cdot 0.5\cdot 0.5 = 1.2891\cdot 0.25 = 0.3223\\ \delta_2 &= 0.0330\cdot 0.7311\cdot 0.2689 = 0.0330\cdot 0.1966 = 0.00649 \end{aligned} \]</li>
+        <li>\(\partial L/\partial v_{ij} = \delta_i\,f_j\) and \(\partial L/\partial a_i = \delta_i\):
+          \[ \frac{\partial L}{\partial V}=\begin{pmatrix}0.3223\cdot2 & 0.3223\cdot1\\ 0.00649\cdot2 & 0.00649\cdot1\end{pmatrix}=\begin{pmatrix}0.6445&\mathbf{0.3223}\\0.0130&0.0065\end{pmatrix},\qquad \frac{\partial L}{\partial a}=(0.3223,\ 0.0065) \]</li>
+        <li>(1) <b>Cancellation</b>: \(h_2\) feeds water, vegetation and urban with contributions −0.1831, −0.3992 and +0.6153, which nearly cancel. Raising \(h_2\) helps vegetation and water but helps urban even more, so on balance it hardly matters. (2) <b>A flatter sigmoid</b>: \(u_2 = 1\) is further from 0 than \(u_1 = 0\), so the slope is 0.1966 instead of the maximum 0.25.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.7 -->
+  <div class="part" id="q1-7" data-pts="1" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.7</span>Back to the filters</h3></div>
+    <ol class="items" type="a">
+      <li>Compute \(\partial L/\partial f_1\) and \(\partial L/\partial f_2\). <span class="show">Show that \(\partial L/\partial f \approx (0.1644,\ -0.4802)\)</span>.</li>
+      <li>Explain how the gradient passes through the max-pooling and through the ReLU. Which entries of each feature map receive a non-zero gradient?</li>
+      <li>Compute the gradient of the four weights and of the bias of \(K_1\), then of \(K_2\). Why is the gradient of the bottom-left weight of \(K_1\) exactly zero?</li>
+      <li>Here only one window contributes to each filter’s gradient. In general a filter is used at every position. How is the gradient of one filter weight formed then?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\(f_j\) feeds both hidden neurons:
+          \[ \begin{aligned} \frac{\partial L}{\partial f_1} &= v_{11}\delta_1 + v_{21}\delta_2 = 0.5\cdot0.3223 + 0.5\cdot0.00649 = 0.1644\\ \frac{\partial L}{\partial f_2} &= v_{12}\delta_1 + v_{22}\delta_2 = -1.5\cdot0.3223 + 0.5\cdot0.00649 = -0.4802 \end{aligned} \]</li>
+        <li>Max-pooling sends the whole gradient to the position that won the maximum and 0 to the others: it has no weights, it only routes. ReLU passes the gradient unchanged where its input was positive and blocks it where the input was negative. The winners (2 and 1) are positive, so only <b>top-right of map 1</b> receives \(0.1644\) and only <b>top-left of map 2</b> receives \(-0.4802\).</li>
+        <li>The winning output of map 1 is the dot product of \(K_1\) with the top-right window \(\left(\begin{smallmatrix}2&1\\0&1\end{smallmatrix}\right)\), so each weight’s gradient is \(0.1644\) times the pixel under it:
+          \[ \frac{\partial L}{\partial K_1}=0.1644\begin{pmatrix}2&1\\0&1\end{pmatrix}=\begin{pmatrix}0.3288&0.1644\\0&0.1644\end{pmatrix},\quad \frac{\partial L}{\partial b_1}=0.1644 \]
+          \[ \frac{\partial L}{\partial K_2}=-0.4802\begin{pmatrix}1&2\\0&0\end{pmatrix}=\begin{pmatrix}-0.4802&-0.9603\\0&0\end{pmatrix},\quad \frac{\partial L}{\partial b_2}=-0.4802 \]
+          The bottom-left weight of \(K_1\) sat over a pixel equal to 0 in the winning window. As in 1.5(b), a weight with a zero input gets a zero gradient.</li>
+        <li>Because the weights are shared, the filter weight is used once per position. Its gradient is the <b>sum over all positions</b> of (gradient arriving at that output) × (input pixel under that weight). This is the same idea as an RNN weight summing its gradient over time steps.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.8 -->
+  <div class="part" id="q1-8" data-pts="1.25" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.8</span>Updates: gradient descent, momentum, regularization</h3></div>
+    <p>We follow two weights: \(w_{\text{veg},2} = 0.5\) and \(v_{12} = -1.5\). Learning rate \(\eta = 0.5\).</p>
+    <ol class="items" type="a">
+      <li>Give their values after one step of plain gradient descent.</li>
+      <li>With momentum \(\alpha = 0.9\), the previous update of \(v_{12}\) was \(\Delta v_{12}(n-1) = -0.04\). Compute \(\Delta v_{12}(n)\) and the new \(v_{12}\).</li>
+      <li>Now drop momentum and add L2 regularization: the training objective becomes the loss plus \(\tfrac{\lambda}{2}\) times the sum of the squared weights, with \(\lambda = 0.1\). <span class="show">Show that one gradient step first multiplies every weight by a constant factor</span>, then applies the usual step. Give the factor and the new values of the two weights. What is this effect called?</li>
+      <li>With L1 instead (same \(\lambda\)), consider a weight equal to 0.01 whose loss gradient is 0 on this sample. Compare one L1 step and one L2 step on it. Which penalty produces sparse weights, and why?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\[ \begin{aligned} w_{\text{veg},2} &\leftarrow 0.5 - 0.5\cdot(-0.5836) = 0.7918\\ v_{12} &\leftarrow -1.5 - 0.5\cdot 0.3223 = -1.6611 \end{aligned} \]
+          The vegetation logit gets more weight from \(h_2\), and \(v_{12}\) moves to lower \(h_1\), which mostly fed the wrong classes.</li>
+        <li>\[ \Delta v_{12}(n) = 0.9\cdot(-0.04) - 0.5\cdot 0.3223 = -0.0360 - 0.1611 = -0.1971,\qquad v_{12} = -1.6971 \]
+          The previous step pointed the same way, so momentum lengthens the step.</li>
+        <li>The objective’s gradient is the loss gradient plus \(\lambda w\), so
+          \[ w \leftarrow w - \eta\left(\frac{\partial L}{\partial w}+\lambda w\right) = (1-\eta\lambda)\,w - \eta\,\frac{\partial L}{\partial w},\qquad 1-\eta\lambda = 1 - 0.05 = 0.95 \]
+          \[ \begin{aligned} w_{\text{veg},2} &\leftarrow 0.95\cdot 0.5 + 0.2918 = 0.7668\\ v_{12} &\leftarrow 0.95\cdot(-1.5) - 0.1611 = -1.5861 \end{aligned} \]
+          This is <b>weight decay</b>: every weight shrinks by 5 % before the usual step. The biases are not touched.</li>
+        <li>L1 adds \(\lambda\,\mathrm{sign}(w)\) to the gradient, a fixed push of \(\eta\lambda = 0.05\) whatever the weight’s size: \(0.01 - 0.05 = -0.04\), so it crosses 0. Implementations stop it at exactly 0 instead. L2 only scales it: \(0.95\cdot 0.01 = 0.0095\). The push does not shrink as the weight gets smaller, so it will never reach 0. <b>L1 gives sparse weights</b> (feature selection); L2 gives small ones.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 1.9 -->
+  <div class="part" id="q1-9" data-pts="1.25" data-prob="1">
+    <div class="part-head"><h3><span class="pn">1.9</span>The same weight with Adam</h3></div>
+    <p>We now train \(w_{\text{veg},2}\) (back at 0.5, no regularization) with Adam: \(\eta = 0.01\), \(\beta_1 = 0.9\), \(\beta_2 = 0.999\), \(\epsilon = 10^{-8}\), both moment estimates starting at 0, with bias correction. Its first gradient is \(g_1 = -0.5836\) (part 1.5).</p>
+    <ol class="items" type="a">
+      <li>Compute the first and second moment estimates, their bias-corrected values, the update and the new weight after step \(t = 1\).</li>
+      <li><span class="show">Show that, whatever the non-zero first gradient, the first Adam step has size almost exactly \(\eta\)</span>. How large would the first step be without bias correction?</li>
+      <li>The next mini-batch gives \(g_2 = -0.05\). Compute step \(t = 2\). <span class="show">Show that the update is about \(+0.0073\)</span>, and give the new weight.</li>
+      <li>Plain gradient descent with the same \(\eta = 0.01\) would move this weight by how much over these two steps? Comment on what Adam does differently.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\[ \begin{aligned} m_1 &= 0.9\cdot 0 + 0.1\cdot(-0.5836) = -0.05836\\ v_1 &= 0.999\cdot 0 + 0.001\cdot 0.5836^2 = 3.4064\times10^{-4}\\ \hat m_1 &= m_1/(1-0.9) = -0.5836,\qquad \hat v_1 = v_1/(1-0.999) = 0.34064\\ \Delta w &= -\eta\,\frac{\hat m_1}{\sqrt{\hat v_1}+\epsilon} = -0.01\cdot\frac{-0.5836}{0.5836} = +0.0100\\ w_{\text{veg},2} &= 0.5100 \end{aligned} \]</li>
+        <li>At \(t = 1\), the bias correction gives back exactly \(\hat m_1 = g_1\) and \(\hat v_1 = g_1^2\), so the step is \(\eta\,g_1/(|g_1|+\epsilon)\), which is \(\eta\) in size with the sign of \(g_1\), whatever \(|g_1|\) is. Without correction it would be \(\eta\cdot 0.1\,|g_1|/\sqrt{0.001\,g_1^2} = \eta\cdot 0.1/0.0316 = 3.16\,\eta \approx 0.0316\). The zero start would distort the first steps.</li>
+        <li>\[ \begin{aligned} m_2 &= 0.9\cdot(-0.05836) + 0.1\cdot(-0.05) = -0.05753\\ v_2 &= 0.999\cdot 3.4064\times10^{-4} + 0.001\cdot 0.0025 = 3.4280\times10^{-4}\\ \hat m_2 &= -0.05753/(1-0.9^2) = -0.05753/0.19 = -0.30278\\ \hat v_2 &= 3.4280\times10^{-4}/(1-0.999^2) = 3.4280\times10^{-4}/0.001999 = 0.17148\\ \Delta w &= -0.01\cdot\frac{-0.30278}{\sqrt{0.17148}} = -0.01\cdot\frac{-0.30278}{0.41411} = +0.00731\\ w_{\text{veg},2} &= 0.51731 \end{aligned} \]</li>
+        <li>Plain descent: \(0.01\cdot 0.5836 + 0.01\cdot 0.05 = 0.00584 + 0.0005 = 0.00634\) in total, against \(0.0173\) for Adam. The second gradient is ten times smaller, yet Adam’s step barely shrinks. Its running mean of past gradients (momentum) keeps the direction, and dividing by the root of the mean squared gradient gives each weight its own scale-free step size. Plain descent’s step is tied to the raw gradient size.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROBLEM 2 ================= -->
+<section class="problem" id="P2" aria-labelledby="P2h">
+  <div class="prob-head">
+    <span class="eyebrow">Problem 2 · 5 points · about 20 minutes</span>
+    <h2 id="P2h">Designing a photo classifier</h2>
+  </div>
+
+  <div class="context">
+    <p>A recycling plant puts a camera above its conveyor belt to sort household waste into 5 classes: <b>plastic</b>, <b>paper</b>, <b>glass</b>, <b>metal</b> and <b>organic</b>. Each photo is resized to 96 × 96 pixels in colour (RGB). The proposed CNN:</p>
+    <div class="tablewrap">
+      <table class="spec">
+        <thead><tr><th>Layer</th><th>Specification</th></tr></thead>
+        <tbody>
+          <tr><td>Input</td><td>96 × 96 × 3</td></tr>
+          <tr><td>Conv1</td><td>16 filters 5 × 5, stride 1, zero-padding 2, ReLU</td></tr>
+          <tr><td>Pool1</td><td>max-pooling 2 × 2, stride 2</td></tr>
+          <tr><td>Conv2</td><td>32 filters 3 × 3, stride 1, no padding, ReLU</td></tr>
+          <tr><td>Pool2</td><td>max-pooling 2 × 2, stride 2</td></tr>
+          <tr><td>Conv3</td><td>64 filters 3 × 3, stride 2, no padding, ReLU</td></tr>
+          <tr><td>Pool3</td><td>max-pooling 2 × 2, stride 2</td></tr>
+          <tr><td>Flatten</td><td>–</td></tr>
+          <tr><td>FC1</td><td>128 neurons, ReLU, dropout with rate 0.2</td></tr>
+          <tr><td>FC2</td><td>5 neurons, softmax</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2.1 -->
+  <div class="part" id="q2-1" data-pts="1" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.1</span>Output volumes</h3></div>
+    <ol class="items" type="a">
+      <li>Give the output volume (height × width × depth) of every layer from Conv1 to Flatten. <span class="show">Show that the flattened vector has 1,600 components.</span></li>
+      <li>Pool3 receives an 11 × 11 map. What happens to its last row and last column? How could the padding of Conv3 be changed so that nothing is lost, and what would that cost?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Each step uses \(\lfloor (W - K + 2P)/S\rfloor + 1\). The depth after a convolution equals its number of filters, and pooling keeps the depth.
+          \[ \begin{aligned} \text{Conv1} &: (96-5+4)/1+1 = 96 &&\to 96\times96\times16\\ \text{Pool1} &: (96-2)/2+1 = 48 &&\to 48\times48\times16\\ \text{Conv2} &: (48-3)/1+1 = 46 &&\to 46\times46\times32\\ \text{Pool2} &: (46-2)/2+1 = 23 &&\to 23\times23\times32\\ \text{Conv3} &: \lfloor(23-3)/2\rfloor+1 = 11 &&\to 11\times11\times64\\ \text{Pool3} &: \lfloor(11-2)/2\rfloor+1 = \lfloor 4.5\rfloor+1 = 5 &&\to 5\times5\times64\\ \text{Flatten} &: 5\cdot5\cdot64 = \mathbf{1600} \end{aligned} \]</li>
+        <li>The five 2 × 2 windows cover rows and columns 1 to 10. Row 11 and column 11 never fall inside a window, so those values never reach the classifier: that is what the rounding down means. With padding 1 on Conv3, \(\lfloor(23-3+2)/2\rfloor+1 = 12\), so Pool3 gives 6 × 6 × 64 and covers everything. The cost: Flatten grows to 2,304, and FC1 to \(2304\cdot128+128 = 295{,}040\) parameters.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.2 -->
+  <div class="part" id="q2-2" data-pts="1" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.2</span>Parameter count</h3></div>
+    <ol class="items" type="a">
+      <li>Count the trainable parameters of every layer and <span class="show">show that the network has 229,925 in total</span>.</li>
+      <li>Which layer holds most of them, and what fraction? Why do pooling, ReLU, flatten and dropout add none?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>A filter spans the full input depth, and each filter has one bias:
+          \[ \begin{aligned} \text{Conv1} &: (5\cdot5\cdot3+1)\cdot16 = 76\cdot16 = 1{,}216\\ \text{Conv2} &: (3\cdot3\cdot16+1)\cdot32 = 145\cdot32 = 4{,}640\\ \text{Conv3} &: (3\cdot3\cdot32+1)\cdot64 = 289\cdot64 = 18{,}496\\ \text{FC1} &: 1600\cdot128+128 = 204{,}928\\ \text{FC2} &: 128\cdot5+5 = 645\\ \text{total} &= \mathbf{229{,}925} \end{aligned} \]</li>
+        <li><b>FC1</b>: \(204{,}928/229{,}925 \approx 89\%\). The three convolutions together hold only 24,352 (about 11 %). Pooling, ReLU, flatten and dropout are fixed operations (a max, a threshold, a reshape, a random mask), so they have nothing to learn.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.3 -->
+  <div class="part" id="q2-3" data-pts="0.75" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.3</span>Why convolution?</h3></div>
+    <ol class="items" type="a">
+      <li>Suppose Conv1 were replaced by a fully connected layer producing the same 96 × 96 × 16 output from the same input. How many weights would it have (biases excluded)? Compare with Conv1.</li>
+      <li>How many positions is each Conv1 filter applied at, so how many times is each of its weights reused per photo?</li>
+      <li>Name the two properties of images that justify replacing the dense layer by a convolution.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Inputs: \(96\cdot96\cdot3 = 27{,}648\). Outputs: \(96\cdot96\cdot16 = 147{,}456\). Weights: \(27{,}648\cdot147{,}456 \approx 4.08\times10^{9}\), about 3.4 million times Conv1’s 1,216 parameters.</li>
+        <li>The output is 96 × 96, so each filter is applied at \(9{,}216\) positions, and each of its weights is reused 9,216 times per photo.</li>
+        <li>(1) <b>Patterns are small</b> compared with the image (an edge, a bottle cap, a label corner), so a neuron only needs a small receptive field (local connectivity). (2) <b>The same pattern can appear anywhere</b> on the belt, so one detector can be reused at every position (weight sharing).</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.4 -->
+  <div class="part" id="q2-4" data-pts="0.5" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.4</span>How much data?</h3></div>
+    <ol class="items" type="a">
+      <li>Using the course’s rule of thumb that links training-set size, number of free parameters and tolerated test error, how many labelled photos would this network need for a 10 % test error?</li>
+      <li>The plant has 15,000 labelled photos. Conclude, and propose two remedies from the course: one acting on the data, one on the model.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\(N \approx W/\varepsilon = 229{,}925/0.1 \approx 2.3\) million photos.</li>
+        <li>15,000 is about 150 times too few: the network will overfit. <b>Data</b>: augmentation. Objects on a belt have no fixed orientation, so rotations and flips keep the class, and so do small changes of scale or brightness. Adding noise is another option. <b>Model</b>: shrink FC1 (it holds 89 % of the parameters), keep dropout and add L2 weight decay, or start from a network pre-trained on a large photo dataset (transfer learning). Early stopping on a validation set also helps.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.5 -->
+  <div class="part" id="q2-5" data-pts="0.75" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.5</span>“It has no parameters, so it doesn’t matter”</h3></div>
+    <p>An intern argues: “Pool1 has no parameters, so removing it cannot change the size of the model.”</p>
+    <ol class="items" type="a">
+      <li>Recompute the volumes from Conv2 to Flatten without Pool1.</li>
+      <li>Give the new total number of parameters. Was the intern right? Explain which layer changes and why.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Conv2 now sees 96 × 96 × 16: \((96-3)+1 = 94 \to 94\times94\times32\). Pool2: \(47\times47\times32\). Conv3: \(\lfloor(47-3)/2\rfloor+1 = 23 \to 23\times23\times64\). Pool3: \(\lfloor(23-2)/2\rfloor+1 = 11 \to 11\times11\times64\). Flatten: \(7{,}744\).</li>
+        <li>FC1 becomes \(7744\cdot128+128 = 991{,}360\), and the total becomes \(1{,}216+4{,}640+18{,}496+991{,}360+645 = 1{,}016{,}357\), about <b>4.4 times</b> larger. The intern is wrong. A convolution’s parameter count depends only on the filter size, the input depth and the number of filters, so Conv2 and Conv3 do not change. A dense layer depends on how many values it receives, and pooling is what shrinks that number. Every convolution after it also runs at about 4 times more positions, so the computation grows too.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.6 -->
+  <div class="part" id="q2-6" data-pts="0.5" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.6</span>Reusing the trained network</h3></div>
+    <p>The network (with Pool1) is trained. Two new projects want to reuse it. <b>A</b>: another plant wants to separate three kinds of plastic from the same kind of camera photos, with 400 labelled photos. <b>B</b>: a hospital wants to classify grayscale chest X-rays as normal or pneumonia, with 300 labelled scans.</p>
+    <ol class="items" type="a">
+      <li>For project A, what do you replace, and how many parameters are trainable if everything else is frozen?</li>
+      <li>For project B, give two reasons why reusing this network is much harder, and say what you would do.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>Replace FC2 by a new 3-neuron softmax layer: \(128\cdot3+3 = 387\) trainable parameters. The other \(229{,}925 - 645 = 229{,}280\) are frozen: they still run in the forward pass but are not updated. Same kind of input, a closely related task and very little data: this is the case for freezing everything else.</li>
+        <li>(1) <b>Different input</b>: an X-ray has 1 channel, but Conv1’s filters have depth 3. Either copy the grayscale image into the three channels or replace and retrain Conv1. (2) <b>Very different task</b>: the high-level features of waste photos (bottle shapes, labels) do not help with lungs. That is domain mismatch, with a risk of negative transfer. Keep only the early layers, because edges and textures transfer best. Remove the later layers (Conv3, FC1, FC2), add new ones, and with 300 scans train only those. Better still, start from a network pre-trained on a much larger and more general dataset.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 2.7 -->
+  <div class="part" id="q2-7" data-pts="0.5" data-prob="2">
+    <div class="part-head"><h3><span class="pn">2.7</span>Dropout at test time</h3></div>
+    <p>Use the slides’ version of dropout, with no rescaling during training. For some photo, all 128 FC1 outputs equal 1.5, and every weight from FC1 to the output neuron “glass” equals 0.05 (ignore its bias).</p>
+    <ol class="items" type="a">
+      <li>What is the expected weighted input of “glass” during training? What is it at test time without any correction?</li>
+      <li>What correction makes the two match? What would you get by multiplying by the dropout rate instead? What does inverted dropout do?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>During training each FC1 neuron is kept with probability \(1-0.2 = 0.8\): expected input \(128\cdot0.8\cdot1.5\cdot0.05 = 7.68\). At test time nothing is dropped: \(128\cdot1.5\cdot0.05 = 9.6\), which is 25 % more than the network saw in training.</li>
+        <li>Multiply the FC1 outputs at test time by the <b>keep probability</b> 0.8, which gives back 7.68. Multiplying by the rate 0.2 would give 1.92, far too small. The slides’ wording (“scaled by the dropout rate”) only works when the rate is 0.5. Inverted dropout divides the kept outputs by 0.8 during training instead, so nothing changes at test time.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROBLEM 3 ================= -->
+<section class="problem" id="P3" aria-labelledby="P3h">
+  <div class="prob-head">
+    <span class="eyebrow">Problem 3 · 6 points · about 30 minutes</span>
+    <h2 id="P3h">Reading sequences</h2>
+  </div>
+
+  <div class="context">
+    <p class="sub">Part A · A vanilla RNN for sentiment</p>
+    <p>A sentiment classifier reads short product reviews word by word. To keep the arithmetic small, each word is a single number (a 1-dimensional embedding). The review “great but slow” gives \(x = (x_1, x_2, x_3) = (1,\ 0.5,\ -1)\). Its label is <b>negative</b>: \(t = 0\).</p>
+    <p>The RNN has hidden size 1, activation tanh, initial state \(a_0 = 0\), recurrent weight \(w_{aa} = 0.6\), input weight \(w_{ax} = 1\) and bias \(b_a = 0\). Only the last step has an output: one sigmoid neuron with weight \(w_{ya} = 1.5\) and bias \(b_y = 0.8\) on \(a_3\), giving \(\hat y\), the probability that the review is positive. The loss \(J\) is the binary cross-entropy.</p>
+  </div>
+
+  <!-- 3.1 -->
+  <div class="part" id="q3-1" data-pts="0.75" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.1</span>Forward pass</h3></div>
+    <ol class="items" type="a">
+      <li>Which type of RNN is this, in the course’s classification? How many trainable parameters does it have, and how would that number change for a 40-word review?</li>
+      <li>Compute \(a_1, a_2, a_3\). <span class="show">Show that \(a_3 \approx -0.5037\)</span>.</li>
+      <li>Compute \(\hat y\) and the loss \(J\). Is the review classified correctly (threshold 0.5)?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li><b>Many to one</b>: a sequence in, one label out. Sentiment analysis is the slides’ own example. Five parameters: \(w_{aa}, w_{ax}, b_a, w_{ya}, b_y\). The same weights are reused at every step, so a 40-word review still has 5.</li>
+        <li>\[ \begin{aligned} a_1 &= \tanh(0.6\cdot0 + 1) = \tanh(1) = 0.7616\\ a_2 &= \tanh(0.6\cdot0.7616 + 0.5) = \tanh(0.9570) = 0.7429\\ a_3 &= \tanh(0.6\cdot0.7429 - 1) = \tanh(-0.5543) = -0.5037 \end{aligned} \]</li>
+        <li>\(\hat y = \sigma(1.5\cdot(-0.5037) + 0.8) = \sigma(0.0445) = 0.5111\), so the review is classified as positive, by a hair: <b>wrong</b>. With \(t = 0\), \(J = -\ln(1-\hat y) = -\ln 0.4889 = 0.7156\).</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 3.2 -->
+  <div class="part" id="q3-2" data-pts="1.5" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.2</span>Backpropagation through time</h3></div>
+    <ol class="items" type="a">
+      <li><span class="show">Prove that the derivative of \(J\) with respect to the output neuron’s weighted input equals \(\hat y - t\)</span>, for either value of \(t\). Deduce \(\partial J/\partial w_{ya}\) and \(\partial J/\partial b_y\).</li>
+      <li><span class="show">Show that \(\partial J/\partial a_3 \approx 0.7667\)</span>.</li>
+      <li>Let \(d_t\) be the derivative of \(J\) with respect to the weighted input of \(a_t\) (the argument of tanh). Compute \(d_3\), \(d_2\) and \(d_1\).</li>
+      <li>Compute \(\partial J/\partial w_{aa}\), \(\partial J/\partial w_{ax}\) and \(\partial J/\partial b_a\). Explain why each is a sum over the time steps.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>With \(J = -[t\ln\hat y + (1-t)\ln(1-\hat y)]\) and \(\hat y=\sigma(z)\):
+          \[ \frac{\partial J}{\partial \hat y} = -\frac{t}{\hat y}+\frac{1-t}{1-\hat y} = \frac{\hat y - t}{\hat y(1-\hat y)},\qquad \frac{\partial \hat y}{\partial z}=\hat y(1-\hat y)\ \Rightarrow\ \frac{\partial J}{\partial z} = \hat y - t \]
+          This is the two-class version of 1.4. Numerically \(\hat y - t = 0.5111\), so \(\partial J/\partial w_{ya} = 0.5111\cdot(-0.5037) = -0.2574\) and \(\partial J/\partial b_y = 0.5111\).</li>
+        <li>\(\partial J/\partial a_3 = (\hat y - t)\,w_{ya} = 0.5111\cdot 1.5 = 0.7667\).</li>
+        <li>The derivative of tanh is \(1-a^2\): \(1-a_3^2 = 0.7463\), \(1-a_2^2 = 0.4481\), \(1-a_1^2 = 0.4200\). Going back one step multiplies by \(w_{aa}\) and by the slope there:
+          \[ \begin{aligned} d_3 &= 0.7667\cdot 0.7463 = 0.5722\\ d_2 &= d_3\cdot w_{aa}\cdot(1-a_2^2) = 0.5722\cdot0.6\cdot0.4481 = 0.1538\\ d_1 &= d_2\cdot w_{aa}\cdot(1-a_1^2) = 0.1538\cdot0.6\cdot0.4200 = 0.0388 \end{aligned} \]</li>
+        <li>The same weight is used at every step, so its gradient adds up one contribution per step: \(d_t\) times the input that weight carried at step \(t\).
+          \[ \begin{aligned} \frac{\partial J}{\partial w_{aa}} &= d_3a_2 + d_2a_1 + d_1a_0 = 0.4251 + 0.1171 + 0 = 0.5422\\ \frac{\partial J}{\partial w_{ax}} &= d_3x_3 + d_2x_2 + d_1x_1 = -0.5722 + 0.0769 + 0.0388 = -0.4565\\ \frac{\partial J}{\partial b_a} &= d_3 + d_2 + d_1 = 0.7647 \end{aligned} \]
+          Notice how the contributions shrink going back in time (0.57, 0.15, 0.04): the first word, “great”, barely influences the update. That is 3.3 in miniature.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 3.3 -->
+  <div class="part" id="q3-3" data-pts="0.75" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.3</span>Vanishing gradients</h3></div>
+    <ol class="items" type="a">
+      <li>Compute \(\partial a_3/\partial a_1\).</li>
+      <li><span class="show">Show that, for this network and whatever the inputs, \(|\partial a_T/\partial a_1| \le 0.6^{\,T-1}\)</span>. Evaluate it for a 30-word review and explain the consequence, for instance when the first word is “not”.</li>
+      <li>What could happen instead if \(w_{aa} = 3\)?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\(\partial a_3/\partial a_1 = [w_{aa}(1-a_3^2)]\cdot[w_{aa}(1-a_2^2)] = (0.6\cdot0.7463)(0.6\cdot0.4481) = 0.4478\cdot0.2688 = 0.1204\).</li>
+        <li>Each factor is \(w_{aa}(1-a_t^2)\) with \(0 < 1-a_t^2 \le 1\), so its size is at most 0.6. The chain from \(a_1\) to \(a_T\) has \(T-1\) factors, hence the bound. For \(T = 30\): \(0.6^{29} \approx 3.7\times10^{-7}\). The error at the end of the review sends almost nothing back to the first word. A leading “not” that flips the meaning cannot be learned: the network fails at long-term dependencies.</li>
+        <li>Factors can then be as large as 3 (as long as tanh is not saturated). Their product can grow exponentially, so the gradients <b>explode</b>, the weights change wildly and training diverges. When tanh saturates, the factors fall back below 1, so the same network can swing between both problems.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="context">
+    <p class="sub">Part B · An LSTM that must remember, then forget</p>
+    <p>A language model has to remember that the subject of the sentence is plural, to write “are” rather than “is” several words later. This fact is stored in the cell state of an LSTM cell with hidden size 1, which starts with \(h_0 = 0\) and \(C_0 = 1.5\). It reads \(x_1 = 0.5\) (another word of the sentence), then \(x_2 = -1\) (a full stop, which ends the sentence). Each gate looks at \(h_{t-1}\) and \(x_t\):</p>
+    <div class="tablewrap">
+      <table class="spec">
+        <thead><tr><th>Gate</th><th>Activation</th><th>Weight on \(h_{t-1}\)</th><th>Weight on \(x_t\)</th><th>Bias</th></tr></thead>
+        <tbody>
+          <tr><td>forget \(f\)</td><td>σ</td><td>0.5</td><td>2</td><td>0.5</td></tr>
+          <tr><td>input \(i\)</td><td>σ</td><td>1</td><td>1</td><td>−1</td></tr>
+          <tr><td>candidate \(\tilde C\)</td><td>tanh</td><td>−1</td><td>1</td><td>0</td></tr>
+          <tr><td>output \(o\)</td><td>σ</td><td>1</td><td>0.5</td><td>0.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3.4 -->
+  <div class="part" id="q3-4" data-pts="1.5" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.4</span>Two steps of an LSTM</h3></div>
+    <ol class="items" type="a">
+      <li>Step 1: compute the four gate values, then \(C_1\) and \(h_1\). <span class="show">Show that \(C_1 \approx 1.4008\) and \(h_1 \approx 0.6014\)</span>.</li>
+      <li>Step 2: compute \(C_2\) and \(h_2\). What happened to the stored fact, which gate did it, and is that what we want here?</li>
+      <li>Compute the derivative of \(C_2\) with respect to \(C_0\) along the cell-state path only, and compare it with \(\partial a_3/\partial a_1\) from 3.3. The LSTM is barely better on these two steps. Explain why, and what still makes its memory fundamentally different from the RNN’s.</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>With \(h_0 = 0\), only the input weights and biases matter:
+          \[ \begin{aligned} f_1 &= \sigma(2\cdot0.5+0.5) = \sigma(1.5) = 0.8176, & i_1 &= \sigma(0.5-1) = \sigma(-0.5) = 0.3775\\ \tilde C_1 &= \tanh(0.5) = 0.4621, & o_1 &= \sigma(0.25+0.5) = \sigma(0.75) = 0.6792\\ C_1 &= f_1C_0 + i_1\tilde C_1 = 0.8176\cdot1.5 + 0.3775\cdot0.4621 = 1.4008\\ h_1 &= o_1\tanh(C_1) = 0.6792\cdot0.8855 = 0.6014 \end{aligned} \]</li>
+        <li>\[ \begin{aligned} f_2 &= \sigma(0.5\cdot0.6014 - 2 + 0.5) = \sigma(-1.1993) = 0.2316, & i_2 &= \sigma(0.6014 - 1 - 1) = \sigma(-1.3986) = 0.1980\\ \tilde C_2 &= \tanh(-0.6014 - 1) = \tanh(-1.6014) = -0.9219, & o_2 &= \sigma(0.6014 - 0.5 + 0.5) = \sigma(0.6014) = 0.6460\\ C_2 &= 0.2316\cdot1.4008 + 0.1980\cdot(-0.9219) = 0.3244 - 0.1826 = 0.1419\\ h_2 &= 0.6460\cdot\tanh(0.1419) = 0.6460\cdot0.1409 = 0.0910 \end{aligned} \]
+          The memory has been wiped: \(C\) drops from 1.40 to 0.14. The <b>forget gate</b> closed (0.23) because the input was the full stop. That is what we want: the sentence is over, so the subject’s number no longer matters.</li>
+        <li>Along the cell state, each step only multiplies by the forget gate: \(\partial C_2/\partial C_0 = f_1f_2 = 0.8176\cdot0.2316 = 0.1894\), against 0.1204 for the RNN. It is barely better because the gate <b>chose</b> to forget at step 2. At step 1, where the fact was still needed, the factor was 0.82, against 0.27 to 0.45 per step for the RNN. The difference: the RNN’s factor \(w_{aa}(1-a^2)\) is set by one fixed weight and the tanh slope, so it can never exceed 0.6 here, whatever the data. The LSTM’s factor is recomputed from the input at every step, and the cell is updated by <b>addition</b> rather than squashed through a weight and a tanh. The network can therefore hold it near 1 for as long as the information is needed, and drop it when it is not.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 3.5 -->
+  <div class="part" id="q3-5" data-pts="0.5" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.5</span>Real-size recurrent layers</h3></div>
+    <ol class="items" type="a">
+      <li>A real model uses word embeddings of dimension 50 and hidden size 100. <span class="show">Show that an LSTM layer has 60,400 parameters (biases included) and that this is exactly four times a vanilla RNN layer of the same size.</span></li>
+      <li>How many would a GRU layer have, biases included?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>A vanilla layer: \(100\cdot100\) recurrent weights \(+\ 100\cdot50\) input weights \(+\ 100\) biases \(= 10{,}000+5{,}000+100 = 15{,}100\). An LSTM has four such blocks (forget, input, candidate, output), each looking at \([h_{t-1}, x_t]\): \(4\cdot15{,}100 = 60{,}400\).</li>
+        <li>Three blocks (update, reset, candidate): \(3\cdot15{,}100 = 45{,}300\). The slide’s GRU equations have no biases, which would give \(3\cdot15{,}000 = 45{,}000\).</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="context">
+    <p class="sub">Part C · Attention in translation</p>
+    <p>A translation model reads the French sentence “le chat dort”. Its encoder produced \(h_1 = (1, 1, 0)\) for “le”, \(h_2 = (0, 2, 1)\) for “chat” and \(h_3 = (1, 0, 2)\) for “dort”. The decoder has already written “the”, and its current state is \(s = (0, 1, 0.5)\). The score is the dot product.</p>
+  </div>
+
+  <!-- 3.6 -->
+  <div class="part" id="q3-6" data-pts="1" data-prob="3">
+    <div class="part-head"><h3><span class="pn">3.6</span>Attention weights and context</h3></div>
+    <ol class="items" type="a">
+      <li>Compute the three scores, the attention weights and the context vector. <span class="show">Show that \(\alpha_2 \approx 0.6914\)</span>. Which French word is the decoder looking at, and which English word is it probably about to write?</li>
+      <li>Recompute the weights with the scores divided by \(\sqrt 3\). What changes, and why do Transformers do this?</li>
+      <li>Why does attention help with long sentences, compared with a plain encoder–decoder?</li>
+    </ol>
+    <div class="sol" hidden>
+      <span class="eyebrow">Solution</span>
+      <ol type="a">
+        <li>\[ \begin{aligned} e &= (s\cdot h_1,\ s\cdot h_2,\ s\cdot h_3) = (0+1+0,\ 0+2+0.5,\ 0+0+1) = (1,\ 2.5,\ 1)\\ e^{e} &= (2.7183,\ 12.1825,\ 2.7183),\quad \text{sum } 17.6191\\ \alpha &= (0.1543,\ 0.6914,\ 0.1543)\\ c &= 0.1543\,h_1 + 0.6914\,h_2 + 0.1543\,h_3 = (0.3086,\ 1.5372,\ 1.0000) \end{aligned} \]
+          The decoder looks mostly at “chat”, so it is about to write “cat”. The softmax is over the scores of the one decoder state against all encoder states, and the context is a weighted sum of the encoder states.</li>
+        <li>Scaled scores \((0.5774,\ 1.4434,\ 0.5774)\) give \(\alpha = (0.2284,\ 0.5431,\ 0.2284)\): flatter weights. Dot products grow with the dimension \(d\), and large scores push the softmax towards one-hot weights with tiny gradients. Dividing by \(\sqrt d\) keeps it in a range where it still learns.</li>
+        <li>A plain encoder–decoder squeezes the whole sentence into one fixed-size context vector, a bottleneck that loses information on long inputs. With attention, the decoder builds a new context at every output word and can look straight at the relevant source words, however far back they are. That is how it aligns “cat” with “chat”.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HAND IN ================= -->
+<section class="noprint" id="submit" aria-labelledby="submitH">
+  <div class="card handin">
+    <span class="eyebrow">End of the paper</span>
+    <h2 id="submitH">Hand in</h2>
+    <p class="muted">When you submit, the timer stops and the solutions to every part appear. Then you mark each part yourself. This attempt cannot be reopened.</p>
+    <button class="btn primary" type="button" id="submitBtn">Submit the exam</button>
+    <div class="confirm" id="confirm" hidden>
+      <p>Submit now? You will not be able to change this attempt.</p>
+      <div class="row">
+        <button class="btn primary" type="button" id="confirmYes">Submit and show the solutions</button>
+        <button class="btn" type="button" id="confirmNo">Keep working</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCORE ================= -->
+<section class="noprint" id="score" aria-labelledby="scoreH" hidden>
+  <div class="scorecard">
+    <span class="eyebrow">Your self-marked result</span>
+    <h2 class="big" id="scoreH" tabindex="-1"><b id="sNum">0</b><span>/ 20</span></h2>
+    <p id="sNote" class="muted"></p>
+    <ol class="byprob" id="byProb"></ol>
+    <div class="row">
+      <button class="btn" type="button" id="newAttempt">Start a new attempt</button>
+    </div>
+    <p class="small muted">A new attempt clears your marks and resets the timer.</p>
+  </div>
+</section>
+
+</div>
+<footer>Made from the MIAI 504 lecture slides (Lectures 1–7, Dr. Zein Al Abidin Ibrahim, Lebanese University, 2026/2027). Every number was checked by computer; the methods and notation are the slides’.</footer>
+</main>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const KEY="dl-exam-v2", DURATION=90*60*1000;
+  const fresh=()=>({marks:{},submitted:false,usedMs:0,timer:{left:DURATION,t0:null}});
+  let S=fresh();
+  try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&v.marks&&v.timer)S=Object.assign(fresh(),v);}catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+  const fmtPts=v=>String(Math.round(v*1000)/1000);
+  const parts=$$(".part");
+  const PROBS=[{n:1,name:"A small CNN, end to end"},{n:2,name:"Designing a photo classifier"},{n:3,name:"Reading sequences"}];
+  /* Self-marking is per part, but the points stay hidden: a part counts fully, half or not at all. */
+  const MARKS=[["full","Got it",1],["half","Partly",0.5],["zero","Missed",0]];
+
+  /* ---------- solutions and self-marking ---------- */
+  parts.forEach(p=>{
+    const id=p.id, sol=p.querySelector(".sol"), num=p.querySelector(".pn").textContent;
+    const grp=document.createElement("div"); grp.className="markgrp noprint"; grp.setAttribute("role","group");
+    grp.setAttribute("aria-label","Mark part "+num);
+    grp.innerHTML='<span>Your mark:</span>'+MARKS.map(([k,l,f])=>`<button type="button" class="mk ${k}" data-f="${f}" aria-pressed="false">${l}</button>`).join("");
+    grp.addEventListener("click",e=>{const b=e.target.closest(".mk"); if(!b)return;
+      const f=+b.dataset.f; if(S.marks[id]===f)delete S.marks[id]; else S.marks[id]=f; save(); paint(); tally();});
+    sol.after(grp);
+    function paint(){
+      sol.hidden=!S.submitted; grp.hidden=!S.submitted;
+      grp.querySelectorAll(".mk").forEach(b=>b.setAttribute("aria-pressed",S.marks[id]!==undefined&&+b.dataset.f===S.marks[id]));
+    }
+    p._paint=paint;
+  });
+
+  function tally(){
+    let tot=0,marked=0;
+    const by=PROBS.map(pr=>({...pr,got:0,max:0}));
+    parts.forEach(p=>{const b=by[+p.dataset.prob-1],pts=+p.dataset.pts; b.max+=pts;
+      if(S.marks[p.id]!==undefined){b.got+=pts*S.marks[p.id]; tot+=pts*S.marks[p.id]; marked++;}});
+    $("#sNum").textContent=fmtPts(tot);
+    $("#marksTxt").textContent=S.submitted&&marked?fmtPts(tot)+" / 20":"";
+    $("#sNote").textContent=marked===parts.length?"All "+parts.length+" parts marked."
+      :marked?`${marked} of ${parts.length} parts marked. Unmarked parts count as zero.`
+      :"Nothing marked yet. Read each solution, then mark the part: got it, partly or missed.";
+    $("#byProb").innerHTML=by.map(b=>`<li><span>Problem ${b.n} · ${b.name}</span><b>${fmtPts(b.got)} / ${b.max}</b>`+
+      `<span class="meter"><i style="width:${b.max?100*b.got/b.max:0}%"></i></span></li>`).join("");
+  }
+
+  /* ---------- timer ---------- */
+  const tb=$("#timerBtn");
+  const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+  const PAUSE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>';
+  const left=()=>S.timer.t0?S.timer.left-(Date.now()-S.timer.t0):S.timer.left;
+  function fmt(ms){const neg=ms<0,s=Math.floor(Math.abs(ms)/1000),m=Math.floor(s/60);
+    return (neg?"+":"")+String(m).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+  function hms(ms){const s=Math.round(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);
+    return h?`${h} h ${String(m).padStart(2,"0")} min`:`${m} min ${String(s%60).padStart(2,"0")} s`;}
+  function paintTimer(){const l=left(),run=!!S.timer.t0;
+    tb.disabled=S.submitted;
+    tb.innerHTML=(S.submitted?"":run?PAUSE:PLAY)+"<span>"+fmt(l)+"</span>";
+    tb.classList.toggle("run",run&&l>=0); tb.classList.toggle("over",l<0);
+    tb.setAttribute("aria-label",S.submitted?"Timer stopped at submission":(run?"Pause":"Start")+" the timer, "+(l<0?"over time by "+fmt(l).slice(1):fmt(l)+" left"));}
+  function start(){if(!S.timer.t0&&!S.submitted){S.timer.t0=Date.now(); save(); paintTimer();}}
+  function pause(){if(S.timer.t0){S.timer.left=left(); S.timer.t0=null; save(); paintTimer();}}
+  tb.addEventListener("click",()=>S.timer.t0?pause():start());
+  const smooth=()=>matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth";
+  $("#startBtn").addEventListener("click",()=>{start(); $("#P1").scrollIntoView({behavior:smooth()});});
+  setInterval(()=>{if(S.timer.t0)paintTimer();},1000);
+
+  /* ---------- submit and new attempt ---------- */
+  function paintAll(){
+    parts.forEach(p=>p._paint());
+    $("#submit").hidden=S.submitted; $("#score").hidden=!S.submitted; $("#doneNote").hidden=!S.submitted;
+    $("#startBtn").hidden=S.submitted;
+    $("#doneTxt").innerHTML=`Time used: ${hms(S.usedMs)}. The solution to every part is now shown under it. Mark each part “got it”, “partly” or “missed”; your total is at <a href="#score">the end of the paper</a>.`;
+    paintTimer(); tally();
+  }
+  const submitBtn=$("#submitBtn"),confirm=$("#confirm");
+  submitBtn.addEventListener("click",()=>{confirm.hidden=false; submitBtn.hidden=true; $("#confirmYes").focus();});
+  $("#confirmNo").addEventListener("click",()=>{confirm.hidden=true; submitBtn.hidden=false; submitBtn.focus();});
+  $("#confirmYes").addEventListener("click",()=>{
+    pause(); S.usedMs=DURATION-S.timer.left; S.submitted=true; save();
+    confirm.hidden=true; submitBtn.hidden=false; paintAll();
+    $("#doneNote").scrollIntoView({behavior:smooth()});
+  });
+  const newBtn=$("#newAttempt");
+  newBtn.addEventListener("click",()=>{
+    if(!newBtn.classList.contains("armed")){newBtn.classList.add("armed"); newBtn.textContent="Click again to clear everything";
+      setTimeout(()=>{newBtn.classList.remove("armed"); newBtn.textContent="Start a new attempt";},4000); return;}
+    S=fresh(); save(); newBtn.classList.remove("armed"); newBtn.textContent="Start a new attempt";
+    paintAll(); window.scrollTo({top:0,behavior:smooth()});
+  });
+  paintAll();
+})();
+
+/* ================= THEME TOGGLE ================= */
+(function(){
+  const root=document.documentElement,mq=matchMedia("(prefers-color-scheme: dark)");
+  const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  const current=()=>root.getAttribute("data-theme")||(mq.matches?"dark":"light");
+  function paint(){const dark=current()==="dark",label=dark?"Switch to light mode":"Switch to dark mode";
+    document.querySelectorAll(".theme-toggle").forEach(b=>{b.innerHTML=dark?SUN:MOON;b.setAttribute("aria-label",label);b.title=label;});}
+  document.querySelectorAll(".theme-toggle").forEach(b=>b.addEventListener("click",()=>{
+    const next=current()==="dark"?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("dl-theme",next);}catch(e){}paint();}));
+  mq.addEventListener("change",paint);
+  paint();
+})();
+</script>
+</body>
+</html>
