@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ "Register" if mode == "register" else "Log in" }}{% endblock %}
+{% block content %}
+  <h1>{{ "Create an account" if mode == "register" else "Log in" }}</h1>
+  <form method="post" action="{{ url_for(mode) }}">
+    <label for="username">Username</label>
+    <input id="username" name="username" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password"
+           autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" required>
+    <button type="submit">{{ "Register" if mode == "register" else "Log in" }}</button>
+  </form>
+  {% if mode == "register" %}
+    <p class="alt">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  {% else %}
+    <p class="alt">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+  {% endif %}
+{% endblock %}
