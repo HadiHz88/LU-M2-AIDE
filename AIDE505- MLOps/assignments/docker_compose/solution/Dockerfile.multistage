@@ -1,0 +1,20 @@
+# ---------- Stage 1: build the static files ----------
+FROM node:26-alpine AS builder
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build            # outputs plain HTML/CSS/JS to /app/dist
+
+# ---------- Stage 2: serve them with nginx ----------
+FROM nginx:stable-alpine
+
+# Our config: serve the files and forward /api/ to the backend.
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Only the built files are copied. Node, npm and node_modules stay behind.
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+# nginx's default command starts the server; no CMD needed.

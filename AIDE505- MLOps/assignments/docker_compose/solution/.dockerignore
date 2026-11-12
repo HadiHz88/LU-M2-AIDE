@@ -1,0 +1,15 @@
+# Never copy these into the frontend image: they are rebuilt inside it, or not needed.
+node_modules
+dist
+test-results
+playwright-report
+tests
+playwright.config.js
+backend
+docker-compose.yml
+.git
+.env
+.env.example
+*.md
+Dockerfile*
+.dockerignore

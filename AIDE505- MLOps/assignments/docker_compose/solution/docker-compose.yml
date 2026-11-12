@@ -1,0 +1,41 @@
+# Three containers that work together: database, backend API, frontend.
+# Start everything:  docker compose up --build
+# The database password comes from .env (exercise 1): cp .env.example .env
+# Project name: containers are node-auth-app-db-1, ..., volume node-auth-app_db-data.
+name: node-auth-app
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
+      POSTGRES_DB: auth
+    volumes:
+      - db-data:/var/lib/postgresql # named volume: data survives container restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d auth"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgres://app:${POSTGRES_PASSWORD}@db:5432/auth
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy # wait until Postgres accepts connections
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.multistage
+    ports:
+      - "5173:80" # host:container. Only the frontend is reachable from your machine.
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.DS_Store
+# Exercise 1: secrets stay out of Git
+.env
