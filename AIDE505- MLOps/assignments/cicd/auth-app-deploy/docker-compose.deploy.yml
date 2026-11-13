@@ -1,0 +1,42 @@
+# Runs the app from the images CI pushed to Docker Hub. Nothing is built on this machine.
+#   docker compose -f docker-compose.deploy.yml pull
+#   docker compose -f docker-compose.deploy.yml up -d
+# DOCKERHUB_USERNAME and POSTGRES_PASSWORD come from .env next to this file (cp .env.example .env).
+name: auth-app-deploy
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: auth
+    volumes:
+      - db-data:/var/lib/postgresql # named volume: users survive every redeploy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d auth"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    image: ${DOCKERHUB_USERNAME:?set DOCKERHUB_USERNAME in .env}/auth-app:backend
+    environment:
+      DATABASE_URL: postgres://app:${POSTGRES_PASSWORD}@db:5432/auth
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/auth-app:frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
