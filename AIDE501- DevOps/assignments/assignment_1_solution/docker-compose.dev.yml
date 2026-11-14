@@ -1,0 +1,12 @@
+# Local development helper: run ONLY Postgres in Docker and publish it on
+# localhost so `npm run dev` (backend) can reach it.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+#
+# Bound to 127.0.0.1 so the database is not reachable from your network.
+# If a local Postgres already uses 5432, set DB_PORT=5433 in .env and use
+# that port in backend/.env as well.
+services:
+  db:
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"

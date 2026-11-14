@@ -1,0 +1,62 @@
+# Campus Events API — run with VS Code "REST Client" or a JetBrains IDE.
+# Change @host to http://<EC2_PUBLIC_IP> to hit the AWS deployment.
+@host = http://localhost:8080
+@json = application/json
+
+### Health (API + database)
+GET {{host}}/api/health
+
+### Stats
+GET {{host}}/api/stats
+
+### List events, with search and filter
+GET {{host}}/api/events?q=docker&category=Workshop
+
+### One event
+GET {{host}}/api/events/1
+
+### Register
+POST {{host}}/api/auth/register
+Content-Type: {{json}}
+
+{ "name": "Alice", "email": "alice@example.com", "password": "supersecret" }
+
+### Login (the token is saved for the requests below)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: {{json}}
+
+{ "email": "alice@example.com", "password": "supersecret" }
+
+### Who am I?
+GET {{host}}/api/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### Create an event (requires a token)
+# @name created
+POST {{host}}/api/events
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: {{json}}
+
+{
+  "title": "API demo",
+  "description": "Created from api.http",
+  "category": "Talk",
+  "location": "Room 1",
+  "starts_at": "2026-12-01T10:00:00Z",
+  "capacity": 10
+}
+
+### Reserve / cancel a seat (toggle)
+POST {{host}}/api/events/{{created.response.body.id}}/rsvp
+Authorization: Bearer {{login.response.body.token}}
+
+### Delete it (only the organizer may)
+DELETE {{host}}/api/events/{{created.response.body.id}}
+Authorization: Bearer {{login.response.body.token}}
+
+### No token -> 401
+POST {{host}}/api/events
+Content-Type: {{json}}
+
+{}

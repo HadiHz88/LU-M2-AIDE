@@ -1,0 +1,81 @@
+# Bonus: every push to main builds both images, scans them with Trivy, and
+# (only if the scan passes) publishes multi-arch images to GHCR.
+#
+# Tags produced:
+#   push to main  -> ghcr.io/<owner>/campus-events:<component>-sha-<7 chars>  + <component>-latest
+#   git tag v1.2.0 -> ghcr.io/<owner>/campus-events:<component>-1.2.0         + <component>-latest
+#
+# No secret to create: GITHUB_TOKEN is issued per run and expires with it.
+name: Build, scan and publish to GHCR
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Least privilege for the automatic GITHUB_TOKEN: read the code, write packages.
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [backend, frontend]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compute image name and version
+        id: meta
+        run: |
+          # GHCR image paths must be lowercase; ${VAR,,} lowercases in bash.
+          echo "repo=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/campus-events" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-qemu-action@v4 # emulates arm64 on the x86 runner
+      - uses: docker/setup-buildx-action@v4
+
+      # 1) Build once for amd64 and load it into the runner's Docker so Trivy can scan it.
+      - name: Build for scanning
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.component }}
+          load: true
+          tags: scan-target:${{ matrix.component }}
+          cache-from: type=gha,scope=${{ matrix.component }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+
+      # 2) Scan BEFORE publishing. A fixable HIGH/CRITICAL CVE fails the job and nothing is pushed.
+      - name: Scan image with Trivy
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.76.1 image --skip-version-check \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            scan-target:${{ matrix.component }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3) Build for both architectures (layers come from the cache above) and push.
+      - name: Build multi-arch and push
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.component }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.repo }}:${{ matrix.component }}-${{ steps.meta.outputs.version }}
+            ${{ steps.meta.outputs.repo }}:${{ matrix.component }}-latest
+          cache-from: type=gha,scope=${{ matrix.component }}

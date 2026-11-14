@@ -1,0 +1,65 @@
+# Deployment compose file for the Linux VM and the EC2 instance.
+# Nothing is built here: images are PULLED from a registry.
+#
+# Which registry? Pass one of the files in registries/:
+#
+#   docker compose -f docker-compose.deploy.yml \
+#     --env-file .env --env-file registries/ghcr.env pull
+#   docker compose -f docker-compose.deploy.yml \
+#     --env-file .env --env-file registries/ghcr.env up -d
+#
+# Switching from Docker Hub to GHCR to GitLab = changing that one file name.
+name: campus-events
+
+x-logging: &logging # YAML anchor, reused below
+  driver: json-file
+  options:
+    max-size: "10m" # rotate logs so they never fill the (small) EC2 disk
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: campus_events
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d campus_events"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    logging: *logging
+    mem_limit: 256m
+
+  backend:
+    # One repository per registry, the component is encoded in the tag
+    # (see README "Image naming"): <IMAGE_REPO>:backend-<TAG>
+    image: ${IMAGE_REPO:?pass --env-file registries/<name>.env}:backend-${TAG:-1.0.0}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://app:${POSTGRES_PASSWORD}@db:5432/campus_events
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+    logging: *logging
+    mem_limit: 256m
+
+  frontend:
+    image: ${IMAGE_REPO}:frontend-${TAG:-1.0.0}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-80}:8080" # http://EC2_PUBLIC_IP -> port 80
+    depends_on:
+      backend:
+        condition: service_healthy
+    logging: *logging
+    mem_limit: 64m
+
+volumes:
+  db-data:

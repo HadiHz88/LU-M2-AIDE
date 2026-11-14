@@ -1,0 +1,10 @@
+# Keep the build context small and keep secrets out of the image.
+node_modules
+npm-debug.log*
+.env
+.env.*
+Dockerfile
+.dockerignore
+.git
+**/.DS_Store
+**/._*

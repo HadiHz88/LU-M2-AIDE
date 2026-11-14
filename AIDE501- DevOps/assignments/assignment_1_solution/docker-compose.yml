@@ -1,0 +1,47 @@
+# Campus Events: three services, built from source on your machine.
+#
+#   cp .env.example .env          # then put real secrets in .env
+#   docker compose up --build -d
+#   open http://localhost:8080
+#
+# Only the frontend publishes a port. The backend and the database are
+# reachable only from inside the compose network (by service name).
+name: campus-events
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env (see .env.example)}
+      POSTGRES_DB: campus_events
+    volumes:
+      - db-data:/var/lib/postgresql # named volume: data survives `docker compose down`
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d campus_events"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    image: campus-events-backend:${TAG:-dev} # name the locally built image
+    environment:
+      DATABASE_URL: postgres://app:${POSTGRES_PASSWORD}@db:5432/campus_events
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (see .env.example)}
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy # wait until Postgres accepts connections
+
+  frontend:
+    build: ./frontend
+    image: campus-events-frontend:${TAG:-dev}
+    ports:
+      - "${WEB_PORT:-8080}:8080" # host:container
+    depends_on:
+      backend:
+        condition: service_healthy # nginx needs "backend" to resolve at startup
+
+volumes:
+  db-data:
