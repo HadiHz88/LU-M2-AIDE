@@ -3,6 +3,18 @@
 Testing, load testing, containers, Compose, end-to-end tests and CI/CD for a small
 registration and login app.
 
+## Lectures
+
+The slides keep the teacher's numbering. Lectures 2, 3 and 6 are not here yet.
+
+| # | Lecture | Labs |
+| --- | --- | --- |
+| 01 | What is DevOps, what is MLOps | |
+| 04 | Version control | |
+| 05 | Software testing, with 5.1 the 12-factor app's config | 01, 02, 03 |
+| 07 | Docker and containers | 04, 05 |
+| 08 | CI/CD | 06 |
+
 ## Labs
 
 Each lab builds on the one before it, so do them in order.
