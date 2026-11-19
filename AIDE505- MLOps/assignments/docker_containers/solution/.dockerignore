@@ -1,9 +1,0 @@
-# Never copy these into the image: they are rebuilt inside it, or not needed.
-node_modules
-dist
-test-results
-playwright-report
-.git
-*.md
-Dockerfile*
-.dockerignore
