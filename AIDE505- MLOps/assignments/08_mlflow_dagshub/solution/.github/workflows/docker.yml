@@ -1,0 +1,71 @@
+name: Build the API image
+
+# Runs on every push to main, and by hand (Actions > Build the API image > Run workflow) after a
+# new model was registered on DagsHub, since registering a model changes no file here.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write # push the image to ghcr.io
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DAGSHUB_USER: ${{ vars.DAGSHUB_USER }}
+      DAGSHUB_REPO: ${{ vars.DAGSHUB_REPO || github.event.repository.name }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the DagsHub settings
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          [ -n "$DAGSHUB_USER" ] || { echo "::error::Set the repository variable DAGSHUB_USER"; exit 1; }
+          [ -n "$DAGSHUB_TOKEN" ] || { echo "::error::Set the repository secret DAGSHUB_TOKEN"; exit 1; }
+          # Image names must be lowercase; the repository owner is not.
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build the image (downloads the latest model from DagsHub)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          build-args: |
+            MLFLOW_TRACKING_URI=https://dagshub.com/${{ env.DAGSHUB_USER }}/${{ env.DAGSHUB_REPO }}.mlflow
+            MLFLOW_TRACKING_USERNAME=${{ env.DAGSHUB_USER }}
+            CACHE_BUST=${{ github.run_id }}-${{ github.run_attempt }}
+          secrets: |
+            dagshub_token=${{ secrets.DAGSHUB_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test POST /predict
+        run: |
+          docker run -d --name api -p 8000:8000 "$IMAGE:latest"
+          for _ in $(seq 60); do
+            if curl -sf -X POST localhost:8000/predict -H 'Content-Type: application/json' \
+                 -d @app/sample.json -o response.json; then break; fi
+            sleep 1
+          done
+          cat response.json
+          # app/sample.json is a handwritten 6 from the test set.
+          [ "$(jq .digit response.json)" = 6 ] || { docker logs api; exit 1; }
+          echo "Model served: $(jq -r '.model_name + " version " + .model_version' response.json)" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push the image to ghcr.io
+        run: docker push --all-tags "$IMAGE"

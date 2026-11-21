@@ -1,7 +1,8 @@
 # AIDE505 - MLOps
 
 Testing, load testing, containers, Compose, end-to-end tests and CI/CD for a small
-registration and login app.
+registration and login app, then data versioning with DVC and experiment tracking with MLflow
+for a small machine learning project.
 
 ## Lectures
 
@@ -17,7 +18,8 @@ The slides keep the teacher's numbering. Lectures 2, 3 and 6 are not here yet.
 
 ## Labs
 
-Each lab builds on the one before it, so do them in order.
+Labs 01 to 06 build on each other, so do them in order. Labs 07 and 08 start from a separate
+project: a notebook and its dataset.
 
 | # | Lab | Handout | Starts from |
 | --- | --- | --- | --- |
@@ -27,12 +29,15 @@ Each lab builds on the one before it, so do them in order.
 | 04 | Docker containers | `DOCKER_GUIDE.pdf` | `starter.zip` |
 | 05 | Docker Compose: frontend, backend, database | `COMPOSE_GUIDE.pdf` | lab 04's `starter.zip` |
 | 06 | CI/CD with GitHub Actions | `CICD_EXERCISE.pdf` | the finished lab 05 app |
+| 07 | Data versioning (DVC, Azure Blob Storage) | `DVC-with-Azure-Blob-Storage.pdf` | `starter.zip` |
+| 08 | DVC and MLflow with DagsHub, a FastAPI model server built in CI | `15-MLFlow.pdf` | `starter.zip` |
 
 Every lab folder in `assignments/` holds:
 
 - the handout PDF;
 - `starter.zip`, the project the teacher gave, when there is one;
-- `solution/`, only the files the solution adds or changes, never the whole project again;
+- `solution/`, only the files the solution adds or changes, never the whole project again (lab 07
+  has none: its guide holds every command);
 - `SOLUTION_GUIDE.md`, the solution step by step, in the order of the handout.
 
 To get a finished project, unzip the starting point and copy `solution/` over it. The
