@@ -15,6 +15,7 @@ dependencies = [
     "requests",
     "scikit-learn>=1.9.1",
     "spacy",
+    "tensorflow>=2.21.0",
     "wordcloud",
 ]
 
