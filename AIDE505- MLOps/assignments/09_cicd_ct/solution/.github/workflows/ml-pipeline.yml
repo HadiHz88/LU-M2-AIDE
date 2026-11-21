@@ -1,0 +1,90 @@
+name: Bank Marketing CI/CD/CT
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Choose the operation explicitly so a dataset run cannot trigger rollback.
+      operation:
+        description: Run the pipeline or roll back production
+        type: choice
+        required: true
+        default: pipeline
+        options:
+          - pipeline
+          - rollback
+      # A version selection simulates a processed data delivery.
+      dataset_version:
+        description: Processed dataset version for a pipeline run
+        type: choice
+        required: true
+        default: v1
+        options:
+          - v1
+          - v2
+          - v3
+      rollback_version:
+        description: Previously approved MLflow model version for rollback
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+# Serialize workflow operations that can update the production model.
+concurrency:
+  group: bank-marketing-production
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MLFLOW_TRACKING_URI: ${{ vars.MLFLOW_TRACKING_URI }}
+      MLFLOW_TRACKING_USERNAME: ${{ vars.MLFLOW_TRACKING_USERNAME }}
+      RUN_OUTPUT_DIR: results
+    steps:
+      - name: Check out the application
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install application dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Evaluate, train and promote when eligible
+        if: ${{ inputs.operation == 'pipeline' }}
+        env:
+          # Pass the dispatch input as an environment variable and quote it in the shell.
+          DATASET_VERSION: ${{ inputs.dataset_version }}
+          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python pipeline.py --dataset-version "$DATASET_VERSION"
+
+      - name: Verify the deployed model can make predictions
+        if: ${{ inputs.operation == 'pipeline' }}
+        env:
+          DATASET_VERSION: ${{ inputs.dataset_version }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python predict.py --input ".exercise-data/$DATASET_VERSION/evaluation.csv" --limit 3
+
+      - name: Restore a previously approved version
+        if: ${{ inputs.operation == 'rollback' }}
+        env:
+          TARGET_VERSION: ${{ inputs.rollback_version }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        run: python pipeline.py --rollback "$TARGET_VERSION"
+
+      - name: Upload decision and DVC evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: pipeline-results
+          path: results/
+          if-no-files-found: warn

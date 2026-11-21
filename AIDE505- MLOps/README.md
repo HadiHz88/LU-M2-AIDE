@@ -2,7 +2,8 @@
 
 Testing, load testing, containers, Compose, end-to-end tests and CI/CD for a small
 registration and login app, then data versioning with DVC and experiment tracking with MLflow
-for a small machine learning project.
+for a small machine learning project, and last a CI/CD/CT workflow that retrains, promotes and
+rolls back a classifier.
 
 ## Lectures
 
@@ -19,7 +20,7 @@ The slides keep the teacher's numbering. Lectures 2, 3 and 6 are not here yet.
 ## Labs
 
 Labs 01 to 06 build on each other, so do them in order. Labs 07 and 08 start from a separate
-project: a notebook and its dataset.
+project: a notebook and its dataset. Lab 09 comes with its own application.
 
 | # | Lab | Handout | Starts from |
 | --- | --- | --- | --- |
@@ -31,6 +32,7 @@ project: a notebook and its dataset.
 | 06 | CI/CD with GitHub Actions | `CICD_EXERCISE.pdf` | the finished lab 05 app |
 | 07 | Data versioning (DVC, Azure Blob Storage) | `DVC-with-Azure-Blob-Storage.pdf` | `starter.zip` |
 | 08 | DVC and MLflow with DagsHub, a FastAPI model server built in CI | `15-MLFlow.pdf` | `starter.zip` |
+| 09 | CI/CD/CT: validate, retrain, promote and roll back a model with GitHub Actions | `EXERCISE.pdf` | `starter.zip` |
 
 Every lab folder in `assignments/` holds:
 
