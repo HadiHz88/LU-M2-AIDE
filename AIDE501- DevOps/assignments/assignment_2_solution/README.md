@@ -25,6 +25,9 @@ Everything runs in **one project** (the PDF makes a second fork for AWS; not nee
 | `.gitlab-ci.yml` | The final pipeline (same as `pipelines/13-aws-s3-final.yml`). |
 | `aws/s3-bucket-policy.json` | Public-read bucket policy for the static website. Replace the bucket name. |
 | `aws/iam-s3-deploy-policy.json` | Optional least-privilege alternative to `AmazonS3FullAccess` for the `gitlab` IAM user. |
+| `WORKING-GUIDE.pdf` | Click-by-click guide to follow while working: links, values sheet, every action, full YAML, troubleshooting. |
+| `HANDOFF.md` | Context for continuing in a new session: what is asked, what was decided, what exists. |
+| `tools/` | Generators for `WORKING-GUIDE.pdf` and `recording-script.html` (both read `pipelines/*.yml`). |
 
 The recording script (what to click and say, step by step, with each pipeline ready to copy)
 is [`recording-script.html`](recording-script.html), also published as an artifact:
