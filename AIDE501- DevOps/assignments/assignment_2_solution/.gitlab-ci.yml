@@ -1,0 +1,111 @@
+# Part 3 (branch features/aws, then merge request into main) — FINAL PIPELINE.
+# Same project as Parts 1–2 (instead of the PDF's second fork): the Netlify
+# jobs stay, and a deploy_aws stage pushes the same build/ to an S3 bucket
+# configured for static website hosting.
+#
+# Secret variables (Settings > CI/CD > Variables, Masked): AWS_ACCESS_KEY_ID,
+# AWS_SECRET_ACCESS_KEY, NETLIFY_AUTH_TOKEN. The AWS CLI reads the AWS ones by
+# their exact names. AWS_DEFAULT_REGION is not secret, so it lives here.
+stages:
+  - build
+  - test
+  - deploy_uat
+  - deploy_prod
+  - deploy_aws
+
+variables:
+  VITE_APP_VERSION: $CI_COMMIT_SHORT_SHA
+  NETLIFY_SITE_ID: "REPLACE-WITH-YOUR-SITE-ID"
+  NETLIFY_SITE_NAME: "REPLACE-WITH-YOUR-SITE-NAME"
+  AWS_S3_BUCKET: "REPLACE-WITH-YOUR-BUCKET-NAME"
+  AWS_DEFAULT_REGION: "us-east-1"
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml
+
+netlify_uat:
+  stage: deploy_uat
+  image: node:22-alpine
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  before_script:
+    - npm install -g netlify-cli@27
+    - apk add --no-cache curl
+  script:
+    - netlify --version
+    - netlify status
+    - netlify deploy --alias uat --dir build --no-build
+    - curl -fsS "https://uat--${NETLIFY_SITE_NAME}.netlify.app/" | grep 'GitLab'
+    - echo "End of UAT deployment"
+
+netlify_prod:
+  stage: deploy_prod
+  image: node:22-alpine
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      when: manual
+  before_script:
+    - npm install -g netlify-cli@27
+    - apk add --no-cache curl
+  script:
+    - netlify --version
+    - netlify status
+    - netlify deploy --prod --dir build --no-build
+    - curl -fsS "https://${NETLIFY_SITE_NAME}.netlify.app/" | grep 'GitLab'
+    - echo "End of production deployment"
+
+aws_s3:
+  stage: deploy_aws
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]          # the image's entrypoint is `aws`; GitLab needs a shell
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  needs:
+    - build_website           # start as soon as the build exists (doesn't wait for the manual prod job)
+  script:
+    - aws --version
+    - aws s3 ls
+    - echo "Bucket content BEFORE upload:"
+    - aws s3 ls "s3://$AWS_S3_BUCKET" --recursive
+    - aws s3 sync ./build/ "s3://$AWS_S3_BUCKET" --delete
+    - echo "Bucket content AFTER upload:"
+    - aws s3 ls "s3://$AWS_S3_BUCKET" --recursive
+    - echo "Website -> http://$AWS_S3_BUCKET.s3-website-$AWS_DEFAULT_REGION.amazonaws.com/"
+
+aws_smoke_test:
+  stage: deploy_aws
+  image: alpine
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  needs:
+    - aws_s3
+  script:
+    - wget -qO- "http://$AWS_S3_BUCKET.s3-website-$AWS_DEFAULT_REGION.amazonaws.com/" | grep 'GitLab'
+    - echo "S3 website is up"

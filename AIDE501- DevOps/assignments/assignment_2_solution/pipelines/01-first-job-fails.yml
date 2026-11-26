@@ -1,0 +1,6 @@
+# Part 1, step 1 — first pipeline. FAILS ON PURPOSE: alpine has no node/npm.
+test_npm:
+  image: alpine
+  script:
+    - node --version
+    - npm --version

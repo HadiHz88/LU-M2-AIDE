@@ -1,0 +1,30 @@
+# Part 1, step 7 — unit tests in their own stage: build -> test -> unit (sequential).
+stages:
+  - build
+  - test
+  - unit
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: unit
+  script:
+    - npm ci
+    - npm test

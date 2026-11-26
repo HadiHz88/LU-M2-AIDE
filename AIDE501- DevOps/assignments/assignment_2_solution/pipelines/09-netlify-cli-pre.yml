@@ -1,0 +1,42 @@
+# Part 2, step 1 (branch features/netlify) — install the Netlify CLI in a .pre job.
+# .pre is a built-in stage that always runs first.
+# netlify-cli 27 needs Node >= 22.13, so node:23-slim is fine.
+stages:
+  - build
+  - test
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml
+
+netlify_deploy:
+  stage: .pre
+  image: node:23-slim
+  script:
+    - npm install -g netlify-cli@27
+    - netlify --version

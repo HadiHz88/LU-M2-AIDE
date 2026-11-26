@@ -1,0 +1,58 @@
+# Part 2, step 3 (branch features/netlify) — real deployment + smoke test.
+# Moved to a "deploy" stage so it runs AFTER the build and receives build/.
+# Fixes vs the PDF:
+#   * node:22-alpine, because the PDF's `apk add curl` does not work on the
+#     Debian-based node:23-slim image.
+#   * --no-build: current netlify-cli builds before deploying by default; we
+#     deploy the artifact that build_website already produced.
+#   * the smoke test hits YOUR site, not the professor's.
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  NETLIFY_SITE_ID: "REPLACE-WITH-YOUR-SITE-ID"
+  NETLIFY_SITE_NAME: "REPLACE-WITH-YOUR-SITE-NAME"   # the part before .netlify.app
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml
+
+netlify_deploy:
+  stage: deploy
+  image: node:22-alpine
+  script:
+    - npm install -g netlify-cli@27
+    - netlify --version
+    - apk add --no-cache curl
+    - netlify status
+    - echo $NETLIFY_SITE_ID
+    - netlify deploy --alias uat --dir build --no-build
+    - curl -fsS "https://uat--${NETLIFY_SITE_NAME}.netlify.app/" | grep 'GitLab'
+    - echo "End of deployment"

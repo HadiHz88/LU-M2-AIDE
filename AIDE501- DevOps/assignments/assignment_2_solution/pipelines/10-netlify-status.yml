@@ -1,0 +1,49 @@
+# Part 2, step 2 (branch features/netlify) — configure the CLI with variables.
+# NETLIFY_SITE_ID is not secret, so it lives in the YAML.
+# NETLIFY_AUTH_TOKEN is secret: add it under Settings > CI/CD > Variables
+# (Masked, NOT Protected — this branch is not protected). The CLI reads both
+# variables by their exact names. `netlify status` proves auth + site access.
+stages:
+  - build
+  - test
+
+variables:
+  NETLIFY_SITE_ID: "REPLACE-WITH-YOUR-SITE-ID"
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml
+
+netlify_deploy:
+  stage: .pre
+  image: node:23-slim
+  script:
+    - npm install -g netlify-cli@27
+    - netlify --version
+    - netlify status
+    - echo $NETLIFY_SITE_ID

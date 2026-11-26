@@ -1,0 +1,6 @@
+# Part 1, step 2 — fix: use an image that ships node and npm.
+test_npm:
+  image: node:22
+  script:
+    - node --version
+    - npm --version

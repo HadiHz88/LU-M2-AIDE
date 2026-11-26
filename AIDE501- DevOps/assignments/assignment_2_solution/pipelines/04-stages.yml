@@ -1,0 +1,15 @@
+# Part 1, step 4 — introduce stages and really build the app.
+stages:
+  - build
+  - test
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - ls -la
+    - npm ci
+    - npm run build
+    - ls -la

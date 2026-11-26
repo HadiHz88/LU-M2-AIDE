@@ -1,0 +1,35 @@
+# Part 1, step 8 — unit_tests moved into the test stage, so it runs in PARALLEL
+# with test_artifact. Vitest already writes reports/junit.xml (see vite.config.js);
+# publishing it fills the pipeline's "Tests" tab.
+stages:
+  - build
+  - test
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html
+
+unit_tests:
+  image: node:22-alpine
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: reports/junit.xml

@@ -1,0 +1,7 @@
+# Part 1, step 3 — same job on a much smaller image (~75 MB instead of ~370 MB).
+# Compare the job duration with the previous run.
+test_npm:
+  image: node:23-slim
+  script:
+    - node --version
+    - npm --version

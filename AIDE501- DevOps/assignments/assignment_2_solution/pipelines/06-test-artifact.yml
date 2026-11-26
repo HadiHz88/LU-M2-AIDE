@@ -1,0 +1,23 @@
+# Part 1, step 6 — a test job that checks the build produced index.html.
+# Later stages download earlier stages' artifacts automatically.
+stages:
+  - build
+  - test
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - build/
+
+test_artifact:
+  image: alpine
+  stage: test
+  script:
+    - test -f build/index.html

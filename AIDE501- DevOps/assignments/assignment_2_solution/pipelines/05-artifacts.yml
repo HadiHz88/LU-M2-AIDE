@@ -1,0 +1,18 @@
+# Part 1, step 5 — keep build/ as a job artifact (Browse it from the job page).
+stages:
+  - build
+  - test
+
+build_website:
+  image: node:23-slim
+  stage: build
+  script:
+    - node --version
+    - npm --version
+    - ls -la
+    - npm ci
+    - npm run build
+    - ls -la
+  artifacts:
+    paths:
+      - build/
