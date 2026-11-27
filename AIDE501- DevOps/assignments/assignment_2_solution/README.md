@@ -27,10 +27,11 @@ Everything runs in **one project** (the PDF makes a second fork for AWS; not nee
 | `aws/iam-s3-deploy-policy.json` | Optional least-privilege alternative to `AmazonS3FullAccess` for the `gitlab` IAM user. |
 | `WORKING-GUIDE.pdf` | Click-by-click guide to follow while working: links, values sheet, every action, full YAML, troubleshooting. |
 | `HANDOFF.md` | Context for continuing in a new session: what is asked, what was decided, what exists. |
-| `tools/` | Generators for `WORKING-GUIDE.pdf` and `recording-script.html` (both read `pipelines/*.yml`). |
+| `tools/` | `guide_content.py` holds the guide's text; the two build scripts render it as `WORKING-GUIDE.pdf` and `recording-script.html`. |
 
-The recording script (what to click and say, step by step, with each pipeline ready to copy)
-is [`recording-script.html`](recording-script.html), also published as an artifact:
+The working guide (what to click, type, show and say, step by step, with each pipeline ready to copy)
+is [`WORKING-GUIDE.pdf`](WORKING-GUIDE.pdf) and, with the same content, [`recording-script.html`](recording-script.html),
+also published as an artifact:
 <https://claude.ai/artifact/Gxkgk8z6WTmzfhjEx94Jet>.
 
 | Step | File | Branch | Expected result |

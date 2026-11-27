@@ -52,9 +52,10 @@ Context for a new session (another machine, new Claude session). Read this first
 | `aws/iam-s3-deploy-policy.json` | Optional least-privilege policy for the `gitlab` IAM user. |
 | `README.md` | Overview, step table, setup, variables table, list of fixes, gotchas. |
 | `WORKING-GUIDE.pdf` | 20-page click-by-click guide: links, what is provided, a values sheet, and every step tagged GO / CLICK / TYPE / PASTE / SHOW / SAY / OFF-CAM with the full YAML. Also has troubleshooting and cleanup. |
-| `recording-script.html` | 21-scene recording script with narration and copy buttons. Also published at <https://claude.ai/artifact/Gxkgk8z6WTmzfhjEx94Jet>; the link is private to the user's claude.ai account. |
-| `tools/build_guide_pdf.py` | Regenerates `WORKING-GUIDE.pdf` from `pipelines/*.yml`. Needs Python 3.10+ and `reportlab`. |
-| `tools/build_recording_script.py` | Regenerates `recording-script.html` from `pipelines/*.yml`. |
+| `recording-script.html` | Web version of the working guide (same content), with copy buttons and tick boxes. Published at <https://claude.ai/artifact/Gxkgk8z6WTmzfhjEx94Jet>; the link is private to the user's claude.ai account. |
+| `tools/guide_content.py` | **Single source** of the guide's text. Edit here, then rebuild both outputs. |
+| `tools/build_guide_pdf.py` | Renders `WORKING-GUIDE.pdf`. Needs Python 3.10+ and `reportlab`. |
+| `tools/build_recording_script.py` | Renders `recording-script.html`. To update the artifact, republish that file to the URL above. |
 
 To regenerate after editing a pipeline file, run these from this folder:
 
